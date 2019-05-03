@@ -29,20 +29,21 @@ public class Inicio extends javax.swing.JFrame {
 
         buttonGroup1 = new javax.swing.ButtonGroup();
         PainelGeral = new javax.swing.JPanel();
-        jPanel1 = new javax.swing.JPanel();
+        NomePanel = new javax.swing.JPanel();
         NomeLabel = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
-        jPanel2 = new javax.swing.JPanel();
+        NomeTextField = new javax.swing.JTextField();
+        TipoPanel = new javax.swing.JPanel();
         ColetorRadioButton = new javax.swing.JRadioButton();
         DoadorRadioButton = new javax.swing.JRadioButton();
-        jPanel3 = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
+        MaterialPanel = new javax.swing.JPanel();
+        MaterialLabel = new javax.swing.JLabel();
         MaterialComboBox = new javax.swing.JComboBox<>();
-        jPanel5 = new javax.swing.JPanel();
-        jPanel4 = new javax.swing.JPanel();
-        jLabel2 = new javax.swing.JLabel();
+        DescriçcaoPanel = new javax.swing.JPanel();
+        DescricaoLabelPanel = new javax.swing.JPanel();
+        DescricaoLabel = new javax.swing.JLabel();
         DescricaoScrollPane = new javax.swing.JScrollPane();
         jTextPane1 = new javax.swing.JTextPane();
+        ConectarPanel = new javax.swing.JPanel();
         ConectarButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -50,58 +51,62 @@ public class Inicio extends javax.swing.JFrame {
 
         PainelGeral.setLayout(new javax.swing.BoxLayout(PainelGeral, javax.swing.BoxLayout.PAGE_AXIS));
 
-        jPanel1.setLayout(new javax.swing.BoxLayout(jPanel1, javax.swing.BoxLayout.LINE_AXIS));
+        NomePanel.setLayout(new javax.swing.BoxLayout(NomePanel, javax.swing.BoxLayout.LINE_AXIS));
 
         NomeLabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         NomeLabel.setText("Nome:");
-        jPanel1.add(NomeLabel);
-        jPanel1.add(jTextField1);
+        NomePanel.add(NomeLabel);
+        NomePanel.add(NomeTextField);
 
-        PainelGeral.add(jPanel1);
+        PainelGeral.add(NomePanel);
 
-        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Tipo"));
+        TipoPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Tipo"));
 
         buttonGroup1.add(ColetorRadioButton);
         ColetorRadioButton.setText("Coletor");
-        jPanel2.add(ColetorRadioButton);
+        TipoPanel.add(ColetorRadioButton);
 
         buttonGroup1.add(DoadorRadioButton);
         DoadorRadioButton.setText("Doador");
-        jPanel2.add(DoadorRadioButton);
+        TipoPanel.add(DoadorRadioButton);
 
-        PainelGeral.add(jPanel2);
+        PainelGeral.add(TipoPanel);
 
-        jPanel3.setLayout(new javax.swing.BoxLayout(jPanel3, javax.swing.BoxLayout.LINE_AXIS));
+        MaterialPanel.setLayout(new javax.swing.BoxLayout(MaterialPanel, javax.swing.BoxLayout.LINE_AXIS));
 
-        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jLabel1.setText("Material:");
-        jPanel3.add(jLabel1);
+        MaterialLabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        MaterialLabel.setText("Material:");
+        MaterialPanel.add(MaterialLabel);
 
         MaterialComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Oleo", "Metal", "Roupa", "Papel", "Plastico", "Eletronico" }));
-        jPanel3.add(MaterialComboBox);
+        MaterialPanel.add(MaterialComboBox);
 
-        PainelGeral.add(jPanel3);
+        PainelGeral.add(MaterialPanel);
 
-        jPanel5.setLayout(new javax.swing.BoxLayout(jPanel5, javax.swing.BoxLayout.PAGE_AXIS));
+        DescriçcaoPanel.setLayout(new javax.swing.BoxLayout(DescriçcaoPanel, javax.swing.BoxLayout.PAGE_AXIS));
 
-        jPanel4.setLayout(new java.awt.GridLayout());
+        DescricaoLabelPanel.setLayout(new java.awt.GridLayout());
 
-        jLabel2.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jLabel2.setText("Descrição:");
-        jPanel4.add(jLabel2);
+        DescricaoLabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        DescricaoLabel.setText("Descrição:");
+        DescricaoLabelPanel.add(DescricaoLabel);
 
-        jPanel5.add(jPanel4);
+        DescriçcaoPanel.add(DescricaoLabelPanel);
 
         jTextPane1.setMinimumSize(new java.awt.Dimension(300, 200));
         jTextPane1.setPreferredSize(new java.awt.Dimension(300, 200));
         DescricaoScrollPane.setViewportView(jTextPane1);
 
-        jPanel5.add(DescricaoScrollPane);
+        DescriçcaoPanel.add(DescricaoScrollPane);
 
-        PainelGeral.add(jPanel5);
+        PainelGeral.add(DescriçcaoPanel);
+
+        ConectarPanel.setLayout(new java.awt.GridLayout());
 
         ConectarButton.setText("Conectar");
-        PainelGeral.add(ConectarButton);
+        ConectarPanel.add(ConectarButton);
+
+        PainelGeral.add(ConectarPanel);
 
         getContentPane().add(PainelGeral);
 
@@ -146,20 +151,21 @@ public class Inicio extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JRadioButton ColetorRadioButton;
     private javax.swing.JButton ConectarButton;
+    private javax.swing.JPanel ConectarPanel;
+    private javax.swing.JLabel DescricaoLabel;
+    private javax.swing.JPanel DescricaoLabelPanel;
     private javax.swing.JScrollPane DescricaoScrollPane;
+    private javax.swing.JPanel DescriçcaoPanel;
     private javax.swing.JRadioButton DoadorRadioButton;
     private javax.swing.JComboBox<String> MaterialComboBox;
+    private javax.swing.JLabel MaterialLabel;
+    private javax.swing.JPanel MaterialPanel;
     private javax.swing.JLabel NomeLabel;
+    private javax.swing.JPanel NomePanel;
+    private javax.swing.JTextField NomeTextField;
     private javax.swing.JPanel PainelGeral;
+    private javax.swing.JPanel TipoPanel;
     private javax.swing.ButtonGroup buttonGroup1;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel3;
-    private javax.swing.JPanel jPanel4;
-    private javax.swing.JPanel jPanel5;
-    private javax.swing.JTextField jTextField1;
     private javax.swing.JTextPane jTextPane1;
     // End of variables declaration//GEN-END:variables
 }
