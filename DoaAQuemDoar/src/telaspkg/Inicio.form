@@ -33,6 +33,38 @@
         <Property name="axis" type="int" value="3"/>
       </Layout>
       <SubComponents>
+        <Container class="javax.swing.JPanel" name="IpPanel">
+
+          <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBoxLayout"/>
+          <SubComponents>
+            <Component class="javax.swing.JLabel" name="IpLabel">
+              <Properties>
+                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                  <Font name="Tahoma" size="12" style="1"/>
+                </Property>
+                <Property name="text" type="java.lang.String" value="IP:"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JTextField" name="IpTextField">
+            </Component>
+          </SubComponents>
+        </Container>
+        <Container class="javax.swing.JPanel" name="PortaPanel">
+
+          <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBoxLayout"/>
+          <SubComponents>
+            <Component class="javax.swing.JLabel" name="PortaLabel">
+              <Properties>
+                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                  <Font name="Tahoma" size="12" style="1"/>
+                </Property>
+                <Property name="text" type="java.lang.String" value="Porta:"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JTextField" name="PortaTextField">
+            </Component>
+          </SubComponents>
+        </Container>
         <Container class="javax.swing.JPanel" name="NomePanel">
 
           <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBoxLayout"/>

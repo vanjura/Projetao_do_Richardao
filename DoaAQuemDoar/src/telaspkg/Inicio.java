@@ -6,6 +6,8 @@
 package telaspkg;
 
 import org.json.simple.JSONObject;
+import java.io.*;
+import java.net.*;
 
 /**
  *
@@ -31,6 +33,12 @@ public class Inicio extends javax.swing.JFrame {
 
         buttonGroup1 = new javax.swing.ButtonGroup();
         PainelGeral = new javax.swing.JPanel();
+        IpPanel = new javax.swing.JPanel();
+        IpLabel = new javax.swing.JLabel();
+        IpTextField = new javax.swing.JTextField();
+        PortaPanel = new javax.swing.JPanel();
+        PortaLabel = new javax.swing.JLabel();
+        PortaTextField = new javax.swing.JTextField();
         NomePanel = new javax.swing.JPanel();
         NomeLabel = new javax.swing.JLabel();
         NomeTextField = new javax.swing.JTextField();
@@ -52,6 +60,24 @@ public class Inicio extends javax.swing.JFrame {
         getContentPane().setLayout(new java.awt.FlowLayout());
 
         PainelGeral.setLayout(new javax.swing.BoxLayout(PainelGeral, javax.swing.BoxLayout.PAGE_AXIS));
+
+        IpPanel.setLayout(new javax.swing.BoxLayout(IpPanel, javax.swing.BoxLayout.LINE_AXIS));
+
+        IpLabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        IpLabel.setText("IP:");
+        IpPanel.add(IpLabel);
+        IpPanel.add(IpTextField);
+
+        PainelGeral.add(IpPanel);
+
+        PortaPanel.setLayout(new javax.swing.BoxLayout(PortaPanel, javax.swing.BoxLayout.LINE_AXIS));
+
+        PortaLabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        PortaLabel.setText("Porta:");
+        PortaPanel.add(PortaLabel);
+        PortaPanel.add(PortaTextField);
+
+        PainelGeral.add(PortaPanel);
 
         NomePanel.setLayout(new javax.swing.BoxLayout(NomePanel, javax.swing.BoxLayout.LINE_AXIS));
 
@@ -137,12 +163,50 @@ public class Inicio extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void ConectarButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ConectarButtonActionPerformed
+
+        String ip = IpTextField.getText();
+        int porta = Integer.parseInt(PortaTextField.getText());
+
+        System.out.println("Attemping to connect to host " + ip + " on port " + porta);
+
+        Socket echoSocket = null;
+        PrintWriter out = null;
+        BufferedReader in = null;
+
+        try {
+            echoSocket = new Socket(ip, porta);
+            out = new PrintWriter(echoSocket.getOutputStream(), true);
+            in = new BufferedReader(new InputStreamReader(echoSocket.getInputStream()));
+        } catch (UnknownHostException e) {
+            System.err.println("Don't know about host: " + ip);
+        } catch (IOException e) {
+            System.err.println("Couldn't get I/O for " + "the connection to: " + ip);
+        }
+        
+        BufferedReader stdIn = new BufferedReader(
+                                   new InputStreamReader(System.in));
+	String userInput;
+
+        System.out.println ("Type Message (\"Bye.\" to quit)");
+	while ((userInput = stdIn.readLine()) != null) 
+           {
+	    out.println(userInput);
+
+            // end loop
+            if (userInput.equals("Bye."))
+                break;
+
+	    System.out.println("echo: " + in.readLine());
+	   }
+
+	
+
         String nome = NomeTextField.getText();
         String material = MaterialComboBox.getSelectedItem().toString();
         String tipo = "";
-        if(DoadorRadioButton.isEnabled()){
+        if (DoadorRadioButton.isEnabled()) {
             tipo = "D";
-        }else{
+        } else {
             tipo = "C";
         }
         String descricao = DescricaoTextPane.getText();
@@ -151,22 +215,27 @@ public class Inicio extends javax.swing.JFrame {
         json.put("material", material);
         json.put("tipo", tipo);
         json.put("descricao", nome);
-        
+
         System.out.println(json);
+        
+        out.close();
+	in.close();
+	stdIn.close();
+	echoSocket.close();
     }//GEN-LAST:event_ConectarButtonActionPerformed
 
     private void DoadorRadioButtonStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_DoadorRadioButtonStateChanged
-        
+
     }//GEN-LAST:event_DoadorRadioButtonStateChanged
 
     private void DoadorRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DoadorRadioButtonActionPerformed
-        if(DoadorRadioButton.isEnabled()){
+        if (DoadorRadioButton.isEnabled()) {
             DescricaoTextPane.setEnabled(true);
         }
     }//GEN-LAST:event_DoadorRadioButtonActionPerformed
 
     private void ColetorRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ColetorRadioButtonActionPerformed
-        if(ColetorRadioButton.isEnabled()){
+        if (ColetorRadioButton.isEnabled()) {
             DescricaoTextPane.setEnabled(false);
         }
     }//GEN-LAST:event_ColetorRadioButtonActionPerformed
@@ -216,6 +285,9 @@ public class Inicio extends javax.swing.JFrame {
     private javax.swing.JTextPane DescricaoTextPane;
     private javax.swing.JPanel DescriçcaoPanel;
     private javax.swing.JRadioButton DoadorRadioButton;
+    private javax.swing.JLabel IpLabel;
+    private javax.swing.JPanel IpPanel;
+    private javax.swing.JTextField IpTextField;
     private javax.swing.JComboBox<String> MaterialComboBox;
     private javax.swing.JLabel MaterialLabel;
     private javax.swing.JPanel MaterialPanel;
@@ -223,6 +295,9 @@ public class Inicio extends javax.swing.JFrame {
     private javax.swing.JPanel NomePanel;
     private javax.swing.JTextField NomeTextField;
     private javax.swing.JPanel PainelGeral;
+    private javax.swing.JLabel PortaLabel;
+    private javax.swing.JPanel PortaPanel;
+    private javax.swing.JTextField PortaTextField;
     private javax.swing.JPanel TipoPanel;
     private javax.swing.ButtonGroup buttonGroup1;
     // End of variables declaration//GEN-END:variables
