@@ -5,6 +5,8 @@
  */
 package telaspkg;
 
+import org.json.simple.JSONObject;
+
 /**
  *
  * @author LucasVanjura
@@ -42,7 +44,7 @@ public class Inicio extends javax.swing.JFrame {
         DescricaoLabelPanel = new javax.swing.JPanel();
         DescricaoLabel = new javax.swing.JLabel();
         DescricaoScrollPane = new javax.swing.JScrollPane();
-        jTextPane1 = new javax.swing.JTextPane();
+        DescricaoTextPane = new javax.swing.JTextPane();
         ConectarPanel = new javax.swing.JPanel();
         ConectarButton = new javax.swing.JButton();
 
@@ -64,10 +66,25 @@ public class Inicio extends javax.swing.JFrame {
 
         buttonGroup1.add(ColetorRadioButton);
         ColetorRadioButton.setText("Coletor");
+        ColetorRadioButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ColetorRadioButtonActionPerformed(evt);
+            }
+        });
         TipoPanel.add(ColetorRadioButton);
 
         buttonGroup1.add(DoadorRadioButton);
         DoadorRadioButton.setText("Doador");
+        DoadorRadioButton.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                DoadorRadioButtonStateChanged(evt);
+            }
+        });
+        DoadorRadioButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                DoadorRadioButtonActionPerformed(evt);
+            }
+        });
         TipoPanel.add(DoadorRadioButton);
 
         PainelGeral.add(TipoPanel);
@@ -93,9 +110,10 @@ public class Inicio extends javax.swing.JFrame {
 
         DescriçcaoPanel.add(DescricaoLabelPanel);
 
-        jTextPane1.setMinimumSize(new java.awt.Dimension(300, 200));
-        jTextPane1.setPreferredSize(new java.awt.Dimension(300, 200));
-        DescricaoScrollPane.setViewportView(jTextPane1);
+        DescricaoTextPane.setEnabled(false);
+        DescricaoTextPane.setMinimumSize(new java.awt.Dimension(300, 200));
+        DescricaoTextPane.setPreferredSize(new java.awt.Dimension(300, 200));
+        DescricaoScrollPane.setViewportView(DescricaoTextPane);
 
         DescriçcaoPanel.add(DescricaoScrollPane);
 
@@ -104,6 +122,11 @@ public class Inicio extends javax.swing.JFrame {
         ConectarPanel.setLayout(new java.awt.GridLayout());
 
         ConectarButton.setText("Conectar");
+        ConectarButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ConectarButtonActionPerformed(evt);
+            }
+        });
         ConectarPanel.add(ConectarButton);
 
         PainelGeral.add(ConectarPanel);
@@ -112,6 +135,41 @@ public class Inicio extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void ConectarButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ConectarButtonActionPerformed
+        String nome = NomeTextField.getText();
+        String material = MaterialComboBox.getSelectedItem().toString();
+        String tipo = "";
+        if(DoadorRadioButton.isEnabled()){
+            tipo = "D";
+        }else{
+            tipo = "C";
+        }
+        String descricao = DescricaoTextPane.getText();
+        JSONObject json = new JSONObject();
+        json.put("nome", nome);
+        json.put("material", material);
+        json.put("tipo", tipo);
+        json.put("descricao", nome);
+        
+        System.out.println(json);
+    }//GEN-LAST:event_ConectarButtonActionPerformed
+
+    private void DoadorRadioButtonStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_DoadorRadioButtonStateChanged
+        
+    }//GEN-LAST:event_DoadorRadioButtonStateChanged
+
+    private void DoadorRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DoadorRadioButtonActionPerformed
+        if(DoadorRadioButton.isEnabled()){
+            DescricaoTextPane.setEnabled(true);
+        }
+    }//GEN-LAST:event_DoadorRadioButtonActionPerformed
+
+    private void ColetorRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ColetorRadioButtonActionPerformed
+        if(ColetorRadioButton.isEnabled()){
+            DescricaoTextPane.setEnabled(false);
+        }
+    }//GEN-LAST:event_ColetorRadioButtonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -155,6 +213,7 @@ public class Inicio extends javax.swing.JFrame {
     private javax.swing.JLabel DescricaoLabel;
     private javax.swing.JPanel DescricaoLabelPanel;
     private javax.swing.JScrollPane DescricaoScrollPane;
+    private javax.swing.JTextPane DescricaoTextPane;
     private javax.swing.JPanel DescriçcaoPanel;
     private javax.swing.JRadioButton DoadorRadioButton;
     private javax.swing.JComboBox<String> MaterialComboBox;
@@ -166,6 +225,5 @@ public class Inicio extends javax.swing.JFrame {
     private javax.swing.JPanel PainelGeral;
     private javax.swing.JPanel TipoPanel;
     private javax.swing.ButtonGroup buttonGroup1;
-    private javax.swing.JTextPane jTextPane1;
     // End of variables declaration//GEN-END:variables
 }
