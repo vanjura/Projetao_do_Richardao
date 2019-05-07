@@ -128,7 +128,7 @@ public class Inicio extends javax.swing.JFrame {
 
         DescriçcaoPanel.setLayout(new javax.swing.BoxLayout(DescriçcaoPanel, javax.swing.BoxLayout.PAGE_AXIS));
 
-        DescricaoLabelPanel.setLayout(new java.awt.GridLayout());
+        DescricaoLabelPanel.setLayout(new java.awt.GridLayout(1, 0));
 
         DescricaoLabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         DescricaoLabel.setText("Descrição:");
@@ -145,7 +145,7 @@ public class Inicio extends javax.swing.JFrame {
 
         PainelGeral.add(DescriçcaoPanel);
 
-        ConectarPanel.setLayout(new java.awt.GridLayout());
+        ConectarPanel.setLayout(new java.awt.GridLayout(1, 0));
 
         ConectarButton.setText("Conectar");
         ConectarButton.addActionListener(new java.awt.event.ActionListener() {
@@ -166,41 +166,6 @@ public class Inicio extends javax.swing.JFrame {
 
         String ip = IpTextField.getText();
         int porta = Integer.parseInt(PortaTextField.getText());
-
-        System.out.println("Attemping to connect to host " + ip + " on port " + porta);
-
-        Socket echoSocket = null;
-        PrintWriter out = null;
-        BufferedReader in = null;
-
-        try {
-            echoSocket = new Socket(ip, porta);
-            out = new PrintWriter(echoSocket.getOutputStream(), true);
-            in = new BufferedReader(new InputStreamReader(echoSocket.getInputStream()));
-        } catch (UnknownHostException e) {
-            System.err.println("Don't know about host: " + ip);
-        } catch (IOException e) {
-            System.err.println("Couldn't get I/O for " + "the connection to: " + ip);
-        }
-        
-        BufferedReader stdIn = new BufferedReader(
-                                   new InputStreamReader(System.in));
-	String userInput;
-
-        System.out.println ("Type Message (\"Bye.\" to quit)");
-	while ((userInput = stdIn.readLine()) != null) 
-           {
-	    out.println(userInput);
-
-            // end loop
-            if (userInput.equals("Bye."))
-                break;
-
-	    System.out.println("echo: " + in.readLine());
-	   }
-
-	
-
         String nome = NomeTextField.getText();
         String material = MaterialComboBox.getSelectedItem().toString();
         String tipo = "";
@@ -217,11 +182,6 @@ public class Inicio extends javax.swing.JFrame {
         json.put("descricao", nome);
 
         System.out.println(json);
-        
-        out.close();
-	in.close();
-	stdIn.close();
-	echoSocket.close();
     }//GEN-LAST:event_ConectarButtonActionPerformed
 
     private void DoadorRadioButtonStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_DoadorRadioButtonStateChanged
@@ -236,6 +196,7 @@ public class Inicio extends javax.swing.JFrame {
 
     private void ColetorRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ColetorRadioButtonActionPerformed
         if (ColetorRadioButton.isEnabled()) {
+            DescricaoTextPane.setText(null);
             DescricaoTextPane.setEnabled(false);
         }
     }//GEN-LAST:event_ColetorRadioButtonActionPerformed
