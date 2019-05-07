@@ -5,9 +5,12 @@
  */
 package telaspkg;
 
+import java.awt.HeadlessException;
 import org.json.simple.JSONObject;
 import java.io.*;
 import java.net.*;
+import java.util.Date;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -164,24 +167,51 @@ public class Inicio extends javax.swing.JFrame {
 
     private void ConectarButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ConectarButtonActionPerformed
 
-        String ip = IpTextField.getText();
-        int porta = Integer.parseInt(PortaTextField.getText());
-        String nome = NomeTextField.getText();
-        String material = MaterialComboBox.getSelectedItem().toString();
-        String tipo = "";
-        if (DoadorRadioButton.isEnabled()) {
-            tipo = "D";
-        } else {
-            tipo = "C";
+        try {
+            String ip = IpTextField.getText();
+            int porta = Integer.parseInt(PortaTextField.getText());
+            String nome = NomeTextField.getText();
+            String material = MaterialComboBox.getSelectedItem().toString();
+            String tipo = "";
+            if (DoadorRadioButton.isEnabled()) {
+                tipo = "D";
+            } else {
+                tipo = "C";
+            }
+            String descricao = DescricaoTextPane.getText();
+            JSONObject json = new JSONObject();
+            json.put("nome", nome);
+            json.put("material", material);
+            json.put("tipo", tipo);
+            json.put("descricao", nome);
+            System.out.println(json);
+        } catch (NumberFormatException e) {
+            System.out.println(e);
         }
-        String descricao = DescricaoTextPane.getText();
-        JSONObject json = new JSONObject();
-        json.put("nome", nome);
-        json.put("material", material);
-        json.put("tipo", tipo);
-        json.put("descricao", nome);
 
-        System.out.println(json);
+        String serverHostname = new String("127.0.0.1");
+
+        System.out.println("Attemping to connect to host " + serverHostname + " on port 10008.");
+
+        Socket echoSocket = null;
+        PrintWriter out = null;
+        BufferedReader in = null;
+
+        try {
+            echoSocket = new Socket(serverHostname, 10008);
+            out = new PrintWriter(echoSocket.getOutputStream(), true);
+            in = new BufferedReader(new InputStreamReader(echoSocket.getInputStream()));
+        } catch (UnknownHostException e) {
+            System.err.println("Don't know about host: " + serverHostname);
+            System.exit(1);
+        } catch (IOException e) {
+            System.err.println("Couldn't get I/O for "
+                    + "the connection to: " + serverHostname);
+            System.exit(1);
+        }
+
+        BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
+        String userInput;
     }//GEN-LAST:event_ConectarButtonActionPerformed
 
     private void DoadorRadioButtonStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_DoadorRadioButtonStateChanged
