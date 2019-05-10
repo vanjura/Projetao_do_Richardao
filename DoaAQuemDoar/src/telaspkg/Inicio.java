@@ -39,18 +39,23 @@ public class Inicio extends javax.swing.JFrame {
         IpPanel = new javax.swing.JPanel();
         IpLabel = new javax.swing.JLabel();
         IpTextField = new javax.swing.JTextField();
-        PortaPanel = new javax.swing.JPanel();
         PortaLabel = new javax.swing.JLabel();
         PortaTextField = new javax.swing.JTextField();
+        jPanel2 = new javax.swing.JPanel();
+        PortaPanel = new javax.swing.JPanel();
+        jPanel1 = new javax.swing.JPanel();
         NomePanel = new javax.swing.JPanel();
         NomeLabel = new javax.swing.JLabel();
         NomeTextField = new javax.swing.JTextField();
+        jPanel3 = new javax.swing.JPanel();
         TipoPanel = new javax.swing.JPanel();
         ColetorRadioButton = new javax.swing.JRadioButton();
         DoadorRadioButton = new javax.swing.JRadioButton();
+        jPanel5 = new javax.swing.JPanel();
         MaterialPanel = new javax.swing.JPanel();
         MaterialLabel = new javax.swing.JLabel();
         MaterialComboBox = new javax.swing.JComboBox<>();
+        jPanel4 = new javax.swing.JPanel();
         DescriçcaoPanel = new javax.swing.JPanel();
         DescricaoLabelPanel = new javax.swing.JPanel();
         DescricaoLabel = new javax.swing.JLabel();
@@ -68,28 +73,53 @@ public class Inicio extends javax.swing.JFrame {
 
         IpLabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         IpLabel.setText("IP:");
+        IpLabel.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
+        IpLabel.setMaximumSize(new java.awt.Dimension(50, 15));
+        IpLabel.setMinimumSize(new java.awt.Dimension(50, 15));
+        IpLabel.setPreferredSize(new java.awt.Dimension(15, 15));
         IpPanel.add(IpLabel);
+
+        IpTextField.setMaximumSize(new java.awt.Dimension(150, 20));
+        IpTextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                IpTextFieldActionPerformed(evt);
+            }
+        });
         IpPanel.add(IpTextField);
 
+        PortaLabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        PortaLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        PortaLabel.setText("Porta:");
+        PortaLabel.setMaximumSize(new java.awt.Dimension(50, 15));
+        PortaLabel.setMinimumSize(new java.awt.Dimension(50, 15));
+        PortaLabel.setPreferredSize(new java.awt.Dimension(46, 15));
+        IpPanel.add(PortaLabel);
+
+        PortaTextField.setMaximumSize(new java.awt.Dimension(50, 20));
+        PortaTextField.setMinimumSize(new java.awt.Dimension(20, 20));
+        PortaTextField.setPreferredSize(new java.awt.Dimension(50, 20));
+        IpPanel.add(PortaTextField);
+
         PainelGeral.add(IpPanel);
+        PainelGeral.add(jPanel2);
 
         PortaPanel.setLayout(new javax.swing.BoxLayout(PortaPanel, javax.swing.BoxLayout.LINE_AXIS));
-
-        PortaLabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        PortaLabel.setText("Porta:");
-        PortaPanel.add(PortaLabel);
-        PortaPanel.add(PortaTextField);
-
         PainelGeral.add(PortaPanel);
+        PainelGeral.add(jPanel1);
 
         NomePanel.setLayout(new javax.swing.BoxLayout(NomePanel, javax.swing.BoxLayout.LINE_AXIS));
 
         NomeLabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         NomeLabel.setText("Nome:");
+        NomeLabel.setPreferredSize(new java.awt.Dimension(46, 15));
         NomePanel.add(NomeLabel);
         NomePanel.add(NomeTextField);
 
         PainelGeral.add(NomePanel);
+
+        jPanel3.setMinimumSize(new java.awt.Dimension(10, 30));
+        jPanel3.setPreferredSize(new java.awt.Dimension(10, 30));
+        PainelGeral.add(jPanel3);
 
         TipoPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Tipo"));
 
@@ -117,6 +147,7 @@ public class Inicio extends javax.swing.JFrame {
         TipoPanel.add(DoadorRadioButton);
 
         PainelGeral.add(TipoPanel);
+        PainelGeral.add(jPanel5);
 
         MaterialPanel.setLayout(new javax.swing.BoxLayout(MaterialPanel, javax.swing.BoxLayout.LINE_AXIS));
 
@@ -128,6 +159,9 @@ public class Inicio extends javax.swing.JFrame {
         MaterialPanel.add(MaterialComboBox);
 
         PainelGeral.add(MaterialPanel);
+
+        jPanel4.setPreferredSize(new java.awt.Dimension(10, 30));
+        PainelGeral.add(jPanel4);
 
         DescriçcaoPanel.setLayout(new javax.swing.BoxLayout(DescriçcaoPanel, javax.swing.BoxLayout.PAGE_AXIS));
 
@@ -189,20 +223,22 @@ public class Inicio extends javax.swing.JFrame {
             System.out.println(e);
         }
 
-        String serverHostname = new String("127.0.0.1");
+        String serverHostname = new String(IpTextField.getText());
+        Integer porta = new Integer(PortaTextField.getText());
 
-        System.out.println("Attemping to connect to host " + serverHostname + " on port 10008.");
+        System.out.println("Tentando conectar ao IP " + serverHostname + " na porta " + porta + ".");
 
         Socket echoSocket = null;
         PrintWriter out = null;
         BufferedReader in = null;
 
         try {
-            echoSocket = new Socket(serverHostname, 10008);
+            echoSocket = new Socket(serverHostname, porta);
             out = new PrintWriter(echoSocket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(echoSocket.getInputStream()));
         } catch (UnknownHostException e) {
-            System.err.println("Don't know about host: " + serverHostname);
+            System.err.println();
+            JOptionPane.showMessageDialog(null, "Não é possível encontrar o servidor " + serverHostname);
             System.exit(1);
         } catch (IOException e) {
             System.err.println("Couldn't get I/O for "
@@ -230,6 +266,10 @@ public class Inicio extends javax.swing.JFrame {
             DescricaoTextPane.setEnabled(false);
         }
     }//GEN-LAST:event_ColetorRadioButtonActionPerformed
+
+    private void IpTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_IpTextFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_IpTextFieldActionPerformed
 
     /**
      * @param args the command line arguments
@@ -291,5 +331,10 @@ public class Inicio extends javax.swing.JFrame {
     private javax.swing.JTextField PortaTextField;
     private javax.swing.JPanel TipoPanel;
     private javax.swing.ButtonGroup buttonGroup1;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
     // End of variables declaration//GEN-END:variables
 }
