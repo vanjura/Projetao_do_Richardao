@@ -6,7 +6,7 @@
 package telaspkg;
 
 import java.awt.HeadlessException;
-import org.json.simple.JSONObject;
+import org.json.*;
 import java.io.*;
 import java.net.*;
 import java.util.Date;
@@ -17,7 +17,8 @@ import javax.swing.JOptionPane;
  * @author LucasVanjura
  */
 public class Inicio extends javax.swing.JFrame {
-
+    
+    public String jsao;
     /**
      * Creates new form Inicio
      */
@@ -80,6 +81,8 @@ public class Inicio extends javax.swing.JFrame {
         IpPanel.add(IpLabel);
 
         IpTextField.setMaximumSize(new java.awt.Dimension(150, 20));
+        IpTextField.setMinimumSize(new java.awt.Dimension(150, 20));
+        IpTextField.setPreferredSize(new java.awt.Dimension(150, 20));
         IpTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 IpTextFieldActionPerformed(evt);
@@ -219,35 +222,48 @@ public class Inicio extends javax.swing.JFrame {
             json.put("tipo", tipo);
             json.put("descricao", nome);
             System.out.println(json);
+            jsao = json.toString();
         } catch (NumberFormatException e) {
             System.out.println(e);
         }
-
         String serverHostname = new String(IpTextField.getText());
         Integer porta = new Integer(PortaTextField.getText());
 
         System.out.println("Tentando conectar ao IP " + serverHostname + " na porta " + porta + ".");
 
-        Socket echoSocket = null;
-        PrintWriter out = null;
+        Socket sockete = null;
+        PrintStream out = null;
         BufferedReader in = null;
 
         try {
-            echoSocket = new Socket(serverHostname, porta);
-            out = new PrintWriter(echoSocket.getOutputStream(), true);
-            in = new BufferedReader(new InputStreamReader(echoSocket.getInputStream()));
+            sockete = new Socket(serverHostname, porta);
+            out = new PrintStream(sockete.getOutputStream());
+            in = new BufferedReader(new InputStreamReader(sockete.getInputStream()));
+            JOptionPane.showConfirmDialog(null, "Conexão Realizada com sucesso!","Conexão", JOptionPane.DEFAULT_OPTION);
+            out.println(jsao);
+            BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
+            String userInput;
+            System.out.print ("input: ");
+	while ((userInput = stdIn.readLine()) != null) {
+	    out.println(userInput);
+	    System.out.println("echo: " + in.readLine());
+            System.out.print ("input: ");
+	}
+
+	out.close();
+	in.close();
+	stdIn.close();
+	sockete.close();
         } catch (UnknownHostException e) {
             System.err.println();
             JOptionPane.showMessageDialog(null, "Não é possível encontrar o servidor " + serverHostname);
             System.exit(1);
         } catch (IOException e) {
-            System.err.println("Couldn't get I/O for "
-                    + "the connection to: " + serverHostname);
+            System.err.println("Não é possível conectar a " + serverHostname);
             System.exit(1);
         }
 
-        BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
-        String userInput;
+
     }//GEN-LAST:event_ConectarButtonActionPerformed
 
     private void DoadorRadioButtonStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_DoadorRadioButtonStateChanged

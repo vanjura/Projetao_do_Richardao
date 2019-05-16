@@ -8,6 +8,13 @@ package server;
 import java.net.*;
 import java.io.*;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.json.*;
 
 /**
  *
@@ -26,48 +33,44 @@ public class Server extends Thread {
         ServerSocket serverSocket = null;
 
         try {
-            serverSocket = new ServerSocket(10008);
-            System.out.println("Connection Socket Created");
+            serverSocket = new ServerSocket(12345);
+            System.out.println("Conexao Criada");
             try {
                 while (true) {
-                    System.out.println("Waiting for Connection");
+                    System.out.println("Aguardando por conexão");
                     new Server(serverSocket.accept());
                 }
             } catch (IOException e) {
-                System.err.println("Accept failed.");
+                System.err.println("Falha na conexão");
                 System.exit(1);
             }
         } catch (IOException e) {
-            System.err.println("Could not listen on port: 10008.");
+            System.err.println("Não é possível ler a porta 10008.");
             System.exit(1);
         } finally {
             try {
                 serverSocket.close();
             } catch (IOException e) {
-                System.err.println("Could not close port: 10008.");
+                System.err.println("Não é possível fechar a porta 10008.");
                 System.exit(1);
             }
         }
     }
 
     public void run() {
-        System.out.println("New Communication Thread Started");
+        System.out.println("Nova Conexão Realizada");
 
         try {
             PrintWriter out = new PrintWriter(clientSocket.getOutputStream(),
                     true);
             BufferedReader in = new BufferedReader(
                     new InputStreamReader(clientSocket.getInputStream()));
+            String linha;
 
-            String inputLine;
-
-            while ((inputLine = in.readLine()) != null) {
-                System.out.println("Server: " + inputLine);
-                out.println(inputLine);
-
-                if (inputLine.equals("Bye.")) {
-                    break;
-                }
+            while ((linha = in.readLine()) != null) {
+                out.println(linha);
+                System.out.println(linha);
+                JSONObject json = new JSONObject(linha);
             }
 
             out.close();
