@@ -16,15 +16,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.*;
 
-/**
- *
- * @author LucasVanjura
- */
+
 public class Server extends Thread {
 
     protected Socket clientSocket;
+    private static int porta;
+    public ArrayList<Usuario> clientes = new ArrayList<Usuario>();
+    
 
-    private Server(Socket clientSoc) {
+    public Server(Socket clientSoc) {
         clientSocket = clientSoc;
         start();
     }
@@ -33,7 +33,7 @@ public class Server extends Thread {
         ServerSocket serverSocket = null;
 
         try {
-            serverSocket = new ServerSocket(12345);
+            serverSocket = new ServerSocket(porta);
             System.out.println("Conexao Criada");
             try {
                 while (true) {
@@ -72,6 +72,7 @@ public class Server extends Thread {
                 System.out.println(linha);
                 JSONObject json = new JSONObject(linha);
             }
+            
 
             out.close();
             in.close();
@@ -81,4 +82,5 @@ public class Server extends Thread {
             System.exit(1);
         }
     }
+
 }

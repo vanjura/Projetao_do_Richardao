@@ -12,10 +12,6 @@ import java.net.*;
 import java.util.Date;
 import javax.swing.JOptionPane;
 
-/**
- *
- * @author LucasVanjura
- */
 public class Inicio extends javax.swing.JFrame {
     
     public String jsao;
@@ -62,10 +58,11 @@ public class Inicio extends javax.swing.JFrame {
         DescricaoLabel = new javax.swing.JLabel();
         DescricaoScrollPane = new javax.swing.JScrollPane();
         DescricaoTextPane = new javax.swing.JTextPane();
+        jTextArea1 = new javax.swing.JTextArea();
         ConectarPanel = new javax.swing.JPanel();
         ConectarButton = new javax.swing.JButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         getContentPane().setLayout(new java.awt.FlowLayout());
 
         PainelGeral.setLayout(new javax.swing.BoxLayout(PainelGeral, javax.swing.BoxLayout.PAGE_AXIS));
@@ -168,7 +165,7 @@ public class Inicio extends javax.swing.JFrame {
 
         DescriçcaoPanel.setLayout(new javax.swing.BoxLayout(DescriçcaoPanel, javax.swing.BoxLayout.PAGE_AXIS));
 
-        DescricaoLabelPanel.setLayout(new java.awt.GridLayout(1, 0));
+        DescricaoLabelPanel.setLayout(new java.awt.GridLayout());
 
         DescricaoLabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         DescricaoLabel.setText("Descrição:");
@@ -182,6 +179,10 @@ public class Inicio extends javax.swing.JFrame {
         DescricaoScrollPane.setViewportView(DescricaoTextPane);
 
         DescriçcaoPanel.add(DescricaoScrollPane);
+
+        jTextArea1.setColumns(20);
+        jTextArea1.setRows(5);
+        DescriçcaoPanel.add(jTextArea1);
 
         PainelGeral.add(DescriçcaoPanel);
 
@@ -210,17 +211,21 @@ public class Inicio extends javax.swing.JFrame {
             String nome = NomeTextField.getText();
             String material = MaterialComboBox.getSelectedItem().toString();
             String tipo = "";
-            if (DoadorRadioButton.isEnabled()) {
+            String action = "connect";
+            if (DoadorRadioButton.isSelected()) {
                 tipo = "D";
             } else {
                 tipo = "C";
             }
             String descricao = DescricaoTextPane.getText();
             JSONObject json = new JSONObject();
+            json.put("action", action);
             json.put("nome", nome);
             json.put("material", material);
             json.put("tipo", tipo);
-            json.put("descricao", nome);
+            if (DoadorRadioButton.isSelected()) {
+            json.put("descricao", descricao);
+            }
             System.out.println(json);
             jsao = json.toString();
         } catch (NumberFormatException e) {
@@ -313,6 +318,9 @@ public class Inicio extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(Inicio.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -352,5 +360,6 @@ public class Inicio extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
+    private javax.swing.JTextArea jTextArea1;
     // End of variables declaration//GEN-END:variables
 }
