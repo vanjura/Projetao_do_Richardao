@@ -8,7 +8,10 @@ package telaspkg;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.io.PrintWriter;
+import static java.lang.System.in;
+import static java.lang.System.out;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -45,28 +48,32 @@ public class Servidor extends javax.swing.JFrame {
     
     public void run() {
         System.out.println("Nova Conexão Realizada");
-
-        try {
-            PrintWriter out = new PrintWriter(clientSocket.getOutputStream(),
-                    true);
-            BufferedReader in = new BufferedReader(
-                    new InputStreamReader(clientSocket.getInputStream()));
-            String linha;
-
-            while ((linha = in.readLine()) != null) {
-                out.println(linha);
-                System.out.println(linha);
-                JSONObject json = new JSONObject(linha);
-            }
-            
-
-            out.close();
-            in.close();
-            clientSocket.close();
-        } catch (IOException e) {
-            System.err.println("Problem with Communication Server");
-            System.exit(1);
+        Usuario user = new Usuario();
+        user.setSocket(clientSocket);
+        try { 
+            user.setIn(new BufferedReader(
+                    new InputStreamReader(clientSocket.getInputStream())));
+        } catch (IOException ex) {
+            Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
         }
+        try {
+            user.setOut(new PrintStream(clientSocket.getOutputStream()));
+        } catch (IOException ex) {
+            Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        new Thread(){
+                @Override
+                public void run() {
+                    try{
+                        String line;
+                        while((line = user.getIn().readLine()) != null){
+                            JSONObject json = new JSONObject(line);
+                        }
+                    } catch (IOException ex) {
+                        Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
     }
        
     /**
@@ -182,7 +189,7 @@ public class Servidor extends javax.swing.JFrame {
                         .addComponent(jTextFieldPorta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(5, 5, 5)
                         .addComponent(jButtonConectar)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGap(105, 105, 105)
                         .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -217,6 +224,8 @@ public class Servidor extends javax.swing.JFrame {
 
     private void jButtonConectarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonConectarActionPerformed
         
+        jButtonConectar.setEnabled(false);
+        jTextFieldPorta.setEnabled(false);
 
         ServerSocket serverSocket = null;
 

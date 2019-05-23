@@ -252,7 +252,6 @@ public class Inicio extends javax.swing.JFrame {
 	while ((userInput = stdIn.readLine()) != null) {
 	    out.println(userInput);
 	    System.out.println("echo: " + in.readLine());
-            System.out.print ("input: ");
 	}
 
 	out.close();
