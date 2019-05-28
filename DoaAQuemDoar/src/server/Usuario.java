@@ -12,6 +12,8 @@ public class Usuario {
     private String tipo;
     private String material;
     private String descricao;
+    private String ip;
+    private int porta;
 
     public Socket getSocket() {
         return socket;
@@ -68,5 +70,22 @@ public class Usuario {
     public void setDescricao(String descricao) {
         this.descricao = descricao;
     }
+
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
+
+    public int getPorta() {
+        return porta;
+    }
+
+    public void setPorta(int porta) {
+        this.porta = porta;
+    }
+    
     
 }
