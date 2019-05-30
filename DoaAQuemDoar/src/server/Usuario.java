@@ -3,8 +3,11 @@ package server;
 import java.io.BufferedReader;
 import java.io.PrintStream;
 import java.net.Socket;
+import java.io.Serializable;
+import org.json.JSONObject;
 
-public class Usuario {
+public class Usuario implements Serializable {
+
     private Socket socket;
     private PrintStream out;
     private BufferedReader in;
@@ -13,6 +16,7 @@ public class Usuario {
     private String material;
     private String descricao;
     private String ip;
+    private JSONObject json;
     private int porta;
 
     public Socket getSocket() {
@@ -86,6 +90,13 @@ public class Usuario {
     public void setPorta(int porta) {
         this.porta = porta;
     }
-    
-    
+
+    public void setJson(JSONObject json) {
+        this.json = json;
+    }
+
+    public JSONObject getJson() {
+        return json;
+    }
+
 }

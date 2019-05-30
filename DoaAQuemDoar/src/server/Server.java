@@ -15,72 +15,105 @@ import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.*;
-
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.HashMap;
 
 public class Server extends Thread {
 
-    protected Socket clientSocket;
     private static int porta = 1234;
-    public ArrayList<Usuario> clientes = new ArrayList<Usuario>();
-    
+    private HashMap<Integer, Usuario> clientes = new HashMap<Integer, Usuario>();
 
-    public Server(Socket clientSoc) {
-        clientSocket = clientSoc;
-        start();
+    public Server() {
     }
 
     public static void main(String[] args) throws IOException {
         ServerSocket serverSocket = null;
 
-        try {
-            serverSocket = new ServerSocket(porta);
-            System.out.println("Conexao Criada");
-            try {
-                while (true) {
-                    System.out.println("Aguardando por conexão");
-                    new Server(serverSocket.accept());
+        serverSocket = new ServerSocket(porta);
+        Server server = new Server();
+        System.out.println("Servidor iniciado");
+        while (true) {
+            System.out.println("Aguardando por conexão");
+            Socket socket = serverSocket.accept();
+            BufferedReader read = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+            new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        String linha;
+                        while ((linha = read.readLine()) != null) {
+                            JSONObject json = new JSONObject(linha);
+                            server.handleActions(json, socket);
+                        }
+                        server.desconecta(socket);
+                    } catch (IOException ex) {
+                        System.err.println("Problem with Communication Server: " + ex.getMessage());
+                        server.desconecta(socket);
+                    }
                 }
-            } catch (IOException e) {
-                System.err.println("Falha na conexão");
-                System.exit(1);
+
+            }.start();
+        }
+    }
+
+    private void handleActions(JSONObject json, Socket socket) {
+        if (json.has("action") && !json.getString("action").equalsIgnoreCase("")) {
+            switch (json.getString("action")) {
+                case "connect":
+                    conecta(json, socket);
+                    break;
+                case "disconnect":
+                    desconecta(socket);
+                    break;
             }
-        } catch (IOException e) {
-            System.err.println("Não é possível ler a porta desejada.");
-            System.exit(1);
-        } finally {
+        }
+    }
+
+    private void conecta(JSONObject json, Socket socket) {
+        Usuario user = new Usuario();
+        user.setNome(json.getString("nome"));
+        user.setTipo(json.getString("tipo"));
+        user.setMaterial(json.getString("material"));
+        if (json.getString("tipo").equals("D")) {
+            user.setDescricao(json.getString("descricao"));
+        }
+
+        clientes.put(socket.getPort(), user);
+        atualizaLista();
+    }
+
+    private void desconecta(Socket socket) {
+        clientes.remove(socket.getPort());
+        atualizaLista();
+    }
+
+    private void atualizaLista() {
+        JSONArray arr = new JSONArray();
+        for (int i = 0; i < clientes.size(); i++) {
+            Usuario u = clientes.get(i);
+            arr.put(u.getJson());
+        }
+
+        JSONObject root = new JSONObject();
+        root.put("action", "client_list");
+        root.put("lista", arr);
+        broadcast(root);
+    }
+
+    private void broadcast(JSONObject json) {
+        for (int i = 0; i < clientes.size(); i++) {
+            Usuario u = clientes.get(i);
+            PrintStream ps;
             try {
-                serverSocket.close();
-            } catch (IOException e) {
-                System.err.println("Não é possível fechar a porta desejada.");
-                System.exit(1);
+                ps = new PrintStream(u.getSocket().getOutputStream());
+                ps.println(json.toString());
+            } catch (IOException ex) {
+                System.err.println("Erro de broadcast: " + ex.getMessage());
             }
         }
     }
-
-    public void run() {
-        System.out.println("Nova Conexão Realizada");
-
-        try {
-            PrintWriter out = new PrintWriter(clientSocket.getOutputStream(),
-                    true);
-            BufferedReader in = new BufferedReader(
-                    new InputStreamReader(clientSocket.getInputStream()));
-            String linha;
-
-            while ((linha = in.readLine()) != null) {
-                out.println(linha);
-                System.out.println(linha);
-                JSONObject json = new JSONObject(linha);
-            }
-            
-
-            out.close();
-            in.close();
-            clientSocket.close();
-        } catch (IOException e) {
-            System.err.println("Problem with Communication Server");
-            System.exit(1);
-        }
-    }
-
 }
