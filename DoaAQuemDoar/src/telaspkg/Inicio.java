@@ -295,7 +295,7 @@ public class Inicio extends javax.swing.JFrame {
         String serverHostname = new String(IpTextField.getText());
         Integer porta = new Integer(PortaTextField.getText());
 
-        System.out.println("Tentando conectar ao IP " + serverHostname + " na porta " + porta + ".");
+        System.out.println("Conectando ao IP " + serverHostname + " na porta " + porta + ".");
 
         Socket sockete = null;
         PrintStream out = null;
@@ -318,7 +318,6 @@ public class Inicio extends javax.swing.JFrame {
                     jButton1ActionPerformed(evt);
                     System.exit(0);
                 }
-                System.out.println("echo: ");
             }
 
             out.close();

@@ -20,7 +20,7 @@ import org.json.*;
 public class Server extends Thread {
 
     protected Socket clientSocket;
-    private static int porta;
+    private static int porta = 1234;
     public ArrayList<Usuario> clientes = new ArrayList<Usuario>();
     
 
@@ -45,13 +45,13 @@ public class Server extends Thread {
                 System.exit(1);
             }
         } catch (IOException e) {
-            System.err.println("Não é possível ler a porta 10008.");
+            System.err.println("Não é possível ler a porta desejada.");
             System.exit(1);
         } finally {
             try {
                 serverSocket.close();
             } catch (IOException e) {
-                System.err.println("Não é possível fechar a porta 10008.");
+                System.err.println("Não é possível fechar a porta desejada.");
                 System.exit(1);
             }
         }

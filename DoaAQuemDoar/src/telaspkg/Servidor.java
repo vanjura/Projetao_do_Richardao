@@ -27,10 +27,12 @@ import server.Usuario;
  * @author Jhonatan
  */
 public class Servidor extends javax.swing.JFrame {
-
+    
+    Thread mainThread;
     private Socket clientSocket;
-
+    private ServerSocket serverSocket = null;
     public ArrayList<Usuario> clientes = new ArrayList<Usuario>();
+
 
     private Servidor(Socket clientSoc) {
         clientSocket = clientSoc;
@@ -47,39 +49,7 @@ public class Servidor extends javax.swing.JFrame {
     }
 
     public void run() {
-        System.out.println("Nova Conexão Realizada");
-        Usuario user = new Usuario();
-        user.setSocket(clientSocket);
-        try {
-            user.setIn(new BufferedReader(
-                    new InputStreamReader(clientSocket.getInputStream())));
-        } catch (IOException ex) {
-            Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        try {
-            user.setOut(new PrintStream(clientSocket.getOutputStream()));
-        } catch (IOException ex) {
-            Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        
-
-        new Thread() {
-            @Override
-            public void run() {
-                try {
-                    System.err.println("Entrou no run2 Vanjura");
-                    String line;
-                    while ((line = user.getIn().readLine()) != null) {
-                        JSONObject json = new JSONObject(line);
-                        System.out.println(json);
-                        System.out.println(line);
-                    }
-                } catch (IOException ex) {
-                    Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        };
+       
     }
 
     /**
@@ -193,9 +163,9 @@ public class Servidor extends javax.swing.JFrame {
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jTextFieldPorta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(5, 5, 5)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButtonConectar)
-                        .addGap(105, 105, 105)
+                        .addGap(104, 104, 104)
                         .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -207,14 +177,14 @@ public class Servidor extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGap(13, 13, 13)
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(31, 31, 31))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jTextFieldPorta, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel1)
-                            .addComponent(jTextFieldPorta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButtonConectar))))
-                .addGap(20, 20, 20)
+                            .addComponent(jButtonConectar))
+                        .addGap(18, 18, 18)))
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 167, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(58, 58, 58)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -232,33 +202,18 @@ public class Servidor extends javax.swing.JFrame {
 
         jButtonConectar.setEnabled(false);
         jTextFieldPorta.setEnabled(false);
-
-        ServerSocket serverSocket = null;
-
-        try {
-            serverSocket = new ServerSocket(Integer.parseInt(jTextFieldPorta.getText()));
-        } catch (IOException ex) {
-            Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        JOptionPane.showConfirmDialog(null, "Conexão criada com sucesso", "Conexão", JOptionPane.DEFAULT_OPTION);
-        System.out.println("Conexao Criada");
-        try {
-            while (true) {
-                System.out.println("Aguardando por conexão");
-                new Servidor(serverSocket.accept());
+        mainThread = new Thread(){
+            @Override
+            public void run() {
+                try {
+                    iniciaServidor();
+                } catch (IOException ex) {
+                    Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
-        } catch (IOException e) {
-            System.err.println("Falha na conexão");
-            System.exit(1);
-        }
-        try {
-            serverSocket.close();
-        } catch (IOException e) {
-            System.err.println("Não é possível fechar a porta.");
-            System.exit(1);
-        }
-
-
+            
+        };
+            this.mainThread.start();
     }//GEN-LAST:event_jButtonConectarActionPerformed
 
     /**
@@ -308,4 +263,49 @@ public class Servidor extends javax.swing.JFrame {
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextField jTextFieldPorta;
     // End of variables declaration//GEN-END:variables
+
+    private void iniciaServidor() throws IOException{
+        try {
+            serverSocket = new ServerSocket(Integer.parseInt(jTextFieldPorta.getText()));
+        } catch (IOException ex) {
+            Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        JOptionPane.showConfirmDialog(null, "Conexão criada com sucesso", "Conexão", JOptionPane.DEFAULT_OPTION);
+        System.out.println("Conexao Criada");
+        System.out.println("Aguardando por conexão");
+        clientSocket = serverSocket.accept();
+        System.out.println("Nova Conexão Realizada");
+        new Thread(secondThread()).start();     
+    }
+            
+
+    private Runnable secondThread() {
+        Runnable second;
+        second = new Runnable (){
+        public void run() {
+                try {
+                    Usuario user = new Usuario();
+                    user.setSocket(clientSocket);
+                    user.setIn(new BufferedReader( new InputStreamReader(clientSocket.getInputStream())));
+                    user.setOut(new PrintStream(clientSocket.getOutputStream()));
+                    String line;
+                    while ((line = user.getIn().readLine()) != null) {
+                        jTextArea1.append(user.getSocket().getInetAddress().getHostAddress() + ":" + user.getSocket().getPort() + " - IN - "+ line + "\n");
+                        JSONObject json = new JSONObject(line);
+                        System.err.println("Novo usuário conectado");
+                        System.out.println(json);
+                    }
+                } catch (IOException ex) {
+                    Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
+                }
+        try {
+            serverSocket.close();
+        } catch (IOException e) {
+            System.err.println("Não é possível fechar a porta.");
+            System.exit(1);
+        }
+    }
+};
+        return second;
+}
 }
