@@ -5,11 +5,9 @@
  */
 package telaspkg;
 
-import java.awt.HeadlessException;
 import org.json.*;
 import java.io.*;
 import java.net.*;
-import java.util.Date;
 import javax.swing.JOptionPane;
 
 public class Inicio extends javax.swing.JFrame {
@@ -33,36 +31,28 @@ public class Inicio extends javax.swing.JFrame {
     private void initComponents() {
 
         buttonGroup1 = new javax.swing.ButtonGroup();
-        PainelGeral = new javax.swing.JPanel();
-        IpPanel = new javax.swing.JPanel();
+        jPanel2 = new javax.swing.JPanel();
         IpLabel = new javax.swing.JLabel();
         IpTextField = new javax.swing.JTextField();
-        PortaLabel = new javax.swing.JLabel();
         PortaTextField = new javax.swing.JTextField();
-        PortaPanel = new javax.swing.JPanel();
-        jPanel1 = new javax.swing.JPanel();
-        NomePanel = new javax.swing.JPanel();
         NomeLabel = new javax.swing.JLabel();
         NomeTextField = new javax.swing.JTextField();
-        jPanel3 = new javax.swing.JPanel();
-        TipoPanel = new javax.swing.JPanel();
-        ColetorRadioButton = new javax.swing.JRadioButton();
-        DoadorRadioButton = new javax.swing.JRadioButton();
-        jPanel5 = new javax.swing.JPanel();
-        MaterialPanel = new javax.swing.JPanel();
         MaterialLabel = new javax.swing.JLabel();
         MaterialComboBox = new javax.swing.JComboBox<>();
-        jPanel4 = new javax.swing.JPanel();
-        DescriçcaoPanel = new javax.swing.JPanel();
-        DescricaoLabelPanel = new javax.swing.JPanel();
         DescricaoLabel = new javax.swing.JLabel();
         DescricaoScrollPane = new javax.swing.JScrollPane();
         DescricaoTextPane = new javax.swing.JTextPane();
-        ConectarPanel = new javax.swing.JPanel();
         ConectarButton = new javax.swing.JButton();
-        jButton1 = new javax.swing.JButton();
+        PortaLabel = new javax.swing.JLabel();
+        jPanel1 = new javax.swing.JPanel();
+        ColetorRadioButton = new javax.swing.JRadioButton();
+        DoadorRadioButton = new javax.swing.JRadioButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 10, 10, 390));
 
         IpLabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         IpLabel.setText("IP:");
@@ -70,7 +60,9 @@ public class Inicio extends javax.swing.JFrame {
         IpLabel.setMaximumSize(new java.awt.Dimension(50, 15));
         IpLabel.setMinimumSize(new java.awt.Dimension(50, 15));
         IpLabel.setPreferredSize(new java.awt.Dimension(15, 15));
+        getContentPane().add(IpLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 20, 20));
 
+        IpTextField.setText("127.0.0.1");
         IpTextField.setMaximumSize(new java.awt.Dimension(150, 20));
         IpTextField.setMinimumSize(new java.awt.Dimension(150, 20));
         IpTextField.setPreferredSize(new java.awt.Dimension(150, 20));
@@ -79,6 +71,52 @@ public class Inicio extends javax.swing.JFrame {
                 IpTextFieldActionPerformed(evt);
             }
         });
+        getContentPane().add(IpTextField, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, 140, -1));
+
+        PortaTextField.setText("1234");
+        PortaTextField.setMaximumSize(new java.awt.Dimension(50, 20));
+        PortaTextField.setMinimumSize(new java.awt.Dimension(20, 20));
+        PortaTextField.setPreferredSize(new java.awt.Dimension(50, 20));
+        getContentPane().add(PortaTextField, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 30, 150, -1));
+
+        NomeLabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        NomeLabel.setText("Nome:");
+        NomeLabel.setPreferredSize(new java.awt.Dimension(46, 15));
+        getContentPane().add(NomeLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 60, 40, 20));
+
+        NomeTextField.setText("Teste");
+        getContentPane().add(NomeTextField, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 80, 140, -1));
+
+        MaterialLabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        MaterialLabel.setText("Material:");
+        getContentPane().add(MaterialLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 60, 60, 20));
+
+        MaterialComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "oleo", "metal", "roupa", "papel", "plastico", "eletronico" }));
+        MaterialComboBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                MaterialComboBoxActionPerformed(evt);
+            }
+        });
+        getContentPane().add(MaterialComboBox, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 80, 150, -1));
+
+        DescricaoLabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        DescricaoLabel.setText("Descrição:");
+        getContentPane().add(DescricaoLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 180, -1, -1));
+
+        DescricaoTextPane.setEnabled(false);
+        DescricaoTextPane.setMinimumSize(new java.awt.Dimension(300, 200));
+        DescricaoTextPane.setPreferredSize(new java.awt.Dimension(300, 200));
+        DescricaoScrollPane.setViewportView(DescricaoTextPane);
+
+        getContentPane().add(DescricaoScrollPane, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 200, 310, 160));
+
+        ConectarButton.setText("Conectar");
+        ConectarButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ConectarButtonActionPerformed(evt);
+            }
+        });
+        getContentPane().add(ConectarButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 370, -1, -1));
 
         PortaLabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         PortaLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -86,59 +124,19 @@ public class Inicio extends javax.swing.JFrame {
         PortaLabel.setMaximumSize(new java.awt.Dimension(50, 15));
         PortaLabel.setMinimumSize(new java.awt.Dimension(50, 15));
         PortaLabel.setPreferredSize(new java.awt.Dimension(46, 15));
+        getContentPane().add(PortaLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 10, 40, 20));
 
-        PortaTextField.setMaximumSize(new java.awt.Dimension(50, 20));
-        PortaTextField.setMinimumSize(new java.awt.Dimension(20, 20));
-        PortaTextField.setPreferredSize(new java.awt.Dimension(50, 20));
-
-        javax.swing.GroupLayout IpPanelLayout = new javax.swing.GroupLayout(IpPanel);
-        IpPanel.setLayout(IpPanelLayout);
-        IpPanelLayout.setHorizontalGroup(
-            IpPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(IpPanelLayout.createSequentialGroup()
-                .addComponent(IpLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, 0)
-                .addComponent(IpTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, 0)
-                .addComponent(PortaLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, 0)
-                .addComponent(PortaTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-        );
-        IpPanelLayout.setVerticalGroup(
-            IpPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(IpPanelLayout.createSequentialGroup()
-                .addGap(3, 3, 3)
-                .addGroup(IpPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(IpLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(PortaLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(0, 0, Short.MAX_VALUE))
-            .addComponent(IpTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 24, Short.MAX_VALUE)
-            .addComponent(PortaTextField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
-
-        PortaPanel.setLayout(new javax.swing.BoxLayout(PortaPanel, javax.swing.BoxLayout.LINE_AXIS));
-
-        NomePanel.setLayout(new javax.swing.BoxLayout(NomePanel, javax.swing.BoxLayout.LINE_AXIS));
-
-        NomeLabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        NomeLabel.setText("Nome:");
-        NomeLabel.setPreferredSize(new java.awt.Dimension(46, 15));
-        NomePanel.add(NomeLabel);
-        NomePanel.add(NomeTextField);
-
-        jPanel3.setMinimumSize(new java.awt.Dimension(10, 30));
-        jPanel3.setPreferredSize(new java.awt.Dimension(10, 30));
-
-        TipoPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Tipo"));
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Tipo"));
 
         buttonGroup1.add(ColetorRadioButton);
+        ColetorRadioButton.setSelected(true);
         ColetorRadioButton.setText("Coletor");
         ColetorRadioButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 ColetorRadioButtonActionPerformed(evt);
             }
         });
-        TipoPanel.add(ColetorRadioButton);
+        jPanel1.add(ColetorRadioButton);
 
         buttonGroup1.add(DoadorRadioButton);
         DoadorRadioButton.setText("Doador");
@@ -152,114 +150,9 @@ public class Inicio extends javax.swing.JFrame {
                 DoadorRadioButtonActionPerformed(evt);
             }
         });
-        TipoPanel.add(DoadorRadioButton);
+        jPanel1.add(DoadorRadioButton);
 
-        MaterialPanel.setLayout(new javax.swing.BoxLayout(MaterialPanel, javax.swing.BoxLayout.LINE_AXIS));
-
-        MaterialLabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        MaterialLabel.setText("Material:");
-        MaterialPanel.add(MaterialLabel);
-
-        MaterialComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Oleo", "Metal", "Roupa", "Papel", "Plastico", "Eletronico" }));
-        MaterialPanel.add(MaterialComboBox);
-
-        jPanel4.setPreferredSize(new java.awt.Dimension(10, 30));
-
-        DescriçcaoPanel.setLayout(new javax.swing.BoxLayout(DescriçcaoPanel, javax.swing.BoxLayout.PAGE_AXIS));
-
-        DescricaoLabelPanel.setLayout(new java.awt.GridLayout(1, 0));
-
-        DescricaoLabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        DescricaoLabel.setText("Descrição:");
-        DescricaoLabelPanel.add(DescricaoLabel);
-
-        DescriçcaoPanel.add(DescricaoLabelPanel);
-
-        DescricaoTextPane.setEnabled(false);
-        DescricaoTextPane.setMinimumSize(new java.awt.Dimension(300, 200));
-        DescricaoTextPane.setPreferredSize(new java.awt.Dimension(300, 200));
-        DescricaoScrollPane.setViewportView(DescricaoTextPane);
-
-        DescriçcaoPanel.add(DescricaoScrollPane);
-
-        ConectarPanel.setLayout(new java.awt.GridLayout(1, 0));
-
-        ConectarButton.setText("Conectar");
-        ConectarButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                ConectarButtonActionPerformed(evt);
-            }
-        });
-        ConectarPanel.add(ConectarButton);
-
-        jButton1.setText("jButton1");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
-            }
-        });
-        ConectarPanel.add(jButton1);
-
-        javax.swing.GroupLayout PainelGeralLayout = new javax.swing.GroupLayout(PainelGeral);
-        PainelGeral.setLayout(PainelGeralLayout);
-        PainelGeralLayout.setHorizontalGroup(
-            PainelGeralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(PainelGeralLayout.createSequentialGroup()
-                .addGap(1, 1, 1)
-                .addComponent(IpPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 302, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addGroup(PainelGeralLayout.createSequentialGroup()
-                .addGap(151, 151, 151)
-                .addComponent(PortaPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-            .addComponent(NomePanel, javax.swing.GroupLayout.PREFERRED_SIZE, 302, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 302, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addComponent(TipoPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 302, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, 302, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addComponent(MaterialPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 302, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, 302, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addComponent(DescriçcaoPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addComponent(ConectarPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 302, javax.swing.GroupLayout.PREFERRED_SIZE)
-        );
-        PainelGeralLayout.setVerticalGroup(
-            PainelGeralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(PainelGeralLayout.createSequentialGroup()
-                .addComponent(IpPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(PainelGeralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(PortaPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addComponent(NomePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, 0)
-                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, 0)
-                .addComponent(TipoPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, 0)
-                .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, 0)
-                .addComponent(MaterialPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, 0)
-                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, 0)
-                .addComponent(DescriçcaoPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, 0)
-                .addComponent(ConectarPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-        );
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(72, 72, 72)
-                .addComponent(PainelGeral, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(72, 72, 72))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(5, 5, 5)
-                .addComponent(PainelGeral, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-        );
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 110, 310, 60));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -297,14 +190,13 @@ public class Inicio extends javax.swing.JFrame {
 
         System.out.println("Conectando ao IP " + serverHostname + " na porta " + porta + ".");
 
-        Socket sockete = null;
+        Socket socket = null;
         PrintStream out = null;
         BufferedReader in = null;
-
         try {
-            sockete = new Socket(serverHostname, porta);
-            out = new PrintStream(sockete.getOutputStream());
-            in = new BufferedReader(new InputStreamReader(sockete.getInputStream()));
+            socket = new Socket(serverHostname, porta);
+            out = new PrintStream(socket.getOutputStream());
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             //JOptionPane.showConfirmDialog(null, "Conexao Realizada com Suceso!", "Desconectar", 0);
             Object[] option = {"OK", "Desconectar?"};
             int flag = JOptionPane.showOptionDialog(null, "Conexão Realizada com Sucesso!", "Conexão", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, option, null);
@@ -315,7 +207,6 @@ public class Inicio extends javax.swing.JFrame {
                 if (flag == JOptionPane.NO_OPTION) {
                     JOptionPane.showMessageDialog(null, "Desconectado com Sucesso!");
                     dispose();
-                    jButton1ActionPerformed(evt);
                     System.exit(0);
                 }
             }
@@ -323,7 +214,7 @@ public class Inicio extends javax.swing.JFrame {
             out.close();
             in.close();
             //stdIn.close();
-            sockete.close();
+            socket.close();
         } catch (UnknownHostException e) {
             System.err.println();
             JOptionPane.showMessageDialog(null, "Não é possível encontrar o servidor " + serverHostname);
@@ -357,9 +248,9 @@ public class Inicio extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_IpTextFieldActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        dispose();
-    }//GEN-LAST:event_jButton1ActionPerformed
+    private void MaterialComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MaterialComboBoxActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_MaterialComboBoxActionPerformed
 
     /**
      * @param args the command line arguments
@@ -372,7 +263,7 @@ public class Inicio extends javax.swing.JFrame {
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
+                if ("Windows".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
                 }
@@ -402,32 +293,20 @@ public class Inicio extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JRadioButton ColetorRadioButton;
     private javax.swing.JButton ConectarButton;
-    private javax.swing.JPanel ConectarPanel;
     private javax.swing.JLabel DescricaoLabel;
-    private javax.swing.JPanel DescricaoLabelPanel;
     private javax.swing.JScrollPane DescricaoScrollPane;
     private javax.swing.JTextPane DescricaoTextPane;
-    private javax.swing.JPanel DescriçcaoPanel;
     private javax.swing.JRadioButton DoadorRadioButton;
     private javax.swing.JLabel IpLabel;
-    private javax.swing.JPanel IpPanel;
     private javax.swing.JTextField IpTextField;
     private javax.swing.JComboBox<String> MaterialComboBox;
     private javax.swing.JLabel MaterialLabel;
-    private javax.swing.JPanel MaterialPanel;
     private javax.swing.JLabel NomeLabel;
-    private javax.swing.JPanel NomePanel;
     private javax.swing.JTextField NomeTextField;
-    private javax.swing.JPanel PainelGeral;
     private javax.swing.JLabel PortaLabel;
-    private javax.swing.JPanel PortaPanel;
     private javax.swing.JTextField PortaTextField;
-    private javax.swing.JPanel TipoPanel;
     private javax.swing.ButtonGroup buttonGroup1;
-    private javax.swing.JButton jButton1;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel3;
-    private javax.swing.JPanel jPanel4;
-    private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel2;
     // End of variables declaration//GEN-END:variables
 }

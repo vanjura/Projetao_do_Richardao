@@ -7,18 +7,7 @@ package server;
 
 import java.net.*;
 import java.io.*;
-import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.json.*;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.HashMap;
 
 public class Server extends Thread {
@@ -60,7 +49,7 @@ public class Server extends Thread {
         }
     }
 
-    private void handleActions(JSONObject json, Socket socket) {
+    public void handleActions(JSONObject json, Socket socket) {
         if (json.has("action") && !json.getString("action").equalsIgnoreCase("")) {
             switch (json.getString("action")) {
                 case "connect":
@@ -73,7 +62,7 @@ public class Server extends Thread {
         }
     }
 
-    private void conecta(JSONObject json, Socket socket) {
+    public void conecta(JSONObject json, Socket socket) {
         Usuario user = new Usuario();
         user.setNome(json.getString("nome"));
         user.setTipo(json.getString("tipo"));
@@ -86,15 +75,16 @@ public class Server extends Thread {
         atualizaLista();
     }
 
-    private void desconecta(Socket socket) {
+    public void desconecta(Socket socket) {
         clientes.remove(socket.getPort());
         atualizaLista();
     }
 
-    private void atualizaLista() {
+    public void atualizaLista() {
         JSONArray arr = new JSONArray();
         for (int i = 0; i < clientes.size(); i++) {
             Usuario u = clientes.get(i);
+            System.out.println(u);
             arr.put(u.getJson());
         }
 
@@ -104,7 +94,7 @@ public class Server extends Thread {
         broadcast(root);
     }
 
-    private void broadcast(JSONObject json) {
+    public void broadcast(JSONObject json) {
         for (int i = 0; i < clientes.size(); i++) {
             Usuario u = clientes.get(i);
             PrintStream ps;

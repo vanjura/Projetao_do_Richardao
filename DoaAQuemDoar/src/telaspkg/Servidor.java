@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import server.Server;
 import server.Usuario;
@@ -27,16 +29,15 @@ import server.Usuario;
  * @author Jhonatan
  */
 public class Servidor extends javax.swing.JFrame {
-    
+
     Thread mainThread;
     private Socket clientSocket;
     private ServerSocket serverSocket = null;
     public ArrayList<Usuario> clientes = new ArrayList<Usuario>();
 
-
     private Servidor(Socket clientSoc) {
         clientSocket = clientSoc;
-        
+
         run();
     }
 
@@ -49,7 +50,7 @@ public class Servidor extends javax.swing.JFrame {
     }
 
     public void run() {
-       
+
     }
 
     /**
@@ -61,20 +62,21 @@ public class Servidor extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanel1 = new javax.swing.JPanel();
-        jPanel2 = new javax.swing.JPanel();
+        jPanel4 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
         jPanel3 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
+        TextLog = new javax.swing.JTextArea();
         jLabel1 = new javax.swing.JLabel();
         jTextFieldPorta = new javax.swing.JTextField();
         jButtonConectar = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Lista de Usuários"));
+        jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder("Usuários"));
+        jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -96,47 +98,25 @@ public class Servidor extends javax.swing.JFrame {
         jTable1.setPreferredSize(new java.awt.Dimension(50, 0));
         jScrollPane2.setViewportView(jTable1);
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addGap(54, 54, 54)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 562, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(5, 5, 5)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-        );
+        jPanel4.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 500, 150));
+
+        getContentPane().add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 50, 520, 180));
 
         jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Log do Sistema"));
+        jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jTextArea1.setColumns(20);
-        jTextArea1.setRows(5);
-        jScrollPane1.setViewportView(jTextArea1);
+        TextLog.setColumns(20);
+        TextLog.setRows(5);
+        jScrollPane1.setViewportView(TextLog);
 
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGap(54, 54, 54)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 563, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(64, Short.MAX_VALUE))
-        );
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGap(5, 5, 5)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-        );
+        jPanel3.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 500, -1));
+
+        getContentPane().add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 230, 520, 130));
 
         jLabel1.setText("Porta:");
+        getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, -1, 20));
 
+        jTextFieldPorta.setText("1234");
         jTextFieldPorta.setMinimumSize(new java.awt.Dimension(100, 20));
         jTextFieldPorta.setPreferredSize(new java.awt.Dimension(100, 20));
         jTextFieldPorta.addActionListener(new java.awt.event.ActionListener() {
@@ -144,6 +124,7 @@ public class Servidor extends javax.swing.JFrame {
                 jTextFieldPortaActionPerformed(evt);
             }
         });
+        getContentPane().add(jTextFieldPorta, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 20, -1, 20));
 
         jButtonConectar.setText("Conectar");
         jButtonConectar.addActionListener(new java.awt.event.ActionListener() {
@@ -151,45 +132,7 @@ public class Servidor extends javax.swing.JFrame {
                 jButtonConectarActionPerformed(evt);
             }
         });
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(11, 11, 11)
-                        .addComponent(jLabel1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextFieldPorta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButtonConectar)
-                        .addGap(104, 104, 104)
-                        .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(13, 13, 13)
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(31, 31, 31))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jTextFieldPorta, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel1)
-                            .addComponent(jButtonConectar))
-                        .addGap(18, 18, 18)))
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 167, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(58, 58, 58)
-                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(18, Short.MAX_VALUE))
-        );
+        getContentPane().add(jButtonConectar, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 20, -1, 20));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -199,10 +142,9 @@ public class Servidor extends javax.swing.JFrame {
     }//GEN-LAST:event_jTextFieldPortaActionPerformed
 
     private void jButtonConectarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonConectarActionPerformed
-
         jButtonConectar.setEnabled(false);
         jTextFieldPorta.setEnabled(false);
-        mainThread = new Thread(){
+        mainThread = new Thread() {
             @Override
             public void run() {
                 try {
@@ -211,9 +153,8 @@ public class Servidor extends javax.swing.JFrame {
                     Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-            
         };
-            this.mainThread.start();
+        this.mainThread.start();
     }//GEN-LAST:event_jButtonConectarActionPerformed
 
     /**
@@ -227,7 +168,7 @@ public class Servidor extends javax.swing.JFrame {
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
+                if ("Windows".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
                 }
@@ -252,60 +193,147 @@ public class Servidor extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextArea TextLog;
     private javax.swing.JButton jButtonConectar;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTable jTable1;
-    private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextField jTextFieldPorta;
     // End of variables declaration//GEN-END:variables
 
-    private void iniciaServidor() throws IOException{
+    private void iniciaServidor() throws IOException {
         try {
             serverSocket = new ServerSocket(Integer.parseInt(jTextFieldPorta.getText()));
         } catch (IOException ex) {
             Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
         }
         JOptionPane.showConfirmDialog(null, "Conexão criada com sucesso", "Conexão", JOptionPane.DEFAULT_OPTION);
+        TextLog.append("Servidor iniciado na porta " + serverSocket.getLocalPort() + "\n");
         System.out.println("Conexao Criada");
-        System.out.println("Aguardando por conexão");
-        clientSocket = serverSocket.accept();
-        System.out.println("Nova Conexão Realizada");
-        new Thread(secondThread()).start();     
+        while (true) {
+            System.out.println("Aguardando por conexão");
+            clientSocket = serverSocket.accept();
+            System.out.println("Nova Conexão Realizada");
+            //new Thread(secondThread()).start();
+
+            //novo
+            BufferedReader read = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        String linha;
+                        while ((linha = read.readLine()) != null) {
+                            JSONObject json = new JSONObject(linha);
+                            iniciaAcao(json, clientSocket);
+                        }
+                    } catch (IOException ex) {
+                        System.err.println("Problema detectado: " + ex.getMessage());
+                    }
+                }
+            }.start();
+        }
     }
-            
+
+    private void iniciaAcao(JSONObject json, Socket socket) {
+        System.out.println("Verificando ação...");
+        if (json.has("action")) {
+            if (json.get("action").equals("connect")) {
+                iniciaConexao(json, socket);
+            }else{
+                System.out.println("A ação " + json.get("action") + " não existe.");
+            }
+        } else {
+            System.out.println("Action não encontrada.");
+        }
+    }
+    
+    private void iniciaConexao(JSONObject json, Socket socket){
+        Usuario usuario = validaUsuario(json, socket);
+        TextLog.append("Novo usuário: " + usuario.getNome() + "\nEndereço: ");
+        TextLog.append(usuario.getIp() + ":" + usuario.getPorta() + "\n\n");
+        atualizalista(usuario, "add");
+        listaUsuarios();
+    }
+    
+    private void atualizalista(Usuario usuario, String acao){
+         if(acao.equals("add")){
+             clientes.add(usuario);
+         }
+    }
+    
+    private void listaUsuarios(){
+        JSONArray arr = new JSONArray();
+        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        for (int i = 0; i < clientes.size(); i++) {
+            Usuario u = clientes.get(i);
+            System.out.println("Entrou no loop");
+            model.addRow(new Object[]{u.getNome(),u.getNome(),u.getNome(),u.getNome(),u.getNome(),u.getNome()});
+            arr.put(u.getJson());
+        }
+    }
+    
+    private Usuario validaUsuario(JSONObject json, Socket socket){
+        Usuario usuario = new Usuario();
+        usuario.setSocket(socket);
+        if(json.has("nome") || json.has("tipo") || json.has("material")){
+            usuario.setNome(json.getString("nome"));
+            usuario.setTipo(json.getString("tipo"));
+            usuario.setMaterial(json.getString("material"));
+            usuario.setIp(socket.getInetAddress().getHostAddress());
+            usuario.setPorta(socket.getPort());
+            if(json.get("tipo").equals("D")){
+                if (json.has("descricao")) {
+                    usuario.setDescricao(json.getString("descricao"));
+                }
+            }
+        }
+        return usuario;
+    }
 
     private Runnable secondThread() {
         Runnable second;
-        second = new Runnable (){
-        public void run() {
+        second = new Runnable() {
+            public void run() {
                 try {
                     Usuario user = new Usuario();
                     user.setSocket(clientSocket);
-                    user.setIn(new BufferedReader( new InputStreamReader(clientSocket.getInputStream())));
+                    user.setIn(new BufferedReader(new InputStreamReader(clientSocket.getInputStream())));
                     user.setOut(new PrintStream(clientSocket.getOutputStream()));
                     String line;
                     while ((line = user.getIn().readLine()) != null) {
-                        jTextArea1.append(user.getSocket().getInetAddress().getHostAddress() + ":" + user.getSocket().getPort() + " - IN - "+ line + "\n");
                         JSONObject json = new JSONObject(line);
-                        System.err.println("Novo usuário conectado");
-                        System.out.println(json);
+                        if (json.has("action")) {
+                            System.out.println(json.get("action"));
+                            if (json.get("action").equals("connect")) {
+                                TextLog.append(
+                                        "Nova conexão iniciada: "
+                                        + user.getSocket().getInetAddress().getHostAddress()
+                                        + ":"
+                                        + user.getSocket().getPort()
+                                );
+                            } else {
+                                TextLog.append("A ação " + json.get("action") + " não está configurada.");
+                            }
+                        } else {
+                            TextLog.append("Tentativa incorreta de conexão. Action não foi detectada.");
+                        }
                     }
                 } catch (IOException ex) {
                     Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
                 }
-        try {
-            serverSocket.close();
-        } catch (IOException e) {
-            System.err.println("Não é possível fechar a porta.");
-            System.exit(1);
-        }
-    }
-};
+
+                try {
+                    serverSocket.close();
+                } catch (IOException e) {
+                    System.err.println("Não é possível fechar a porta.");
+                    System.exit(1);
+                }
+            }
+        };
         return second;
-}
+    }
 }
