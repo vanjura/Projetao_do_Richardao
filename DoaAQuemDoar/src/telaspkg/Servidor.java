@@ -63,8 +63,8 @@ public class Servidor extends javax.swing.JFrame {
     private void initComponents() {
 
         jPanel4 = new javax.swing.JPanel();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        jTable2 = new javax.swing.JTable();
         jPanel3 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         TextLog = new javax.swing.JTextArea();
@@ -78,38 +78,39 @@ public class Servidor extends javax.swing.JFrame {
         jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder("Usuários"));
         jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        jTable2.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
-                "Nome", "IP", "Porta", "Tipo", "Material", "Descrição"
+                "IP", "Nome", "Tipo", "Material"
             }
         ) {
-            Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
             };
 
-            public Class getColumnClass(int columnIndex) {
-                return types [columnIndex];
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
             }
         });
-        jTable1.setMinimumSize(new java.awt.Dimension(50, 0));
-        jTable1.setPreferredSize(new java.awt.Dimension(50, 0));
-        jScrollPane2.setViewportView(jTable1);
+        jScrollPane3.setViewportView(jTable2);
 
-        jPanel4.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 500, 150));
+        jPanel4.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 500, 150));
 
         getContentPane().add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 50, 520, 180));
 
         jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Log do Sistema"));
         jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
+        TextLog.setEditable(false);
         TextLog.setColumns(20);
+        TextLog.setFont(new java.awt.Font("Consolas", 0, 11)); // NOI18N
         TextLog.setRows(5);
+        TextLog.setText("Log - DoaAQuemDoar\n");
         jScrollPane1.setViewportView(TextLog);
 
-        jPanel3.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 500, -1));
+        jPanel3.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 500, 100));
 
         getContentPane().add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 230, 520, 130));
 
@@ -199,8 +200,8 @@ public class Servidor extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTable jTable1;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JTable jTable2;
     private javax.swing.JTextField jTextFieldPorta;
     // End of variables declaration//GEN-END:variables
 
@@ -230,12 +231,26 @@ public class Servidor extends javax.swing.JFrame {
                             JSONObject json = new JSONObject(linha);
                             iniciaAcao(json, clientSocket);
                         }
+                        desconecta(clientSocket);
                     } catch (IOException ex) {
                         System.err.println("Problema detectado: " + ex.getMessage());
+                        desconecta(clientSocket);
                     }
                 }
             }.start();
         }
+    }
+
+    private void desconecta(Socket socket) {
+        int porta = socket.getPort();
+        for (int i = 0; i < clientes.size(); i++) {
+            if (clientes.get(i).getPorta() == porta) {
+                clientes.remove(i);
+                System.out.println("Desconectou");
+                System.out.println(socket.getPort());
+            }
+        }
+        listaUsuarios();
     }
 
     private void iniciaAcao(JSONObject json, Socket socket) {
@@ -243,49 +258,50 @@ public class Servidor extends javax.swing.JFrame {
         if (json.has("action")) {
             if (json.get("action").equals("connect")) {
                 iniciaConexao(json, socket);
-            }else{
+            } else {
                 System.out.println("A ação " + json.get("action") + " não existe.");
             }
         } else {
             System.out.println("Action não encontrada.");
         }
     }
-    
-    private void iniciaConexao(JSONObject json, Socket socket){
+
+    private void iniciaConexao(JSONObject json, Socket socket) {
         Usuario usuario = validaUsuario(json, socket);
         TextLog.append("Novo usuário: " + usuario.getNome() + "\nEndereço: ");
         TextLog.append(usuario.getIp() + ":" + usuario.getPorta() + "\n\n");
         atualizalista(usuario, "add");
         listaUsuarios();
     }
-    
-    private void atualizalista(Usuario usuario, String acao){
-         if(acao.equals("add")){
-             clientes.add(usuario);
-         }
+
+    private void atualizalista(Usuario usuario, String acao) {
+        if (acao.equals("add")) {
+            clientes.add(usuario);
+        }
     }
-    
-    private void listaUsuarios(){
+
+    private void listaUsuarios() {
         JSONArray arr = new JSONArray();
-        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
+        model.setRowCount(0);
         for (int i = 0; i < clientes.size(); i++) {
             Usuario u = clientes.get(i);
             System.out.println("Entrou no loop");
-            model.addRow(new Object[]{u.getNome(),u.getNome(),u.getNome(),u.getNome(),u.getNome(),u.getNome()});
+            model.addRow(new Object[]{u.getIp(), u.getNome(), u.getMaterial(), u.getTipo()});
             arr.put(u.getJson());
         }
     }
-    
-    private Usuario validaUsuario(JSONObject json, Socket socket){
+
+    private Usuario validaUsuario(JSONObject json, Socket socket) {
         Usuario usuario = new Usuario();
         usuario.setSocket(socket);
-        if(json.has("nome") || json.has("tipo") || json.has("material")){
+        if (json.has("nome") || json.has("tipo") || json.has("material")) {
             usuario.setNome(json.getString("nome"));
             usuario.setTipo(json.getString("tipo"));
             usuario.setMaterial(json.getString("material"));
             usuario.setIp(socket.getInetAddress().getHostAddress());
             usuario.setPorta(socket.getPort());
-            if(json.get("tipo").equals("D")){
+            if (json.get("tipo").equals("D")) {
                 if (json.has("descricao")) {
                     usuario.setDescricao(json.getString("descricao"));
                 }

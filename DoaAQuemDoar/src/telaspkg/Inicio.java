@@ -198,17 +198,16 @@ public class Inicio extends javax.swing.JFrame {
             out = new PrintStream(socket.getOutputStream());
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             //JOptionPane.showConfirmDialog(null, "Conexao Realizada com Suceso!", "Desconectar", 0);
-            Object[] option = {"OK", "Desconectar?"};
-            int flag = JOptionPane.showOptionDialog(null, "Conexão Realizada com Sucesso!", "Conexão", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, option, null);
+            //Object[] option = {"OK", "Desconectar?"};
+            //int flag = JOptionPane.showOptionDialog(null, "Conexão Realizada com Sucesso!", "Conexão", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, option, null);
             out.println(jsao);
+            String userInput;
+            BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
             //BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
-            while (flag != JOptionPane.YES_OPTION) {
-                //out.println(userInput);
-                if (flag == JOptionPane.NO_OPTION) {
-                    JOptionPane.showMessageDialog(null, "Desconectado com Sucesso!");
-                    dispose();
-                    System.exit(0);
-                }
+            while ((userInput = stdIn.readLine()) != null) {
+                out.println(userInput);
+                System.out.println("echo: " + in.readLine());
+                System.out.print("input: ");
             }
 
             out.close();
