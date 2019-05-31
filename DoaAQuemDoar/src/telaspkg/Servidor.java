@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import server.Server;
 import server.Usuario;
@@ -96,9 +97,9 @@ public class Servidor extends javax.swing.JFrame {
         });
         jScrollPane3.setViewportView(jTable2);
 
-        jPanel4.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 500, 150));
+        jPanel4.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 870, 280));
 
-        getContentPane().add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 50, 520, 180));
+        getContentPane().add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 50, 890, 310));
 
         jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Log do Sistema"));
         jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -110,9 +111,9 @@ public class Servidor extends javax.swing.JFrame {
         TextLog.setText("Log - DoaAQuemDoar\n");
         jScrollPane1.setViewportView(TextLog);
 
-        jPanel3.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 500, 100));
+        jPanel3.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 870, 140));
 
-        getContentPane().add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 230, 520, 130));
+        getContentPane().add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 360, 890, 170));
 
         jLabel1.setText("Porta:");
         getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, -1, 20));
@@ -212,7 +213,7 @@ public class Servidor extends javax.swing.JFrame {
             Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
         }
         JOptionPane.showConfirmDialog(null, "Conexão criada com sucesso", "Conexão", JOptionPane.DEFAULT_OPTION);
-        TextLog.append("Servidor iniciado na porta " + serverSocket.getLocalPort() + "\n");
+        TextLog.append("\nServidor iniciado na porta " + serverSocket.getLocalPort());
         System.out.println("Conexao Criada");
         while (true) {
             System.out.println("Aguardando por conexão");
@@ -228,8 +229,21 @@ public class Servidor extends javax.swing.JFrame {
                     try {
                         String linha;
                         while ((linha = read.readLine()) != null) {
-                            JSONObject json = new JSONObject(linha);
-                            iniciaAcao(json, clientSocket);
+                            System.out.println("Entrou no while");
+                            System.out.println(linha);
+                            try {
+                                JSONObject json = new JSONObject(linha);
+                                iniciaAcao(json, clientSocket);
+                                
+                            } catch (JSONException ex) {
+                                errorLog(
+                                        "Json inválido - " + linha,
+                                        ex.getMessage(),
+                                        "Encerrando conexão com " + clientSocket.getInetAddress().getHostAddress() + ":" + clientSocket.getPort() + " por segurança.");
+                                System.out.println("Erro json: " + ex.getMessage());
+                                desconecta(clientSocket);
+                            }
+                            System.out.println("terminou o while");
                         }
                         desconecta(clientSocket);
                     } catch (IOException ex) {
@@ -239,6 +253,14 @@ public class Servidor extends javax.swing.JFrame {
                 }
             }.start();
         }
+    }
+
+    private void errorLog(String frase, String erro, String fraseFinal) {
+        TextLog.append("\n\n");
+        TextLog.append("Erro: " + frase);
+        TextLog.append("\n" + erro);
+        TextLog.append("\n" + fraseFinal);
+        TextLog.setCaretPosition(TextLog.getDocument().getLength());
     }
 
     private void desconecta(Socket socket) {
@@ -251,6 +273,22 @@ public class Servidor extends javax.swing.JFrame {
             }
         }
         listaUsuarios();
+        enviaMensagemParaCliente(socket, "desconecta");
+    }
+    
+    private void enviaMensagemParaCliente(Socket socket, String mensagem){
+        PrintStream ps;
+        try {
+            ps = new PrintStream(socket.getOutputStream());
+            ps.println(mensagem);
+        } catch (IOException ex) {
+            Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
+            desconecta(socket);
+            errorLog(
+                "Erro ao mandar mensagem.",
+                ex.getMessage(),
+                "Encerrando conexão com " + clientSocket.getInetAddress().getHostAddress() + ":" + clientSocket.getPort() + " por segurança.");
+        }
     }
 
     private void iniciaAcao(JSONObject json, Socket socket) {
@@ -268,8 +306,8 @@ public class Servidor extends javax.swing.JFrame {
 
     private void iniciaConexao(JSONObject json, Socket socket) {
         Usuario usuario = validaUsuario(json, socket);
-        TextLog.append("Novo usuário: " + usuario.getNome() + "\nEndereço: ");
-        TextLog.append(usuario.getIp() + ":" + usuario.getPorta() + "\n\n");
+        TextLog.append("\n\nNovo usuário: " + usuario.getNome() + "\nEndereço: ");
+        TextLog.append(usuario.getIp() + ":" + usuario.getPorta());
         atualizalista(usuario, "add");
         listaUsuarios();
     }
@@ -285,16 +323,34 @@ public class Servidor extends javax.swing.JFrame {
         DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
         model.setRowCount(0);
         for (int i = 0; i < clientes.size(); i++) {
-            Usuario u = clientes.get(i);
-            System.out.println("Entrou no loop");
-            model.addRow(new Object[]{u.getIp(), u.getNome(), u.getMaterial(), u.getTipo()});
-            arr.put(u.getJson());
+            Usuario usuario = clientes.get(i);
+            model.addRow(new Object[]{usuario.getIp(), usuario.getNome(), usuario.getMaterial(), usuario.getTipo()});
+            arr.put(usuario.getJson());
+        }
+        
+        JSONObject lista = new JSONObject();
+        lista.put("action", "client_list");
+        lista.put("lista", arr);
+        broadcast(lista);
+    }
+    
+    public void broadcast(JSONObject json) {
+        for (int i = 0; i < clientes.size(); i++) {
+            Usuario usuario = clientes.get(i);
+            PrintStream ps;
+            try {
+                ps = new PrintStream(usuario.getSocket().getOutputStream());
+                ps.println(json.toString());
+            } catch (IOException ex) {
+                System.err.println("Erro de broadcast: " + ex.getMessage());
+            }
         }
     }
 
     private Usuario validaUsuario(JSONObject json, Socket socket) {
         Usuario usuario = new Usuario();
         usuario.setSocket(socket);
+        usuario.setJson(json);
         if (json.has("nome") || json.has("tipo") || json.has("material")) {
             usuario.setNome(json.getString("nome"));
             usuario.setTipo(json.getString("tipo"));

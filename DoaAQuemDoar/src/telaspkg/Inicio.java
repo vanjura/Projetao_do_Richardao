@@ -204,10 +204,16 @@ public class Inicio extends javax.swing.JFrame {
             String userInput;
             BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
             //BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
-            while ((userInput = stdIn.readLine()) != null) {
-                out.println(userInput);
-                System.out.println("echo: " + in.readLine());
-                System.out.print("input: ");
+            while ((userInput = in.readLine()) != null) {
+                System.out.println("Entrou no while");
+                try {
+                    JSONObject json = new JSONObject(userInput);
+
+                } catch (JSONException ex) {
+                    System.out.println("Erro no json");
+                }
+
+                System.out.println("Saiu do while");
             }
 
             out.close();
