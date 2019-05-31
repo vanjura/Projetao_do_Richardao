@@ -9,7 +9,12 @@ import org.json.*;
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.ButtonGroup;
 import javax.swing.JOptionPane;
+import javax.swing.JRadioButton;
+import javax.swing.table.DefaultTableModel;
 import server.Usuario;
 
 public class Inicio extends javax.swing.JFrame {
@@ -53,9 +58,9 @@ public class Inicio extends javax.swing.JFrame {
         DoadorRadioButton = new javax.swing.JRadioButton();
         jPanel4 = new javax.swing.JPanel();
         jPanel5 = new javax.swing.JPanel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
         jButton2 = new javax.swing.JButton();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        jTable2 = new javax.swing.JTable();
         jPanel6 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
@@ -179,43 +184,29 @@ public class Inicio extends javax.swing.JFrame {
         jPanel5.setAutoscrolls(true);
         jPanel5.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        jButton2.setText("Conversar");
+        jButton2.setEnabled(false);
+        jPanel5.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 170, -1, 20));
+
+        jTable2.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
-                "", "ID", "Nome", "Tipo", "Material", "Descrição"
+                "ID", "Nome", "Tipo", "Material", "Descrição"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false
+                false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
             }
         });
-        jScrollPane1.setViewportView(jTable1);
-        if (jTable1.getColumnModel().getColumnCount() > 0) {
-            jTable1.getColumnModel().getColumn(0).setResizable(false);
-            jTable1.getColumnModel().getColumn(0).setPreferredWidth(5);
-            jTable1.getColumnModel().getColumn(1).setResizable(false);
-            jTable1.getColumnModel().getColumn(1).setPreferredWidth(5);
-            jTable1.getColumnModel().getColumn(2).setResizable(false);
-            jTable1.getColumnModel().getColumn(2).setPreferredWidth(10);
-            jTable1.getColumnModel().getColumn(3).setResizable(false);
-            jTable1.getColumnModel().getColumn(3).setPreferredWidth(10);
-            jTable1.getColumnModel().getColumn(4).setResizable(false);
-            jTable1.getColumnModel().getColumn(4).setPreferredWidth(10);
-            jTable1.getColumnModel().getColumn(5).setResizable(false);
-            jTable1.getColumnModel().getColumn(5).setPreferredWidth(200);
-        }
+        jScrollPane3.setViewportView(jTable2);
 
-        jPanel5.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 470, 140));
-
-        jButton2.setText("Conversar");
-        jButton2.setEnabled(false);
-        jPanel5.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 170, -1, 20));
+        jPanel5.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 470, 140));
 
         jPanel4.add(jPanel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 490, 200));
 
@@ -267,6 +258,8 @@ public class Inicio extends javax.swing.JFrame {
             json.put("tipo", tipo);
             if (DoadorRadioButton.isSelected()) {
                 json.put("descricao", descricao);
+            }else{
+                json.put("descricao", "Sem Descrição");
             }
             System.out.println(json);
             jsao = json.toString();
@@ -278,9 +271,10 @@ public class Inicio extends javax.swing.JFrame {
 
         System.out.println("Conectando ao IP " + serverHostname + " na porta " + porta + ".");
 
-        Socket socket = null;
-        PrintStream out = null;
-        BufferedReader in = null;
+        Socket socket;
+        PrintStream out;
+        BufferedReader in;
+        
         try {
             socket = new Socket(serverHostname, porta);
             out = new PrintStream(socket.getOutputStream());
@@ -289,25 +283,37 @@ public class Inicio extends javax.swing.JFrame {
             //Object[] option = {"OK", "Desconectar?"};
             //int flag = JOptionPane.showOptionDialog(null, "Conexão Realizada com Sucesso!", "Conexão", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, option, null);
             out.println(jsao);
-            String userInput;
             BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
             //BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
-            while ((userInput = in.readLine()) != null) {
-                System.out.println("Entrou no while");
-                try {
-                    JSONObject json = new JSONObject(userInput);
-                    iniciaAcao(json, socket);
-                } catch (JSONException ex) {
-                    System.out.println("Erro no json");
+            new Thread() {
+
+                @Override
+                public void run() {
+                    try {
+                        String userInput;
+                        while ((userInput = in.readLine()) != null) {
+                            System.out.println("Entrou no while");
+                            try {
+                                JSONObject json = new JSONObject(userInput);
+                                iniciaAcao(json);
+                            } catch (JSONException ex) {
+                                System.out.println("Erro no json" + ex);
+                            }
+                            
+                            System.out.println("Saiu do while");
+                        }
+                        out.close();
+                        in.close();
+                        //stdIn.close();
+                        socket.close();
+                    } catch (IOException ex) {
+                        System.out.println(ex.getMessage());
+                        Logger.getLogger(Inicio.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
+            }.start();
 
-                System.out.println("Saiu do while");
-            }
-
-            out.close();
-            in.close();
-            //stdIn.close();
-            socket.close();
+            
         } catch (UnknownHostException e) {
             System.err.println();
             JOptionPane.showMessageDialog(null, "Não é possível encontrar o servidor " + serverHostname);
@@ -316,8 +322,6 @@ public class Inicio extends javax.swing.JFrame {
             System.err.println("Não é possível conectar a " + serverHostname);
             System.exit(1);
         }
-        
-        
 
 
     }//GEN-LAST:event_ConectarButtonActionPerformed
@@ -383,16 +387,21 @@ public class Inicio extends javax.swing.JFrame {
                 new Inicio().setVisible(true);
             }
         });
+
     }
-    
-    private void iniciaAcao(JSONObject json, Socket socket) {
+
+    private void iniciaAcao(JSONObject json) {
         System.out.println("Verificando ação...");
         if (json.has("action")) {
             if (json.get("action").equals("client_list")) {
+                DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
+                model.setRowCount(0);
+                ButtonGroup group = new ButtonGroup();
                 JSONArray lista = json.getJSONArray("lista");
                 for (int i = 0; i < lista.length(); i++) {
                     JSONObject usuarioJson = (JSONObject) lista.get(i);
                     System.out.println(usuarioJson);
+                    model.addRow(new Object[]{usuarioJson.get("porta"), usuarioJson.get("nome"), usuarioJson.get("tipo"), usuarioJson.get("material"), usuarioJson.get("descricao")});
                 }
             } else {
                 System.out.println("A ação " + json.get("action") + " não existe.");
@@ -426,9 +435,9 @@ public class Inicio extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTable jTable1;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JTable jTable2;
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextField jTextField1;
     // End of variables declaration//GEN-END:variables

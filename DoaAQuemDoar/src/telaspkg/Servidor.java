@@ -265,13 +265,18 @@ public class Servidor extends javax.swing.JFrame {
 
     private void desconecta(Socket socket) {
         int porta = socket.getPort();
-        for (int i = 0; i < clientes.size(); i++) {
+        try{
+            for (int i = 0; i < clientes.size(); i++) {
             if (clientes.get(i).getPorta() == porta) {
+                System.out.println(clientes.get(i));
                 clientes.remove(i);
-                System.out.println("Desconectou");
-                System.out.println(socket.getPort());
+                System.out.println("Desconectou " + socket.getPort());
             }
         }
+        }catch(Exception e){
+            System.out.println("Erro" + e);
+        }
+        
         listaUsuarios();
         enviaMensagemParaCliente(socket, "desconecta");
     }
