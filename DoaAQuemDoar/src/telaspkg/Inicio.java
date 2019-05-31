@@ -8,11 +8,14 @@ package telaspkg;
 import org.json.*;
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
 import javax.swing.JOptionPane;
+import server.Usuario;
 
 public class Inicio extends javax.swing.JFrame {
 
     public String jsao;
+    public ArrayList<Usuario> clientes = new ArrayList<Usuario>();
 
     /**
      * Creates new form Inicio
@@ -32,13 +35,14 @@ public class Inicio extends javax.swing.JFrame {
 
         buttonGroup1 = new javax.swing.ButtonGroup();
         jPanel2 = new javax.swing.JPanel();
+        jPanel3 = new javax.swing.JPanel();
         IpLabel = new javax.swing.JLabel();
         IpTextField = new javax.swing.JTextField();
         PortaTextField = new javax.swing.JTextField();
         NomeLabel = new javax.swing.JLabel();
         NomeTextField = new javax.swing.JTextField();
         MaterialLabel = new javax.swing.JLabel();
-        MaterialComboBox = new javax.swing.JComboBox<>();
+        MaterialComboBox = new javax.swing.JComboBox<String>();
         DescricaoLabel = new javax.swing.JLabel();
         DescricaoScrollPane = new javax.swing.JScrollPane();
         DescricaoTextPane = new javax.swing.JTextPane();
@@ -47,12 +51,24 @@ public class Inicio extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         ColetorRadioButton = new javax.swing.JRadioButton();
         DoadorRadioButton = new javax.swing.JRadioButton();
+        jPanel4 = new javax.swing.JPanel();
+        jPanel5 = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTable1 = new javax.swing.JTable();
+        jButton2 = new javax.swing.JButton();
+        jPanel6 = new javax.swing.JPanel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jTextArea1 = new javax.swing.JTextArea();
+        jButton1 = new javax.swing.JButton();
+        jTextField1 = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-        getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 10, 10, 390));
+
+        jPanel3.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         IpLabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         IpLabel.setText("IP:");
@@ -60,7 +76,7 @@ public class Inicio extends javax.swing.JFrame {
         IpLabel.setMaximumSize(new java.awt.Dimension(50, 15));
         IpLabel.setMinimumSize(new java.awt.Dimension(50, 15));
         IpLabel.setPreferredSize(new java.awt.Dimension(15, 15));
-        getContentPane().add(IpLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 20, 20));
+        jPanel3.add(IpLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 20, 20));
 
         IpTextField.setText("127.0.0.1");
         IpTextField.setMaximumSize(new java.awt.Dimension(150, 20));
@@ -71,44 +87,44 @@ public class Inicio extends javax.swing.JFrame {
                 IpTextFieldActionPerformed(evt);
             }
         });
-        getContentPane().add(IpTextField, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, 140, -1));
+        jPanel3.add(IpTextField, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, 140, -1));
 
         PortaTextField.setText("1234");
         PortaTextField.setMaximumSize(new java.awt.Dimension(50, 20));
         PortaTextField.setMinimumSize(new java.awt.Dimension(20, 20));
         PortaTextField.setPreferredSize(new java.awt.Dimension(50, 20));
-        getContentPane().add(PortaTextField, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 30, 150, -1));
+        jPanel3.add(PortaTextField, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 30, 150, -1));
 
         NomeLabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         NomeLabel.setText("Nome:");
         NomeLabel.setPreferredSize(new java.awt.Dimension(46, 15));
-        getContentPane().add(NomeLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 60, 40, 20));
+        jPanel3.add(NomeLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 60, 40, 20));
 
         NomeTextField.setText("Teste");
-        getContentPane().add(NomeTextField, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 80, 140, -1));
+        jPanel3.add(NomeTextField, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 80, 140, -1));
 
         MaterialLabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         MaterialLabel.setText("Material:");
-        getContentPane().add(MaterialLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 60, 60, 20));
+        jPanel3.add(MaterialLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 60, 60, 20));
 
-        MaterialComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "oleo", "metal", "roupa", "papel", "plastico", "eletronico" }));
+        MaterialComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "oleo", "metal", "roupa", "papel", "plastico", "eletronico" }));
         MaterialComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 MaterialComboBoxActionPerformed(evt);
             }
         });
-        getContentPane().add(MaterialComboBox, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 80, 150, -1));
+        jPanel3.add(MaterialComboBox, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 80, 150, -1));
 
         DescricaoLabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         DescricaoLabel.setText("Descrição:");
-        getContentPane().add(DescricaoLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 180, -1, -1));
+        jPanel3.add(DescricaoLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 190, -1, -1));
 
         DescricaoTextPane.setEnabled(false);
         DescricaoTextPane.setMinimumSize(new java.awt.Dimension(300, 200));
         DescricaoTextPane.setPreferredSize(new java.awt.Dimension(300, 200));
         DescricaoScrollPane.setViewportView(DescricaoTextPane);
 
-        getContentPane().add(DescricaoScrollPane, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 200, 310, 160));
+        jPanel3.add(DescricaoScrollPane, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 210, 310, 260));
 
         ConectarButton.setText("Conectar");
         ConectarButton.addActionListener(new java.awt.event.ActionListener() {
@@ -116,7 +132,7 @@ public class Inicio extends javax.swing.JFrame {
                 ConectarButtonActionPerformed(evt);
             }
         });
-        getContentPane().add(ConectarButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 370, -1, -1));
+        jPanel3.add(ConectarButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 483, -1, 20));
 
         PortaLabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         PortaLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -124,7 +140,7 @@ public class Inicio extends javax.swing.JFrame {
         PortaLabel.setMaximumSize(new java.awt.Dimension(50, 15));
         PortaLabel.setMinimumSize(new java.awt.Dimension(50, 15));
         PortaLabel.setPreferredSize(new java.awt.Dimension(46, 15));
-        getContentPane().add(PortaLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 10, 40, 20));
+        jPanel3.add(PortaLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 10, 40, 20));
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Tipo"));
 
@@ -152,7 +168,79 @@ public class Inicio extends javax.swing.JFrame {
         });
         jPanel1.add(DoadorRadioButton);
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 110, 310, 60));
+        jPanel3.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 110, 310, 60));
+
+        jPanel2.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 340, 510));
+
+        jPanel4.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jPanel5.setBorder(javax.swing.BorderFactory.createTitledBorder("Usuários Conectados"));
+        jPanel5.setAutoscrolls(true);
+        jPanel5.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "", "ID", "Nome", "Tipo", "Material", "Descrição"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane1.setViewportView(jTable1);
+        if (jTable1.getColumnModel().getColumnCount() > 0) {
+            jTable1.getColumnModel().getColumn(0).setResizable(false);
+            jTable1.getColumnModel().getColumn(0).setPreferredWidth(5);
+            jTable1.getColumnModel().getColumn(1).setResizable(false);
+            jTable1.getColumnModel().getColumn(1).setPreferredWidth(5);
+            jTable1.getColumnModel().getColumn(2).setResizable(false);
+            jTable1.getColumnModel().getColumn(2).setPreferredWidth(10);
+            jTable1.getColumnModel().getColumn(3).setResizable(false);
+            jTable1.getColumnModel().getColumn(3).setPreferredWidth(10);
+            jTable1.getColumnModel().getColumn(4).setResizable(false);
+            jTable1.getColumnModel().getColumn(4).setPreferredWidth(10);
+            jTable1.getColumnModel().getColumn(5).setResizable(false);
+            jTable1.getColumnModel().getColumn(5).setPreferredWidth(200);
+        }
+
+        jPanel5.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 470, 140));
+
+        jButton2.setText("Conversar");
+        jButton2.setEnabled(false);
+        jPanel5.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 170, -1, 20));
+
+        jPanel4.add(jPanel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 490, 200));
+
+        jPanel6.setBorder(javax.swing.BorderFactory.createTitledBorder("Chat"));
+        jPanel6.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jTextArea1.setEditable(false);
+        jTextArea1.setColumns(20);
+        jTextArea1.setRows(5);
+        jScrollPane2.setViewportView(jTextArea1);
+
+        jPanel6.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 470, 230));
+
+        jButton1.setText("Enviar");
+        jButton1.setEnabled(false);
+        jPanel6.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 260, -1, 20));
+
+        jTextField1.setEnabled(false);
+        jPanel6.add(jTextField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 260, 410, 20));
+
+        jPanel4.add(jPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 210, 490, 290));
+
+        jPanel2.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 10, 510, 510));
+
+        getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 880, 530));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -208,7 +296,7 @@ public class Inicio extends javax.swing.JFrame {
                 System.out.println("Entrou no while");
                 try {
                     JSONObject json = new JSONObject(userInput);
-
+                    iniciaAcao(json, socket);
                 } catch (JSONException ex) {
                     System.out.println("Erro no json");
                 }
@@ -228,6 +316,8 @@ public class Inicio extends javax.swing.JFrame {
             System.err.println("Não é possível conectar a " + serverHostname);
             System.exit(1);
         }
+        
+        
 
 
     }//GEN-LAST:event_ConectarButtonActionPerformed
@@ -294,6 +384,23 @@ public class Inicio extends javax.swing.JFrame {
             }
         });
     }
+    
+    private void iniciaAcao(JSONObject json, Socket socket) {
+        System.out.println("Verificando ação...");
+        if (json.has("action")) {
+            if (json.get("action").equals("client_list")) {
+                JSONArray lista = json.getJSONArray("lista");
+                for (int i = 0; i < lista.length(); i++) {
+                    JSONObject usuarioJson = (JSONObject) lista.get(i);
+                    System.out.println(usuarioJson);
+                }
+            } else {
+                System.out.println("A ação " + json.get("action") + " não existe.");
+            }
+        } else {
+            System.out.println("Action não encontrada.");
+        }
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JRadioButton ColetorRadioButton;
@@ -311,7 +418,18 @@ public class Inicio extends javax.swing.JFrame {
     private javax.swing.JLabel PortaLabel;
     private javax.swing.JTextField PortaTextField;
     private javax.swing.ButtonGroup buttonGroup1;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JTable jTable1;
+    private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JTextField jTextField1;
     // End of variables declaration//GEN-END:variables
 }

@@ -325,6 +325,10 @@ public class Servidor extends javax.swing.JFrame {
         for (int i = 0; i < clientes.size(); i++) {
             Usuario usuario = clientes.get(i);
             model.addRow(new Object[]{usuario.getIp(), usuario.getNome(), usuario.getMaterial(), usuario.getTipo()});
+            JSONObject newJson = usuario.getJson();
+            newJson.put("porta", usuario.getPorta());
+            usuario.setJson(newJson);
+            System.out.println(usuario.getJson());
             arr.put(usuario.getJson());
         }
         
