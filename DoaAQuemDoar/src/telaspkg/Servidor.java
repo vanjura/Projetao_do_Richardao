@@ -216,51 +216,59 @@ public class Servidor extends javax.swing.JFrame {
         TextLog.append("\nServidor iniciado na porta " + serverSocket.getLocalPort());
         System.out.println("Conexao Criada");
         while (true) {
-            System.out.println("Aguardando por conexão");
             clientSocket = serverSocket.accept();
-            System.out.println("Nova Conexão Realizada");
-            //new Thread(secondThread()).start();
-
-            //novo
+            TextLog.append("\n" + clientSocket.getPort() + ": Iniciou conexão.");
             BufferedReader read = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             new Thread() {
                 @Override
                 public void run() {
+                    Socket socket = clientSocket;
                     try {
                         String linha;
                         while ((linha = read.readLine()) != null) {
-                            System.out.println("Entrou no while");
+                            System.out.println("Entrou no while" + socket.getPort());
                             System.out.println(linha);
+                            TextLog.append("\n" + socket.getPort() + ": " + linha);
                             try {
                                 JSONObject json = new JSONObject(linha);
-                                iniciaAcao(json, clientSocket);
-                                
+                                iniciaAcao(json, socket);  
                             } catch (JSONException ex) {
                                 errorLog(
-                                        "Json inválido - " + linha,
+                                        socket.getPort() + " - Json inválido - " + linha,
                                         ex.getMessage(),
-                                        "Encerrando conexão com " + clientSocket.getInetAddress().getHostAddress() + ":" + clientSocket.getPort() + " por segurança.");
-                                System.out.println("Erro json: " + ex.getMessage());
-                                desconecta(clientSocket);
+                                        "Encerrando conexão com " + socket.getInetAddress().getHostAddress() + ":" + clientSocket.getPort() + " por segurança.");
+                                System.out.println("Erro json: " + ex.getMessage() + socket.getPort());
+                                desconecta(socket);
                             }
-                            System.out.println("terminou o while");
+                            System.out.println("terminou o while" + socket.getPort());
                         }
-                        desconecta(clientSocket);
+                        System.out.println("Saiu do while " + socket.getPort());
+                        desconecta(socket);
                     } catch (IOException ex) {
-                        System.err.println("Problema detectado: " + ex.getMessage());
-                        desconecta(clientSocket);
+                        TextLog.append("Server: Houve uma desconexão inesperada.");
+                        desconecta(socket);
                     }
                 }
             }.start();
         }
     }
-
+    
     private void errorLog(String frase, String erro, String fraseFinal) {
-        TextLog.append("\n\n");
+        TextLog.append("\n");
         TextLog.append("Erro: " + frase);
         TextLog.append("\n" + erro);
         TextLog.append("\n" + fraseFinal);
         TextLog.setCaretPosition(TextLog.getDocument().getLength());
+    }
+    
+    private void logSingle(String porta, String frase){
+        TextLog.append("\n" + porta + ": " + frase);
+        System.out.println(porta + ": " + frase);
+    }
+    
+    private void logDual(String porta1, String porta2, String frase){
+        TextLog.append("\n" + porta1 + " to " + porta2 + ": " + frase);
+        System.out.println(porta1 + " to " + porta2 + ": " + frase);
     }
 
     private void desconecta(Socket socket) {
@@ -297,22 +305,24 @@ public class Servidor extends javax.swing.JFrame {
     }
 
     private void iniciaAcao(JSONObject json, Socket socket) {
-        System.out.println("Verificando ação...");
+        TextLog.append("\n" + socket.getPort() + ": Detectando ação...");
         if (json.has("action")) {
             if (json.get("action").equals("connect")) {
+                TextLog.append("\n" + socket.getPort() + ": Ação 'connect' detectada.");
                 iniciaConexao(json, socket);
             } else {
                 System.out.println("A ação " + json.get("action") + " não existe.");
             }
         } else {
-            System.out.println("Action não encontrada.");
+            TextLog.append("\n" + socket.getPort() + ": ERRO - json enviado não contém a chave 'action'.");
+            TextLog.append("\n" + socket.getPort() + ": Nenhuma ação foi iniciada.");
         }
     }
 
     private void iniciaConexao(JSONObject json, Socket socket) {
         Usuario usuario = validaUsuario(json, socket);
-        TextLog.append("\n\nNovo usuário: " + usuario.getNome() + "\nEndereço: ");
-        TextLog.append(usuario.getIp() + ":" + usuario.getPorta());
+        TextLog.append("\n" + socket.getPort() + ": Entrou com o nome " + usuario.getNome());
+        TextLog.append("\n" + socket.getPort() + ": endereço - " +  usuario.getIp() + ":" + usuario.getPorta());
         atualizalista(usuario, "add");
         listaUsuarios();
     }
@@ -324,16 +334,18 @@ public class Servidor extends javax.swing.JFrame {
     }
 
     private void listaUsuarios() {
+        TextLog.append("\nServer: Arrumando lista de usuários...");
         JSONArray arr = new JSONArray();
         DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
         model.setRowCount(0);
         for (int i = 0; i < clientes.size(); i++) {
             Usuario usuario = clientes.get(i);
+            TextLog.append("\nServer: listando " + usuario.getNome() + " com a porta " + usuario.getPorta());
             model.addRow(new Object[]{usuario.getIp(), usuario.getNome(), usuario.getMaterial(), usuario.getTipo()});
             JSONObject newJson = usuario.getJson();
             newJson.put("porta", usuario.getPorta());
             usuario.setJson(newJson);
-            System.out.println(usuario.getJson());
+            TextLog.append("\nServer: Novo json = " + usuario.getJson());
             arr.put(usuario.getJson());
         }
         
@@ -344,13 +356,18 @@ public class Servidor extends javax.swing.JFrame {
     }
     
     public void broadcast(JSONObject json) {
+        TextLog.append("\nServer: Enviando broadcast...");
         for (int i = 0; i < clientes.size(); i++) {
             Usuario usuario = clientes.get(i);
             PrintStream ps;
             try {
+                TextLog.append("\nServer to " + usuario.getPorta() + ": " + json.toString());
                 ps = new PrintStream(usuario.getSocket().getOutputStream());
                 ps.println(json.toString());
             } catch (IOException ex) {
+                TextLog.append("\nServer: Erro de broadcast para " + usuario.getPorta());
+                TextLog.append("\nServer: Erro - " + ex.getMessage());
+
                 System.err.println("Erro de broadcast: " + ex.getMessage());
             }
         }
