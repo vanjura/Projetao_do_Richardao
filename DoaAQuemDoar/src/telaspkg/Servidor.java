@@ -22,6 +22,7 @@ import javax.swing.table.DefaultTableModel;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import static org.json.JSONObject.NULL;
 import server.Server;
 import server.Usuario;
 
@@ -72,6 +73,7 @@ public class Servidor extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         jTextFieldPorta = new javax.swing.JTextField();
         jButtonConectar = new javax.swing.JButton();
+        jButtonDesconectar = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -136,6 +138,15 @@ public class Servidor extends javax.swing.JFrame {
         });
         getContentPane().add(jButtonConectar, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 20, -1, 20));
 
+        jButtonDesconectar.setText("Desconectar");
+        jButtonDesconectar.setEnabled(false);
+        jButtonDesconectar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonDesconectarActionPerformed(evt);
+            }
+        });
+        getContentPane().add(jButtonDesconectar, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 20, -1, 20));
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
@@ -157,7 +168,14 @@ public class Servidor extends javax.swing.JFrame {
             }
         };
         this.mainThread.start();
+        jButtonDesconectar.setEnabled(true);
     }//GEN-LAST:event_jButtonConectarActionPerformed
+
+    private void jButtonDesconectarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDesconectarActionPerformed
+        desconectaServidor();
+        JOptionPane.showConfirmDialog(null, "Servidor desconectado!", "Desconectado", JOptionPane.DEFAULT_OPTION);
+        System.exit(0);
+    }//GEN-LAST:event_jButtonDesconectarActionPerformed
 
     /**
      * @param args the command line arguments
@@ -197,6 +215,7 @@ public class Servidor extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextArea TextLog;
     private javax.swing.JButton jButtonConectar;
+    private javax.swing.JButton jButtonDesconectar;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
@@ -287,6 +306,20 @@ public class Servidor extends javax.swing.JFrame {
         
         listaUsuarios();
         enviaMensagemParaCliente(socket, "desconecta");
+    }
+    
+    private void desconectaServidor() {
+        try{
+            for (int i = 0; i < clientes.size(); i++) {
+            if (clientes.get(i).getPorta() != 0) {
+                System.out.println(clientes.get(i));
+                clientes.remove(i);
+                System.out.println("Desconectou " + clientes.get(i).getSocket().getPort());
+            }
+        }
+        }catch(Exception e){
+            System.out.println("Erro" + e);
+        }
     }
     
     private void enviaMensagemParaCliente(Socket socket, String mensagem){
