@@ -425,46 +425,46 @@ public class Servidor extends javax.swing.JFrame {
         return usuario;
     }
 
-    private Runnable secondThread() {
-        Runnable second;
-        second = new Runnable() {
-            public void run() {
-                try {
-                    Usuario user = new Usuario();
-                    user.setSocket(clientSocket);
-                    user.setIn(new BufferedReader(new InputStreamReader(clientSocket.getInputStream())));
-                    user.setOut(new PrintStream(clientSocket.getOutputStream()));
-                    String line;
-                    while ((line = user.getIn().readLine()) != null) {
-                        JSONObject json = new JSONObject(line);
-                        if (json.has("action")) {
-                            System.out.println(json.get("action"));
-                            if (json.get("action").equals("connect")) {
-                                TextLog.append(
-                                        "Nova conexão iniciada: "
-                                        + user.getSocket().getInetAddress().getHostAddress()
-                                        + ":"
-                                        + user.getSocket().getPort()
-                                );
-                            } else {
-                                TextLog.append("A ação " + json.get("action") + " não está configurada.");
-                            }
-                        } else {
-                            TextLog.append("Tentativa incorreta de conexão. Action não foi detectada.");
-                        }
-                    }
-                } catch (IOException ex) {
-                    Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
-                }
-
-                try {
-                    serverSocket.close();
-                } catch (IOException e) {
-                    System.err.println("Não é possível fechar a porta.");
-                    System.exit(1);
-                }
-            }
-        };
-        return second;
-    }
+//    private Runnable secondThread() {
+//        Runnable second;
+//        second = new Runnable() {
+//            public void run() {
+//                try {
+//                    Usuario user = new Usuario();
+//                    user.setSocket(clientSocket);
+//                    user.setIn(new BufferedReader(new InputStreamReader(clientSocket.getInputStream())));
+//                    user.setOut(new PrintStream(clientSocket.getOutputStream()));
+//                    String line;
+//                    while ((line = user.getIn().readLine()) != null) {
+//                        JSONObject json = new JSONObject(line);
+//                        if (json.has("action")) {
+//                            System.out.println(json.get("action"));
+//                            if (json.get("action").equals("connect")) {
+//                                TextLog.append(
+//                                        "Nova conexão iniciada: "
+//                                        + user.getSocket().getInetAddress().getHostAddress()
+//                                        + ":"
+//                                        + user.getSocket().getPort()
+//                                );
+//                            } else {
+//                                TextLog.append("A ação " + json.get("action") + " não está configurada.");
+//                            }
+//                        } else {
+//                            TextLog.append("Tentativa incorreta de conexão. Action não foi detectada.");
+//                        }
+//                    }
+//                } catch (IOException ex) {
+//                    Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
+//                }
+//
+//                try {
+//                    serverSocket.close();
+//                } catch (IOException e) {
+//                    System.err.println("Não é possível fechar a porta.");
+//                    System.exit(1);
+//                }
+//            }
+//        };
+//        return second;
+//    }
 }
