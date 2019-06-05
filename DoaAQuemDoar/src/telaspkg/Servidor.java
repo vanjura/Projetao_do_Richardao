@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -176,7 +177,10 @@ public class Servidor extends javax.swing.JFrame {
         JOptionPane.showConfirmDialog(null, "Servidor desconectado!", "Desconectado", JOptionPane.DEFAULT_OPTION);
         jButtonConectar.setEnabled(true);
         jButtonDesconectar.setEnabled(false);
-        jTextFieldPorta.setEditable(true);
+        jTextFieldPorta.setEnabled(true);
+        TextLog.setText("");
+        DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
+        model.setRowCount(0);
         //System.exit(0);
     }//GEN-LAST:event_jButtonDesconectarActionPerformed
 
@@ -304,12 +308,11 @@ public class Servidor extends javax.swing.JFrame {
                 System.out.println("Desconectou " + socket.getPort());
             }
         }
+        listaUsuarios();
+        enviaMensagemParaCliente(socket, "desconecta");   
         }catch(Exception e){
             System.out.println("Erro" + e);
         }
-        
-        listaUsuarios();
-        enviaMensagemParaCliente(socket, "desconecta");
     }
     
     private void desconectaServidor() {
@@ -387,6 +390,7 @@ public class Servidor extends javax.swing.JFrame {
         JSONArray arr = new JSONArray();
         DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
         model.setRowCount(0);
+        try{
         for (int i = 0; i < clientes.size(); i++) {
             Usuario usuario = clientes.get(i);
             TextLog.append("\nServer: listando " + usuario.getNome() + " com a porta " + usuario.getPorta());
@@ -396,6 +400,9 @@ public class Servidor extends javax.swing.JFrame {
             usuario.setJson(newJson);
             TextLog.append("\nServer: Novo json = " + usuario.getJson());
             arr.put(usuario.getJson());
+        }
+        }catch (Exception e) {
+            Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, e);
         }
         
         JSONObject lista = new JSONObject();
