@@ -174,7 +174,9 @@ public class Servidor extends javax.swing.JFrame {
     private void jButtonDesconectarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDesconectarActionPerformed
         desconectaServidor();
         JOptionPane.showConfirmDialog(null, "Servidor desconectado!", "Desconectado", JOptionPane.DEFAULT_OPTION);
-        System.exit(0);
+        jButtonConectar.setEnabled(true);
+        jButtonDesconectar.setEnabled(false);
+        //System.exit(0);
     }//GEN-LAST:event_jButtonDesconectarActionPerformed
 
     /**
@@ -291,6 +293,7 @@ public class Servidor extends javax.swing.JFrame {
     }
 
     private void desconecta(Socket socket) {
+        
         int porta = socket.getPort();
         try{
             for (int i = 0; i < clientes.size(); i++) {
@@ -314,6 +317,14 @@ public class Servidor extends javax.swing.JFrame {
             if (clientes.get(i).getPorta() != 0) {
                 System.out.println(clientes.get(i));
                 clientes.remove(i);
+                PrintStream out;
+                    try {
+                        out = new PrintStream(clientes.get(i).getSocket().getOutputStream());
+                        String st = null;
+                        out.println(st);
+                    } catch (IOException ex) {
+                        Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 System.out.println("Desconectou " + clientes.get(i).getSocket().getPort());
             }
         }
@@ -343,7 +354,11 @@ public class Servidor extends javax.swing.JFrame {
             if (json.get("action").equals("connect")) {
                 TextLog.append("\n" + socket.getPort() + ": Ação 'connect' detectada.");
                 iniciaConexao(json, socket);
-            } else {
+            } else
+                if(json.get("action").equals("disconnect")){
+                    desconecta(socket);
+                }
+            else {
                 System.out.println("A ação " + json.get("action") + " não existe.");
             }
         } else {

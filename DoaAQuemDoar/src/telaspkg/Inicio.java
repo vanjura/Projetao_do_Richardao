@@ -21,6 +21,7 @@ public class Inicio extends javax.swing.JFrame {
 
     public String jsao;
     public ArrayList<Usuario> clientes = new ArrayList<Usuario>();
+    public Socket socketCliente;
 
     /**
      * Creates new form Inicio
@@ -47,7 +48,7 @@ public class Inicio extends javax.swing.JFrame {
         NomeLabel = new javax.swing.JLabel();
         NomeTextField = new javax.swing.JTextField();
         MaterialLabel = new javax.swing.JLabel();
-        MaterialComboBox = new javax.swing.JComboBox<String>();
+        MaterialComboBox = new javax.swing.JComboBox<>();
         DescricaoLabel = new javax.swing.JLabel();
         DescricaoScrollPane = new javax.swing.JScrollPane();
         DescricaoTextPane = new javax.swing.JTextPane();
@@ -56,6 +57,7 @@ public class Inicio extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         ColetorRadioButton = new javax.swing.JRadioButton();
         DoadorRadioButton = new javax.swing.JRadioButton();
+        jButtonDesconectar = new javax.swing.JButton();
         jPanel4 = new javax.swing.JPanel();
         jPanel5 = new javax.swing.JPanel();
         jButton2 = new javax.swing.JButton();
@@ -112,7 +114,7 @@ public class Inicio extends javax.swing.JFrame {
         MaterialLabel.setText("Material:");
         jPanel3.add(MaterialLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 60, 60, 20));
 
-        MaterialComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "oleo", "metal", "roupa", "papel", "plastico", "eletronico" }));
+        MaterialComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "oleo", "metal", "roupa", "papel", "plastico", "eletronico" }));
         MaterialComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 MaterialComboBoxActionPerformed(evt);
@@ -137,7 +139,7 @@ public class Inicio extends javax.swing.JFrame {
                 ConectarButtonActionPerformed(evt);
             }
         });
-        jPanel3.add(ConectarButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 483, -1, 20));
+        jPanel3.add(ConectarButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 480, -1, 20));
 
         PortaLabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         PortaLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -174,6 +176,15 @@ public class Inicio extends javax.swing.JFrame {
         jPanel1.add(DoadorRadioButton);
 
         jPanel3.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 110, 310, 60));
+
+        jButtonDesconectar.setText("Desconectar");
+        jButtonDesconectar.setEnabled(false);
+        jButtonDesconectar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonDesconectarActionPerformed(evt);
+            }
+        });
+        jPanel3.add(jButtonDesconectar, new org.netbeans.lib.awtextra.AbsoluteConstraints(237, 480, -1, 20));
 
         jPanel2.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 340, 510));
 
@@ -237,7 +248,7 @@ public class Inicio extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void ConectarButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ConectarButtonActionPerformed
-
+        ConectarButton.setEnabled(false);
         try {
             String ip = IpTextField.getText();
             int porta = Integer.parseInt(PortaTextField.getText());
@@ -258,7 +269,7 @@ public class Inicio extends javax.swing.JFrame {
             json.put("tipo", tipo);
             if (DoadorRadioButton.isSelected()) {
                 json.put("descricao", descricao);
-            }else{
+            } else {
                 json.put("descricao", "Sem Descrição");
             }
             System.out.println(json);
@@ -270,13 +281,14 @@ public class Inicio extends javax.swing.JFrame {
         Integer porta = new Integer(PortaTextField.getText());
 
         System.out.println("Conectando ao IP " + serverHostname + " na porta " + porta + ".");
-
+        jButtonDesconectar.setEnabled(true);
         Socket socket;
         PrintStream out;
         BufferedReader in;
-        
+
         try {
             socket = new Socket(serverHostname, porta);
+            this.socketCliente = socket;
             out = new PrintStream(socket.getOutputStream());
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             //JOptionPane.showConfirmDialog(null, "Conexao Realizada com Suceso!", "Desconectar", 0);
@@ -291,7 +303,7 @@ public class Inicio extends javax.swing.JFrame {
                 public void run() {
                     try {
                         String userInput;
-                        while ((userInput = in.readLine()) != null) {
+                        while (((userInput = in.readLine()) != null) || socketCliente != null) {
                             System.out.println("Entrou no while");
                             try {
                                 JSONObject json = new JSONObject(userInput);
@@ -299,21 +311,26 @@ public class Inicio extends javax.swing.JFrame {
                             } catch (JSONException ex) {
                                 System.out.println("Erro no json" + ex);
                             }
-                            
+
                             System.out.println("Saiu do while");
                         }
+                        desconectaCliente(socket);
                         out.close();
                         in.close();
-                        //stdIn.close();
                         socket.close();
+                        //stdIn.close();
+                        
                     } catch (IOException ex) {
-                        System.out.println(ex.getMessage());
-                        Logger.getLogger(Inicio.class.getName()).log(Level.SEVERE, null, ex);
+                        JOptionPane.showMessageDialog(null, "Servidou desconectou! " + serverHostname);
+                        jButtonDesconectar.setEnabled(false);
+                        ConectarButton.setEnabled(true);
+                        DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
+                        model.setRowCount(0);
+                        
                     }
                 }
             }.start();
 
-            
         } catch (UnknownHostException e) {
             System.err.println();
             JOptionPane.showMessageDialog(null, "Não é possível encontrar o servidor " + serverHostname);
@@ -350,6 +367,25 @@ public class Inicio extends javax.swing.JFrame {
     private void MaterialComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MaterialComboBoxActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_MaterialComboBoxActionPerformed
+
+    private void jButtonDesconectarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDesconectarActionPerformed
+        //JOptionPane.showConfirmDialog(null, "Desconectado com sucesso!", "Desconectado", JOptionPane.DEFAULT_OPTION);
+        int opt = JOptionPane.OK_OPTION;
+        Object[] options = {"Sim", "Não"};
+        int opcao = JOptionPane.showOptionDialog(null, "Você deseja se desconectar?", "Confirmação", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+        if (opcao == JOptionPane.NO_OPTION) {
+            opt = JOptionPane.NO_OPTION;
+        }
+        int opcao1 = JOptionPane.showOptionDialog(null, "Tem certeza?", "Confirmação", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[0]);
+        if (opcao1 == opt) {
+            desconectaCliente(socketCliente);
+            socketCliente = null;
+            DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
+            model.setRowCount(0);
+            ConectarButton.setEnabled(true);
+            jButtonDesconectar.setEnabled(false);
+        }
+    }//GEN-LAST:event_jButtonDesconectarActionPerformed
 
     /**
      * @param args the command line arguments
@@ -411,6 +447,25 @@ public class Inicio extends javax.swing.JFrame {
         }
     }
 
+    private void desconectaCliente(Socket socket) {
+        JSONObject cliente = new JSONObject();
+        //Preenche o objeto JSON com a action para desconectar
+        cliente.put("action", "disconnect");
+        String clienteDesconectandoJsonString = cliente.toString();
+
+        //IPAddress = InetAddress.getLocalHost().getHostAddress(); //Pega o endereço
+        //Manda mensagem ao servidor
+        PrintStream saida;
+        try {
+            saida = new PrintStream(socket.getOutputStream());
+            System.out.println("DESCONECTADO DO SERVIDOR: " + clienteDesconectandoJsonString);
+            saida.println(clienteDesconectandoJsonString);//Envia uma String JSON
+        } catch (IOException ex) {
+            Logger.getLogger(Inicio.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JRadioButton ColetorRadioButton;
     private javax.swing.JButton ConectarButton;
@@ -429,6 +484,7 @@ public class Inicio extends javax.swing.JFrame {
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButtonDesconectar;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
