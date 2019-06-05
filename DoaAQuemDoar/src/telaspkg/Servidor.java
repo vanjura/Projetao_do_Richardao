@@ -176,6 +176,7 @@ public class Servidor extends javax.swing.JFrame {
         JOptionPane.showConfirmDialog(null, "Servidor desconectado!", "Desconectado", JOptionPane.DEFAULT_OPTION);
         jButtonConectar.setEnabled(true);
         jButtonDesconectar.setEnabled(false);
+        jTextFieldPorta.setEditable(true);
         //System.exit(0);
     }//GEN-LAST:event_jButtonDesconectarActionPerformed
 
