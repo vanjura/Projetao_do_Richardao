@@ -85,7 +85,6 @@ public class Inicio extends javax.swing.JFrame {
         IpLabel.setPreferredSize(new java.awt.Dimension(15, 15));
         jPanel3.add(IpLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 20, 20));
 
-        IpTextField.setText("127.0.0.1");
         IpTextField.setMaximumSize(new java.awt.Dimension(150, 20));
         IpTextField.setMinimumSize(new java.awt.Dimension(150, 20));
         IpTextField.setPreferredSize(new java.awt.Dimension(150, 20));
@@ -96,7 +95,6 @@ public class Inicio extends javax.swing.JFrame {
         });
         jPanel3.add(IpTextField, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, 140, -1));
 
-        PortaTextField.setText("1234");
         PortaTextField.setMaximumSize(new java.awt.Dimension(50, 20));
         PortaTextField.setMinimumSize(new java.awt.Dimension(20, 20));
         PortaTextField.setPreferredSize(new java.awt.Dimension(50, 20));
@@ -106,15 +104,13 @@ public class Inicio extends javax.swing.JFrame {
         NomeLabel.setText("Nome:");
         NomeLabel.setPreferredSize(new java.awt.Dimension(46, 15));
         jPanel3.add(NomeLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 60, 40, 20));
-
-        NomeTextField.setText("Teste");
         jPanel3.add(NomeTextField, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 80, 140, -1));
 
         MaterialLabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         MaterialLabel.setText("Material:");
         jPanel3.add(MaterialLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 60, 60, 20));
 
-        MaterialComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "oleo", "metal", "roupa", "papel", "plastico", "eletronico" }));
+        MaterialComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Selecione...", "oleo", "metal", "roupa", "papel", "plastico", "eletronico" }));
         MaterialComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 MaterialComboBoxActionPerformed(evt);
@@ -152,7 +148,6 @@ public class Inicio extends javax.swing.JFrame {
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Tipo"));
 
         buttonGroup1.add(ColetorRadioButton);
-        ColetorRadioButton.setSelected(true);
         ColetorRadioButton.setText("Coletor");
         ColetorRadioButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -248,99 +243,112 @@ public class Inicio extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void ConectarButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ConectarButtonActionPerformed
-        ConectarButton.setEnabled(false);
-        try {
+        if (IpTextField.getText().trim().length() != 0 && PortaTextField.getText().trim().length() != 0) {
+            System.out.println(IpTextField.getText());
             String ip = IpTextField.getText();
             int porta = Integer.parseInt(PortaTextField.getText());
             String nome = NomeTextField.getText();
-            String material = MaterialComboBox.getSelectedItem().toString();
-            String tipo = "";
-            String action = "connect";
-            if (DoadorRadioButton.isSelected()) {
-                tipo = "D";
-            } else {
-                tipo = "C";
-            }
-            String descricao = DescricaoTextPane.getText();
-            JSONObject json = new JSONObject();
-            json.put("action", action);
-            json.put("nome", nome);
-            json.put("material", material);
-            json.put("tipo", tipo);
-            if (DoadorRadioButton.isSelected()) {
-                json.put("descricao", descricao);
-            } else {
-                json.put("descricao", "Sem Descrição");
-            }
-            System.out.println(json);
-            jsao = json.toString();
-        } catch (NumberFormatException e) {
-            System.out.println(e);
-        }
-        String serverHostname = new String(IpTextField.getText());
-        Integer porta = new Integer(PortaTextField.getText());
-
-        System.out.println("Conectando ao IP " + serverHostname + " na porta " + porta + ".");
-        jButtonDesconectar.setEnabled(true);
-        Socket socket;
-        PrintStream out;
-        BufferedReader in;
-
-        try {
-            socket = new Socket(serverHostname, porta);
-            this.socketCliente = socket;
-            out = new PrintStream(socket.getOutputStream());
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            //JOptionPane.showConfirmDialog(null, "Conexao Realizada com Suceso!", "Desconectar", 0);
-            //Object[] option = {"OK", "Desconectar?"};
-            //int flag = JOptionPane.showOptionDialog(null, "Conexão Realizada com Sucesso!", "Conexão", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, option, null);
-            out.println(jsao);
-            BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
-            //BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
-            new Thread() {
-
-                @Override
-                public void run() {
-                    try {
-                        String userInput;
-                        while (((userInput = in.readLine()) != null) || socketCliente != null) {
-                            System.out.println("Entrou no while");
-                            try {
-                                JSONObject json = new JSONObject(userInput);
-                                iniciaAcao(json);
-                            } catch (JSONException ex) {
-                                System.out.println("Erro no json" + ex);
-                            }
-
-                            System.out.println("Saiu do while");
-                        }
-                        desconectaCliente(socket);
-                        out.close();
-                        in.close();
-                        socket.close();
-                        //stdIn.close();
-                        
-                    } catch (IOException ex) {
-                        JOptionPane.showMessageDialog(null, "Servidou desconectou! " + serverHostname);
-                        jButtonDesconectar.setEnabled(false);
-                        ConectarButton.setEnabled(true);
-                        DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
-                        model.setRowCount(0);
-                        
+            if (NomeTextField.getText().trim().length() != 0){
+                String material = MaterialComboBox.getSelectedItem().toString();
+                if (material != "Selecione...") {
+                    String tipo = "";
+                    String action = "connect";
+                    if (DoadorRadioButton.isSelected() || ColetorRadioButton.isSelected()){
+                         if (DoadorRadioButton.isSelected()) {
+                        tipo = "D";
+                    } else if (ColetorRadioButton.isSelected()){
+                        tipo = "C";
                     }
-                }
-            }.start();
-
-        } catch (UnknownHostException e) {
-            System.err.println();
-            JOptionPane.showMessageDialog(null, "Não é possível encontrar o servidor " + serverHostname);
-            System.exit(1);
-        } catch (IOException e) {
-            System.err.println("Não é possível conectar a " + serverHostname);
-            System.exit(1);
-        }
-
-
+                    String descricao = DescricaoTextPane.getText();
+                    if (DoadorRadioButton.isSelected() && DescricaoTextPane.getText().trim().length() == 0) {
+                        JOptionPane.showMessageDialog(null, "Descrição não inserida. Por favor corrija!", "ERRO", JOptionPane.WARNING_MESSAGE);
+                    }
+                    else {
+                        ConectarButton.setEnabled(false);
+                        JSONObject json = new JSONObject();
+                        json.put("action", action);
+                        json.put("nome", nome);
+                        json.put("material", material);
+                        json.put("tipo", tipo);
+                        if (DoadorRadioButton.isSelected()) {
+                            json.put("descricao", descricao);
+                        } else {
+                            json.put("descricao", "Sem Descrição");
+                        }
+                        System.out.println(json);
+                        jsao = json.toString();
+                    
+                    String serverHostname = new String(IpTextField.getText());
+                    Integer porta1 = new Integer(PortaTextField.getText());
+                    
+                    System.out.println("Conectando ao IP " + serverHostname + " na porta " + porta1 + ".");
+                    jButtonDesconectar.setEnabled(true);
+                    Socket socket;
+                    PrintStream out;
+                    BufferedReader in;
+                    
+                    try {
+                        socket = new Socket(serverHostname, porta1);
+                        this.socketCliente = socket;
+                        out = new PrintStream(socket.getOutputStream());
+                        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                        //JOptionPane.showConfirmDialog(null, "Conexao Realizada com Suceso!", "Desconectar", 0);
+                        //Object[] option = {"OK", "Desconectar?"};
+                        //int flag = JOptionPane.showOptionDialog(null, "Conexão Realizada com Sucesso!", "Conexão", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, option, null);
+                        out.println(jsao);
+                        BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
+                        //BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
+                        new Thread() {
+                            
+                            @Override
+                            public void run() {
+                                try {
+                                    String userInput;
+                                    while (((userInput = in.readLine()) != null) || socketCliente != null) {
+                                        System.out.println("Entrou no while");
+                                        try {
+                                            JSONObject json = new JSONObject(userInput);
+                                            iniciaAcao(json);
+                                        } catch (JSONException ex) {
+                                            System.out.println("Erro no json" + ex);
+                                        }
+                                        
+                                        System.out.println("Saiu do while");
+                                    }
+                                    desconectaCliente(socket);
+                                    out.close();
+                                    in.close();
+                                    socket.close();
+                                    //stdIn.close();
+                                    
+                                } catch (IOException ex) {
+                                    JOptionPane.showMessageDialog(null, "Servidou desconectou! " + serverHostname);
+                                    jButtonDesconectar.setEnabled(false);
+                                    ConectarButton.setEnabled(true);
+                                    DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
+                                    model.setRowCount(0);
+                                    
+                                }
+                            }
+                        }.start();
+                        
+                    } catch (UnknownHostException e) {
+                        System.err.println();
+                        JOptionPane.showMessageDialog(null, "Não é possível encontrar o servidor " + serverHostname);
+                        System.exit(1);
+                    } catch (IOException e) {
+                        System.err.println("Não é possível conectar a " + serverHostname);
+                        System.exit(1);
+                    }
+                    }
+                    }else
+                        JOptionPane.showMessageDialog(null, "Tipo de usuário não inserido. Por favor corrija!", "ERRO", JOptionPane.WARNING_MESSAGE);
+                }else
+                    JOptionPane.showMessageDialog(null, "Material não inserido. Por favor corrija!", "ERRO", JOptionPane.WARNING_MESSAGE);                    
+            }else
+                JOptionPane.showMessageDialog(null, "Nome não inserido. Por favor corrija!", "ERRO", JOptionPane.WARNING_MESSAGE);
+        } else
+            JOptionPane.showMessageDialog(null, "IP ou Porta não inseridos.", "ERRO", JOptionPane.WARNING_MESSAGE);
     }//GEN-LAST:event_ConectarButtonActionPerformed
 
     private void DoadorRadioButtonStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_DoadorRadioButtonStateChanged
