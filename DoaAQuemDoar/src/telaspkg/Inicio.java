@@ -243,6 +243,12 @@ public class Inicio extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void ConectarButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ConectarButtonActionPerformed
+        JSONObject validacao = validaInsercao();
+        if(validacao.getBoolean("success")){
+            System.out.println("Tudo OK.");
+        }else{
+            JOptionPane.showMessageDialog(null, validacao.getString("message"), "ERRO", JOptionPane.WARNING_MESSAGE);
+        }
         if (IpTextField.getText().trim().length() != 0 && PortaTextField.getText().trim().length() != 0) {
             System.out.println(IpTextField.getText());
             String ip = IpTextField.getText();
@@ -432,6 +438,38 @@ public class Inicio extends javax.swing.JFrame {
             }
         });
 
+    }
+    
+    private JSONObject validaInsercao(){
+        String message = "";
+        JSONObject validacao = new JSONObject();
+        validacao.put("success", true);
+        if(IpTextField.getText().trim().length() == 0){
+            message += "O Campo IP é Obrigatório.\n";
+            validacao.put("success", false);
+        }
+        if(PortaTextField.getText().trim().length() == 0){
+            message += "O Campo Porta é Obrigatório.\n";
+            validacao.put("success", false);
+        }
+        
+        if(NomeTextField.getText().trim().length() == 0){
+            message += "O Campo Nome é Obrigatório.\n";
+            validacao.put("success", false);
+        }
+        
+        if(MaterialComboBox.getSelectedItem().toString() == "Selecione..."){
+            message += "É obrigatório selecionar um material.\n";
+            validacao.put("success", false);
+        }
+        
+        if(!DoadorRadioButton.isSelected() && !ColetorRadioButton.isSelected()){
+            message += "É obrigatório selecionar um tipo.\n";
+            validacao.put("success", false);
+        }
+        
+        validacao.put("message", message);
+        return validacao;
     }
 
     private void iniciaAcao(JSONObject json) {
