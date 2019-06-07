@@ -302,9 +302,13 @@ public class Servidor extends javax.swing.JFrame {
         int porta = socket.getPort();
         try {
             for (int i = 0; i < clientes.size(); i++) {
-                if (clientes.get(i).getPorta() == porta) {
+                if (Integer.parseInt(clientes.get(i).getPorta()) == porta) {
                     System.out.println(clientes.get(i));
+                    JSONObject json = new JSONObject();
+                    json.put("action", "chat_general_client");
+                    json.put("mensagem",clientes.get(i).getNome() + " desconectou-se.");
                     clientes.remove(i);
+                    broadcast(json);
                     System.out.println("Desconectou " + socket.getPort());
                 }
             }
@@ -318,7 +322,7 @@ public class Servidor extends javax.swing.JFrame {
     private void desconectaServidor() {
         try {
             for (int i = 0; i < clientes.size(); i++) {
-                if (clientes.get(i).getPorta() != 0) {
+                if (Integer.parseInt(clientes.get(i).getPorta()) != 0) {
                     System.out.println(clientes.get(i));
                     clientes.remove(i);
                     PrintStream out;
@@ -379,7 +383,7 @@ public class Servidor extends javax.swing.JFrame {
         try {
             for (int i = 0; i < clientes.size(); i++) {
                 Usuario usuario = clientes.get(i);
-                if(usuario.getPorta() == socket.getPort()){
+                if(Integer.parseInt(usuario.getPorta()) == socket.getPort()){
                     return usuario.getNome();
                 }
             }
@@ -401,6 +405,11 @@ public class Servidor extends javax.swing.JFrame {
         if (acao.equals("add")) {
             clientes.add(usuario);
         }
+        JSONObject json = new JSONObject();
+        json.put("action", "chat_general_client");
+        json.put("mensagem",usuario.getNome() + " conectou-se.");
+        broadcast(json);
+        System.out.println("Conectou " + usuario.getPorta());
     }
 
     private void listaUsuarios() {
@@ -415,6 +424,7 @@ public class Servidor extends javax.swing.JFrame {
                 model.addRow(new Object[]{usuario.getIp(), usuario.getNome(), usuario.getMaterial(), usuario.getTipo()});
                 JSONObject newJson = usuario.getJson();
                 newJson.put("porta", usuario.getPorta());
+                newJson.remove("action");
                 usuario.setJson(newJson);
                 TextLog.append("\nServer: Novo json = " + usuario.getJson());
                 arr.put(usuario.getJson());
@@ -456,7 +466,7 @@ public class Servidor extends javax.swing.JFrame {
             usuario.setTipo(json.getString("tipo"));
             usuario.setMaterial(json.getString("material"));
             usuario.setIp(socket.getInetAddress().getHostAddress());
-            usuario.setPorta(socket.getPort());
+            usuario.setPorta(Integer.toString(socket.getPort()));
             if (json.get("tipo").equals("D")) {
                 if (json.has("descricao")) {
                     usuario.setDescricao(json.getString("descricao"));

@@ -17,7 +17,7 @@ public class Usuario implements Serializable {
     private String descricao;
     private String ip;
     private JSONObject json;
-    private int porta;
+    private String porta;
 
     public Socket getSocket() {
         return socket;
@@ -83,11 +83,11 @@ public class Usuario implements Serializable {
         this.ip = ip;
     }
 
-    public int getPorta() {
+    public String getPorta() {
         return porta;
     }
 
-    public void setPorta(int porta) {
+    public void setPorta(String porta) {
         this.porta = porta;
     }
 

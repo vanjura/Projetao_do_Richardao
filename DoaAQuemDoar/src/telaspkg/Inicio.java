@@ -308,6 +308,7 @@ public class Inicio extends javax.swing.JFrame {
             model.setRowCount(0);
             ConectarButton.setEnabled(true);
             jButtonDesconectar.setEnabled(false);
+            ChatTextArea.setText("");
         }
     }//GEN-LAST:event_jButtonDesconectarActionPerformed
 
