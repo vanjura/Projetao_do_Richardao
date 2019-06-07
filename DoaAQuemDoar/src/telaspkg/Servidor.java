@@ -247,6 +247,7 @@ public class Servidor extends javax.swing.JFrame {
         System.out.println("Conexao Criada");
         while (true) {
             clientSocket = serverSocket.accept();
+            System.out.println("Novo Cliente");
             TextLog.append("\n" + clientSocket.getPort() + ": Iniciou conexão.");
             BufferedReader read = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             new Thread() {
@@ -261,6 +262,7 @@ public class Servidor extends javax.swing.JFrame {
                             TextLog.append("\n" + socket.getPort() + ": " + linha);
                             try {
                                 JSONObject json = new JSONObject(linha);
+                                System.out.println("Iniciando ação.");
                                 iniciaAcao(json, socket);
                             } catch (JSONException ex) {
                                 errorLog(
@@ -359,7 +361,11 @@ public class Servidor extends javax.swing.JFrame {
             } else if (json.get("action").equals("disconnect")) {
                 desconecta(socket);
             } else if (json.get("action").equals("chat_general_server")) {
-                System.out.println("Enviando Broadcast..");
+                String nome = nomeSocket(socket);
+                json.put("action", "chat_general_client");
+                String msg = json.getString("mensagem");
+                json.put("mensagem", nome + ": " + msg);
+                broadcast(json);
             } else {
                 System.out.println("A ação " + json.get("action") + " não existe.");
             }
@@ -367,6 +373,20 @@ public class Servidor extends javax.swing.JFrame {
             TextLog.append("\n" + socket.getPort() + ": ERRO - json enviado não contém a chave 'action'.");
             TextLog.append("\n" + socket.getPort() + ": Nenhuma ação foi iniciada.");
         }
+    }
+    
+    private String nomeSocket(Socket socket){
+        try {
+            for (int i = 0; i < clientes.size(); i++) {
+                Usuario usuario = clientes.get(i);
+                if(usuario.getPorta() == socket.getPort()){
+                    return usuario.getNome();
+                }
+            }
+        } catch (Exception e) {
+            Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, e);
+        }
+        return "Sem Nome";
     }
 
     private void iniciaConexao(JSONObject json, Socket socket) {

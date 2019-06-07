@@ -83,6 +83,7 @@
             </Component>
             <Component class="javax.swing.JTextField" name="IpTextField">
               <Properties>
+                <Property name="text" type="java.lang.String" value="127.0.0.1"/>
                 <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
                   <Dimension value="[150, 20]"/>
                 </Property>
@@ -104,6 +105,7 @@
             </Component>
             <Component class="javax.swing.JTextField" name="PortaTextField">
               <Properties>
+                <Property name="text" type="java.lang.String" value="1234"/>
                 <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
                   <Dimension value="[50, 20]"/>
                 </Property>
@@ -137,6 +139,9 @@
               </Constraints>
             </Component>
             <Component class="javax.swing.JTextField" name="NomeTextField">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Teste"/>
+              </Properties>
               <Constraints>
                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
                   <AbsoluteConstraints x="10" y="80" width="140" height="-1"/>
@@ -159,14 +164,13 @@
             <Component class="javax.swing.JComboBox" name="MaterialComboBox">
               <Properties>
                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-                  <StringArray count="7">
-                    <StringItem index="0" value="Selecione..."/>
-                    <StringItem index="1" value="oleo"/>
-                    <StringItem index="2" value="metal"/>
-                    <StringItem index="3" value="roupa"/>
-                    <StringItem index="4" value="papel"/>
-                    <StringItem index="5" value="plastico"/>
-                    <StringItem index="6" value="eletronico"/>
+                  <StringArray count="6">
+                    <StringItem index="0" value="oleo"/>
+                    <StringItem index="1" value="metal"/>
+                    <StringItem index="2" value="roupa"/>
+                    <StringItem index="3" value="papel"/>
+                    <StringItem index="4" value="plastico"/>
+                    <StringItem index="5" value="eletronico"/>
                   </StringArray>
                 </Property>
               </Properties>
@@ -277,6 +281,7 @@
                     <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
                       <ComponentRef name="buttonGroup1"/>
                     </Property>
+                    <Property name="selected" type="boolean" value="true"/>
                     <Property name="text" type="java.lang.String" value="Coletor"/>
                   </Properties>
                   <Events>
@@ -452,7 +457,7 @@
 
                   <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
                   <SubComponents>
-                    <Component class="javax.swing.JTextArea" name="jTextArea1">
+                    <Component class="javax.swing.JTextArea" name="ChatTextArea">
                       <Properties>
                         <Property name="editable" type="boolean" value="false"/>
                         <Property name="columns" type="int" value="20"/>
@@ -461,18 +466,21 @@
                     </Component>
                   </SubComponents>
                 </Container>
-                <Component class="javax.swing.JButton" name="jButton1">
+                <Component class="javax.swing.JButton" name="ChatSendBtn">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Enviar"/>
                     <Property name="enabled" type="boolean" value="false"/>
                   </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ChatSendBtnActionPerformed"/>
+                  </Events>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
                       <AbsoluteConstraints x="420" y="260" width="-1" height="20"/>
                     </Constraint>
                   </Constraints>
                 </Component>
-                <Component class="javax.swing.JTextField" name="jTextField1">
+                <Component class="javax.swing.JTextField" name="ChatTextField">
                   <Properties>
                     <Property name="enabled" type="boolean" value="false"/>
                   </Properties>

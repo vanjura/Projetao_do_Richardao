@@ -19,9 +19,12 @@ import server.Usuario;
 
 public class Inicio extends javax.swing.JFrame {
 
-    public String jsao;
-    public ArrayList<Usuario> clientes = new ArrayList<Usuario>();
+    public Usuario cliente = new Usuario();
     public Socket socketCliente;
+    public String chat = "G";
+    public Socket socket;
+    public PrintStream out;
+    public BufferedReader in;
 
     /**
      * Creates new form Inicio
@@ -65,9 +68,9 @@ public class Inicio extends javax.swing.JFrame {
         jTable2 = new javax.swing.JTable();
         jPanel6 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
-        jButton1 = new javax.swing.JButton();
-        jTextField1 = new javax.swing.JTextField();
+        ChatTextArea = new javax.swing.JTextArea();
+        ChatSendBtn = new javax.swing.JButton();
+        ChatTextField = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -85,6 +88,7 @@ public class Inicio extends javax.swing.JFrame {
         IpLabel.setPreferredSize(new java.awt.Dimension(15, 15));
         jPanel3.add(IpLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 20, 20));
 
+        IpTextField.setText("127.0.0.1");
         IpTextField.setMaximumSize(new java.awt.Dimension(150, 20));
         IpTextField.setMinimumSize(new java.awt.Dimension(150, 20));
         IpTextField.setPreferredSize(new java.awt.Dimension(150, 20));
@@ -95,6 +99,7 @@ public class Inicio extends javax.swing.JFrame {
         });
         jPanel3.add(IpTextField, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, 140, -1));
 
+        PortaTextField.setText("1234");
         PortaTextField.setMaximumSize(new java.awt.Dimension(50, 20));
         PortaTextField.setMinimumSize(new java.awt.Dimension(20, 20));
         PortaTextField.setPreferredSize(new java.awt.Dimension(50, 20));
@@ -104,13 +109,15 @@ public class Inicio extends javax.swing.JFrame {
         NomeLabel.setText("Nome:");
         NomeLabel.setPreferredSize(new java.awt.Dimension(46, 15));
         jPanel3.add(NomeLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 60, 40, 20));
+
+        NomeTextField.setText("Teste");
         jPanel3.add(NomeTextField, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 80, 140, -1));
 
         MaterialLabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         MaterialLabel.setText("Material:");
         jPanel3.add(MaterialLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 60, 60, 20));
 
-        MaterialComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Selecione...", "oleo", "metal", "roupa", "papel", "plastico", "eletronico" }));
+        MaterialComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "oleo", "metal", "roupa", "papel", "plastico", "eletronico" }));
         MaterialComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 MaterialComboBoxActionPerformed(evt);
@@ -148,6 +155,7 @@ public class Inicio extends javax.swing.JFrame {
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Tipo"));
 
         buttonGroup1.add(ColetorRadioButton);
+        ColetorRadioButton.setSelected(true);
         ColetorRadioButton.setText("Coletor");
         ColetorRadioButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -219,19 +227,24 @@ public class Inicio extends javax.swing.JFrame {
         jPanel6.setBorder(javax.swing.BorderFactory.createTitledBorder("Chat"));
         jPanel6.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jTextArea1.setEditable(false);
-        jTextArea1.setColumns(20);
-        jTextArea1.setRows(5);
-        jScrollPane2.setViewportView(jTextArea1);
+        ChatTextArea.setEditable(false);
+        ChatTextArea.setColumns(20);
+        ChatTextArea.setRows(5);
+        jScrollPane2.setViewportView(ChatTextArea);
 
         jPanel6.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 470, 230));
 
-        jButton1.setText("Enviar");
-        jButton1.setEnabled(false);
-        jPanel6.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 260, -1, 20));
+        ChatSendBtn.setText("Enviar");
+        ChatSendBtn.setEnabled(false);
+        ChatSendBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ChatSendBtnActionPerformed(evt);
+            }
+        });
+        jPanel6.add(ChatSendBtn, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 260, -1, 20));
 
-        jTextField1.setEnabled(false);
-        jPanel6.add(jTextField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 260, 410, 20));
+        ChatTextField.setEnabled(false);
+        jPanel6.add(ChatTextField, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 260, 410, 20));
 
         jPanel4.add(jPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 210, 490, 290));
 
@@ -244,117 +257,14 @@ public class Inicio extends javax.swing.JFrame {
 
     private void ConectarButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ConectarButtonActionPerformed
         JSONObject validacao = validaInsercao();
-        if(validacao.getBoolean("success")){
-            System.out.println("Tudo OK.");
-        }else{
+        if (validacao.getBoolean("success")) {
+            JSONObject user = criaUser("connect");
+            System.out.println(user);
+            String req = user.toString();
+            iniciaConexão(req);
+        } else {
             JOptionPane.showMessageDialog(null, validacao.getString("message"), "ERRO", JOptionPane.WARNING_MESSAGE);
         }
-        if (IpTextField.getText().trim().length() != 0 && PortaTextField.getText().trim().length() != 0) {
-            System.out.println(IpTextField.getText());
-            String ip = IpTextField.getText();
-            int porta = Integer.parseInt(PortaTextField.getText());
-            String nome = NomeTextField.getText();
-            if (NomeTextField.getText().trim().length() != 0){
-                String material = MaterialComboBox.getSelectedItem().toString();
-                if (material != "Selecione...") {
-                    String tipo = "";
-                    String action = "connect";
-                    if (DoadorRadioButton.isSelected() || ColetorRadioButton.isSelected()){
-                         if (DoadorRadioButton.isSelected()) {
-                        tipo = "D";
-                    } else if (ColetorRadioButton.isSelected()){
-                        tipo = "C";
-                    }
-                    String descricao = DescricaoTextPane.getText();
-                    if (DoadorRadioButton.isSelected() && DescricaoTextPane.getText().trim().length() == 0) {
-                        JOptionPane.showMessageDialog(null, "Descrição não inserida. Por favor corrija!", "ERRO", JOptionPane.WARNING_MESSAGE);
-                    }
-                    else {
-                        ConectarButton.setEnabled(false);
-                        JSONObject json = new JSONObject();
-                        json.put("action", action);
-                        json.put("nome", nome);
-                        json.put("material", material);
-                        json.put("tipo", tipo);
-                        if (DoadorRadioButton.isSelected()) {
-                            json.put("descricao", descricao);
-                        } else {
-                            json.put("descricao", "Sem Descrição");
-                        }
-                        System.out.println(json);
-                        jsao = json.toString();
-                    
-                    String serverHostname = new String(IpTextField.getText());
-                    Integer porta1 = new Integer(PortaTextField.getText());
-                    
-                    System.out.println("Conectando ao IP " + serverHostname + " na porta " + porta1 + ".");
-                    jButtonDesconectar.setEnabled(true);
-                    Socket socket;
-                    PrintStream out;
-                    BufferedReader in;
-                    
-                    try {
-                        socket = new Socket(serverHostname, porta1);
-                        this.socketCliente = socket;
-                        out = new PrintStream(socket.getOutputStream());
-                        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                        //JOptionPane.showConfirmDialog(null, "Conexao Realizada com Suceso!", "Desconectar", 0);
-                        //Object[] option = {"OK", "Desconectar?"};
-                        //int flag = JOptionPane.showOptionDialog(null, "Conexão Realizada com Sucesso!", "Conexão", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, option, null);
-                        out.println(jsao);
-                        BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
-                        //BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
-                        new Thread() {
-                            
-                            @Override
-                            public void run() {
-                                try {
-                                    String userInput;
-                                    while (((userInput = in.readLine()) != null) || socketCliente != null) {
-                                        System.out.println("Entrou no while");
-                                        try {
-                                            JSONObject json = new JSONObject(userInput);
-                                            iniciaAcao(json);
-                                        } catch (JSONException ex) {
-                                            System.out.println("Erro no json" + ex);
-                                        }
-                                        
-                                        System.out.println("Saiu do while");
-                                    }
-                                    desconectaCliente(socket);
-                                    out.close();
-                                    in.close();
-                                    socket.close();
-                                    //stdIn.close();
-                                    
-                                } catch (IOException ex) {
-                                    JOptionPane.showMessageDialog(null, "Servidou desconectou! " + serverHostname);
-                                    jButtonDesconectar.setEnabled(false);
-                                    ConectarButton.setEnabled(true);
-                                    DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
-                                    model.setRowCount(0);
-                                    
-                                }
-                            }
-                        }.start();
-                        
-                    } catch (UnknownHostException e) {
-                        System.err.println();
-                        JOptionPane.showMessageDialog(null, "Não é possível encontrar o servidor " + serverHostname);
-                        System.exit(1);
-                    } catch (IOException e) {
-                        System.err.println("Não é possível conectar a " + serverHostname);
-                        System.exit(1);
-                    }
-                    }
-                    }else
-                        JOptionPane.showMessageDialog(null, "Tipo de usuário não inserido. Por favor corrija!", "ERRO", JOptionPane.WARNING_MESSAGE);
-                }else
-                    JOptionPane.showMessageDialog(null, "Material não inserido. Por favor corrija!", "ERRO", JOptionPane.WARNING_MESSAGE);                    
-            }else
-                JOptionPane.showMessageDialog(null, "Nome não inserido. Por favor corrija!", "ERRO", JOptionPane.WARNING_MESSAGE);
-        } else
-            JOptionPane.showMessageDialog(null, "IP ou Porta não inseridos.", "ERRO", JOptionPane.WARNING_MESSAGE);
     }//GEN-LAST:event_ConectarButtonActionPerformed
 
     private void DoadorRadioButtonStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_DoadorRadioButtonStateChanged
@@ -401,6 +311,10 @@ public class Inicio extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jButtonDesconectarActionPerformed
 
+    private void ChatSendBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ChatSendBtnActionPerformed
+        detectaTipo();
+    }//GEN-LAST:event_ChatSendBtnActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -439,35 +353,138 @@ public class Inicio extends javax.swing.JFrame {
         });
 
     }
-    
-    private JSONObject validaInsercao(){
+
+    private void detectaTipo() {
+        if (chat == "G") {
+            broadcast();
+        }
+    }
+
+    private void broadcast() {
+        String msg = ChatTextField.getText();
+        ChatTextField.setText("");
+        JSONObject jsonBroad = new JSONObject();
+        jsonBroad.put("action", "chat_general_server");
+        jsonBroad.put("mensagem", msg);
+        out.println(jsonBroad.toString());
+    }
+
+    private void iniciaConexão(String req) {
+        String ip = IpTextField.getText();
+        Integer porta = new Integer(PortaTextField.getText());
+
+        try {
+            socket = new Socket(ip, porta);
+            System.out.println("Conectou");
+            out = new PrintStream(socket.getOutputStream());
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+            this.socketCliente = socket;
+            BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
+
+            out.println(req);
+
+            ConectarButton.setEnabled(false);
+            jButtonDesconectar.setEnabled(true);
+            ChatTextField.setEnabled(true);
+            ChatSendBtn.setEnabled(true);
+
+            new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        String userInput;
+                        while (((userInput = in.readLine()) != null) || socketCliente != null) {
+                            System.out.println("Entrou no while");
+                            try {
+                                JSONObject json = new JSONObject(userInput);
+                                iniciaAcao(json);
+                            } catch (JSONException ex) {
+                                System.out.println("Erro no json" + ex);
+                            }
+
+                            System.out.println("Saiu do while");
+                        }
+                        desconectaCliente(socket);
+                        out.close();
+                        in.close();
+                        socket.close();
+                        //stdIn.close();
+
+                    } catch (IOException ex) {
+                        JOptionPane.showMessageDialog(null, "Servidou desconectou! " + ip);
+                        jButtonDesconectar.setEnabled(false);
+                        ConectarButton.setEnabled(true);
+                        DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
+                        model.setRowCount(0);
+
+                    }
+                }
+            }.start();
+
+        } catch (UnknownHostException e) {
+            System.err.println();
+            JOptionPane.showMessageDialog(null, "Não é possível encontrar o servidor " + ip + e);
+            //System.exit(1);
+        } catch (IOException e) {
+            System.err.println("Não é possível conectar a " + ip + e);
+            System.out.println(e.getMessage());
+            //System.exit(1);
+        }
+    }
+
+    private JSONObject criaUser(String action) {
+        JSONObject user = new JSONObject();
+        user.put("action", action);
+        user.put("nome", NomeTextField.getText());
+        user.put("material", MaterialComboBox.getSelectedItem().toString());
+        if (DoadorRadioButton.isSelected()) {
+            user.put("tipo", "D");
+            user.put("descricao", DescricaoTextPane.getText());
+        } else {
+            user.put("tipo", "C");
+            user.put("descricao", "Sem descrição...");
+        }
+
+        return user;
+    }
+
+    private JSONObject validaInsercao() {
         String message = "";
         JSONObject validacao = new JSONObject();
         validacao.put("success", true);
-        if(IpTextField.getText().trim().length() == 0){
+        if (IpTextField.getText().trim().length() == 0) {
             message += "O Campo IP é Obrigatório.\n";
             validacao.put("success", false);
         }
-        if(PortaTextField.getText().trim().length() == 0){
+
+        if (PortaTextField.getText().trim().length() == 0) {
             message += "O Campo Porta é Obrigatório.\n";
             validacao.put("success", false);
         }
-        
-        if(NomeTextField.getText().trim().length() == 0){
+
+        if (NomeTextField.getText().trim().length() == 0) {
             message += "O Campo Nome é Obrigatório.\n";
             validacao.put("success", false);
         }
-        
-        if(MaterialComboBox.getSelectedItem().toString() == "Selecione..."){
+
+        if (MaterialComboBox.getSelectedItem().toString() == "Selecione...") {
             message += "É obrigatório selecionar um material.\n";
             validacao.put("success", false);
         }
-        
-        if(!DoadorRadioButton.isSelected() && !ColetorRadioButton.isSelected()){
+
+        if (!DoadorRadioButton.isSelected() && !ColetorRadioButton.isSelected()) {
             message += "É obrigatório selecionar um tipo.\n";
             validacao.put("success", false);
         }
-        
+
+        if (DoadorRadioButton.isSelected()) {
+            if (DescricaoTextPane.getText().trim().length() == 0) {
+                message += "Doador precisa informar uma descrição.\n";
+                validacao.put("success", false);
+            }
+        }
+
         validacao.put("message", message);
         return validacao;
     }
@@ -476,20 +493,33 @@ public class Inicio extends javax.swing.JFrame {
         System.out.println("Verificando ação...");
         if (json.has("action")) {
             if (json.get("action").equals("client_list")) {
-                DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
-                model.setRowCount(0);
-                ButtonGroup group = new ButtonGroup();
-                JSONArray lista = json.getJSONArray("lista");
-                for (int i = 0; i < lista.length(); i++) {
-                    JSONObject usuarioJson = (JSONObject) lista.get(i);
-                    System.out.println(usuarioJson);
-                    model.addRow(new Object[]{usuarioJson.get("porta"), usuarioJson.get("nome"), usuarioJson.get("tipo"), usuarioJson.get("material"), usuarioJson.get("descricao")});
-                }
+                listaClientes(json);
+            } else if (json.get("action").equals("chat_general_client")) {
+                chat_general_server(json);
             } else {
                 System.out.println("A ação " + json.get("action") + " não existe.");
             }
         } else {
             System.out.println("Action não encontrada.");
+        }
+    }
+    
+    private void chat_general_server(JSONObject json){
+        ChatTextArea.append(""+json.getString("mensagem")+"\n");
+    }
+
+    private void listaClientes(JSONObject json) {
+        DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
+        model.setRowCount(0);
+        ButtonGroup group = new ButtonGroup();
+        JSONArray lista = json.getJSONArray("lista");
+        for (int i = 0; i < lista.length(); i++) {
+            JSONObject usuarioJson = (JSONObject) lista.get(i);
+            System.out.println(usuarioJson);
+            if(!usuarioJson.has("descricao")){
+                usuarioJson.put("descricao", "Sem descricao..");
+            }
+            model.addRow(new Object[]{usuarioJson.get("porta"), usuarioJson.get("nome"), usuarioJson.get("tipo"), usuarioJson.get("material"), usuarioJson.get("descricao")});
         }
     }
 
@@ -513,6 +543,9 @@ public class Inicio extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton ChatSendBtn;
+    private javax.swing.JTextArea ChatTextArea;
+    private javax.swing.JTextField ChatTextField;
     private javax.swing.JRadioButton ColetorRadioButton;
     private javax.swing.JButton ConectarButton;
     private javax.swing.JLabel DescricaoLabel;
@@ -528,7 +561,6 @@ public class Inicio extends javax.swing.JFrame {
     private javax.swing.JLabel PortaLabel;
     private javax.swing.JTextField PortaTextField;
     private javax.swing.ButtonGroup buttonGroup1;
-    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButtonDesconectar;
     private javax.swing.JPanel jPanel1;
@@ -540,7 +572,5 @@ public class Inicio extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTable jTable2;
-    private javax.swing.JTextArea jTextArea1;
-    private javax.swing.JTextField jTextField1;
     // End of variables declaration//GEN-END:variables
 }
