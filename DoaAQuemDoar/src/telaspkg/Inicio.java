@@ -444,7 +444,6 @@ public class Inicio extends javax.swing.JFrame {
             user.put("descricao", DescricaoTextPane.getText());
         } else {
             user.put("tipo", "C");
-            user.put("descricao", "Sem descrição...");
         }
 
         return user;
