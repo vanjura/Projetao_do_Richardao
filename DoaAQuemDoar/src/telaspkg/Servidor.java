@@ -398,11 +398,62 @@ public class Servidor extends javax.swing.JFrame {
                 json.put("mensagem", nome + ": " + msg);
                 serverLog("Enviando mensagem para chat geral - " + msg);
                 broadcast(json);
+            } else if (json.get("action").equals("chat_room_server")) {
+                userLog(socket.getPort(), nomeSocket(socket), "Requisitou a ação 'chat_room_server'.");
+                String nome = nomeSocket(socket);
+                json.put("action", "chat_room_client");
+                String msg = json.getString("mensagem");
+                json.put("mensagem", nome + ": " + msg);
+                mensagemTipo(json, socket, msg);
             } else {
                 System.out.println("A ação " + json.get("action") + " não existe.");
             }
         } else {
         }
+    }
+
+    private void mensagemTipo(JSONObject json, Socket socket, String msg) {
+        String tipo = tipoSocket(socket);
+        System.out.println(tipo);
+        if(tipo.equals("C")){
+            serverLog("Enviando mensagem para chat Coletor - " + msg);
+            json.put("mensagem", "COLETORES - " + json.getString("mensagem"));
+        }else{
+            serverLog("Enviando mensagem para chat Doador - " + msg);
+            json.put("mensagem", "DOADORES - " + json.getString("mensagem"));
+        }
+        PrintStream ps;
+        if (!tipo.equals("")) {
+            try {
+                for (int i = 0; i < clientes.size(); i++) {
+                    Usuario usuario = clientes.get(i);
+                    System.out.println(usuario.getTipo());
+                    if(usuario.getTipo().equals(tipo)){
+                        ps = new PrintStream(usuario.getSocket().getOutputStream());
+                        ps.println(json.toString());
+                    }
+                }
+            } catch (Exception e) {
+                Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, e);
+            }
+        }
+    }
+
+    private String tipoSocket(Socket socket) {
+        System.out.println("Procurando tipo..");
+        try {
+            for (int i = 0; i < clientes.size(); i++) {
+                Usuario usuario = clientes.get(i);
+                System.out.println(usuario.getTipo());
+                if (Integer.parseInt(usuario.getPorta()) == socket.getPort()) {
+                    System.out.println("Achou o tipo " + usuario.getTipo());
+                    return usuario.getTipo();
+                }
+            }
+        } catch (Exception e) {
+            Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, e);
+        }
+        return "";
     }
 
     private String nomeSocket(Socket socket) {
@@ -481,7 +532,6 @@ public class Servidor extends javax.swing.JFrame {
                 ps = new PrintStream(usuario.getSocket().getOutputStream());
                 ps.println(json.toString());
             } catch (IOException ex) {
-
 
                 System.err.println("Erro de broadcast: " + ex.getMessage());
             }
