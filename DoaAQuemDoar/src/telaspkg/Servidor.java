@@ -439,11 +439,34 @@ public class Servidor extends javax.swing.JFrame {
                 json.put("action", "chat_room_client");
                 String msg = nome + ": " + json.getString("mensagem");
                 mensagemMaterial(json, socket, msg);
+            } else if (json.get("action").equals("chat_request_server")) {
+                chat_request_server(json, socket);
             } else {
                 System.out.println("A ação " + json.get("action") + " não existe.");
             }
         } else {
         }
+    }
+
+    private void chat_request_server(JSONObject json, Socket socket) {
+        JSONObject response = new JSONObject();
+        PrintStream ps;
+        String porta = Integer.toString(socket.getPort());
+        System.out.println(porta);
+        userLog(socket.getPort(), nomeSocket(socket), "Requisitou a ação 'chat_request_server'.");
+        if (json.getString("destinatario").equals(porta)) {
+            errorLog("Remetente é igual ao usuário que requisitou.", socket.getPort(), "");
+            response.put("action", "request_error");
+            try {
+                ps = new PrintStream(socket.getOutputStream());
+                ps.println(response.toString());
+            } catch (Exception e) {
+                errorLog("Erro ao enviar resposta.", socket.getPort(), e.getMessage());
+            }
+        } else {
+
+        }
+
     }
 
     private void mensagemMaterial(JSONObject json, Socket socket, String msg) {
@@ -547,7 +570,7 @@ public class Servidor extends javax.swing.JFrame {
                 } else {
                     tipo = "Coletor";
                 }
-                model.addRow(new Object[]{usuario.getIp(), usuario.getPorta(), usuario.getNome(), tipo, usuario.getMaterial()});
+                model.addRow(new Object[]{usuario.getIp(), usuario.getPorta(), usuario.getNome(), tipo, usuario.getMaterial(), usuario.getOcupado(), usuario.getFalando()});
                 JSONObject newJson = usuario.getJson();
                 newJson.put("porta", usuario.getPorta());
                 newJson.remove("action");
@@ -581,6 +604,8 @@ public class Servidor extends javax.swing.JFrame {
     private Usuario validaUsuario(JSONObject json, Socket socket) {
         Usuario usuario = new Usuario();
         usuario.setSocket(socket);
+        usuario.setOcupado(false);
+        usuario.setFalando(0);
         usuario.setJson(json);
         if (json.has("nome") || json.has("tipo") || json.has("material")) {
             usuario.setNome(json.getString("nome"));

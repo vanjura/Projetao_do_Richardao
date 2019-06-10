@@ -265,15 +265,19 @@ public class Inicio extends javax.swing.JFrame {
         });
         jPanel6.add(ChatSendBtn, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 260, -1, 20));
 
+        ChatTextPaneGeral.setEditable(false);
         jScrollPane2.setViewportView(ChatTextPaneGeral);
 
         TabbedPane.addTab("Chat Geral", jScrollPane2);
 
+        ChatTextPaneMaterial.setEditable(false);
         jScrollPane1.setViewportView(ChatTextPaneMaterial);
 
         TabbedPane.addTab("Chat Material", jScrollPane1);
 
         jScrollPane4.setEnabled(false);
+
+        ChatTextPanePrivado.setEditable(false);
         jScrollPane4.setViewportView(ChatTextPanePrivado);
 
         TabbedPane.addTab("Chat Privado", jScrollPane4);
@@ -356,8 +360,11 @@ public class Inicio extends javax.swing.JFrame {
         try {
             int column = 0;
             int row = TabelaClients.getSelectedRow();
-            String value = TabelaClients.getModel().getValueAt(row, column).toString();
-            System.out.println(value);
+            String porta = TabelaClients.getModel().getValueAt(row, column).toString();
+            JSONObject jsonPrivado = new JSONObject();
+            jsonPrivado.put("action", "chat_request_server");
+            jsonPrivado.put("destinatario", porta.toString());
+            out.println(jsonPrivado.toString());
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Selecione um usuário na tabela primeiro.");
         }
@@ -666,7 +673,9 @@ public class Inicio extends javax.swing.JFrame {
                 chat_general_server(json);
             } else if (json.get("action").equals("chat_room_client")) {
                 chat_room_client(json);
-            } else {
+            } else if (json.get("action").equals("request_error")) {
+                JOptionPane.showMessageDialog(null, "Erro na requisição.");
+            } else{
                 System.out.println("A ação " + json.get("action") + " não existe.");
             }
         } else {

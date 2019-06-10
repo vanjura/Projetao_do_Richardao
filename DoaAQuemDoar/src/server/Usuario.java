@@ -18,6 +18,25 @@ public class Usuario implements Serializable {
     private String ip;
     private JSONObject json;
     private String porta;
+    private boolean ocupado;
+    private int falando;
+    
+    public int getFalando() {
+        return falando;
+    }
+
+    public void setFalando(int falando) {
+        this.falando = falando;
+    }
+    
+    public boolean getOcupado() {
+        return ocupado;
+    }
+
+    public void setOcupado(boolean ocupado) {
+        this.ocupado = ocupado;
+    }
+
 
     public Socket getSocket() {
         return socket;
