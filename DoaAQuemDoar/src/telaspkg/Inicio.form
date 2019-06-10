@@ -359,6 +359,8 @@
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Chat Geral"/>
                     <Property name="enabled" type="boolean" value="false"/>
+                    <Property name="focusPainted" type="boolean" value="false"/>
+                    <Property name="focusable" type="boolean" value="false"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ChatGeralBtnActionPerformed"/>
@@ -432,6 +434,8 @@
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Conversa Privada"/>
                     <Property name="enabled" type="boolean" value="false"/>
+                    <Property name="focusPainted" type="boolean" value="false"/>
+                    <Property name="focusable" type="boolean" value="false"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ChatPrivadoBtnActionPerformed"/>
@@ -446,6 +450,8 @@
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Chat Tipo"/>
                     <Property name="enabled" type="boolean" value="false"/>
+                    <Property name="focusPainted" type="boolean" value="false"/>
+                    <Property name="focusable" type="boolean" value="false"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ChatTipoBtnActionPerformed"/>

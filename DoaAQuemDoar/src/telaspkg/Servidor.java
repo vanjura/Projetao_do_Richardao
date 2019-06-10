@@ -43,16 +43,16 @@ import javax.swing.JTextPane;
  * @author Jhonatan
  */
 public class Servidor extends javax.swing.JFrame {
-
+    
     Thread mainThread;
     boolean conectado = false;
     private Socket clientSocket;
     private ServerSocket serverSocket = null;
     public ArrayList<Usuario> clientes = new ArrayList<Usuario>();
-
+    
     private Servidor(Socket clientSoc) {
         clientSocket = clientSoc;
-
+        
         run();
     }
 
@@ -63,11 +63,11 @@ public class Servidor extends javax.swing.JFrame {
         initComponents();
         addTexto(jTextPane1, "Log - DoaAQuemDoar", Color.MAGENTA);
     }
-
+    
     public void addTexto(JTextPane textPane, String frase, Color cor) {
         StyledDocument doc = textPane.getStyledDocument();
         Style style = textPane.addStyle("I'm a Style", null);
-
+        
         try {
             StyleConstants.setForeground(style, cor);
             doc.insertString(doc.getLength(), frase + "\n", style);
@@ -76,9 +76,9 @@ public class Servidor extends javax.swing.JFrame {
             textPane.setText(textPane.getText() + frase);
         }
     }
-
+    
     public void run() {
-
+        
     }
 
     /**
@@ -301,16 +301,16 @@ public class Servidor extends javax.swing.JFrame {
                 System.out.println("Socket error");
                 break;
             }
-
+            
         }
         System.out.println("Cabou");
     }
-
+    
     private void serverLog(String frase) {
         String mensagem = "Server: " + frase;
         addTexto(jTextPane1, mensagem, Color.BLUE);
     }
-
+    
     private void userLog(int porta, String nome, String frase) {
         String mensagem = "";
         if (nome != "") {
@@ -320,17 +320,17 @@ public class Servidor extends javax.swing.JFrame {
         }
         addTexto(jTextPane1, mensagem, Color.GREEN.darker().darker());
     }
-
+    
     private void errorLog(String frase, int porta, String erro) {
         addTexto(jTextPane1, porta + " ERRO: " + frase + "\n" + erro, Color.red);
     }
-
+    
     private void log(String pre, String frase, String cor) {
         System.out.println("LOG");
     }
-
+    
     private void desconecta(Socket socket) {
-
+        
         int porta = socket.getPort();
         try {
             for (int i = 0; i < clientes.size(); i++) {
@@ -350,7 +350,7 @@ public class Servidor extends javax.swing.JFrame {
             System.out.println("Erro" + e);
         }
     }
-
+    
     private void desconectaServidor() {
         try {
             DefaultTableModel model = (DefaultTableModel) UserTable.getModel();
@@ -366,7 +366,7 @@ public class Servidor extends javax.swing.JFrame {
             System.out.println("Erro" + e);
         }
     }
-
+    
     private void enviaMensagemParaCliente(Socket socket, String mensagem) {
         PrintStream ps;
         try {
@@ -381,7 +381,7 @@ public class Servidor extends javax.swing.JFrame {
                     + " por segurança.", socket.getPort(), ex.getMessage());
         }
     }
-
+    
     private void iniciaAcao(JSONObject json, Socket socket) {
         if (json.has("action")) {
             if (json.get("action").equals("connect")) {
@@ -402,33 +402,30 @@ public class Servidor extends javax.swing.JFrame {
                 userLog(socket.getPort(), nomeSocket(socket), "Requisitou a ação 'chat_room_server'.");
                 String nome = nomeSocket(socket);
                 json.put("action", "chat_room_client");
-                String msg = json.getString("mensagem");
-                json.put("mensagem", nome + ": " + msg);
-                mensagemTipo(json, socket, msg);
+                String msg = nome + ": " + json.getString("mensagem");
+                mensagemMaterial(json, socket, msg);
             } else {
                 System.out.println("A ação " + json.get("action") + " não existe.");
             }
         } else {
         }
     }
-
-    private void mensagemTipo(JSONObject json, Socket socket, String msg) {
+    
+    private void mensagemMaterial(JSONObject json, Socket socket, String msg) {
+        String material = materialSocket(socket);
         String tipo = tipoSocket(socket);
-        System.out.println(tipo);
-        if(tipo.equals("C")){
-            serverLog("Enviando mensagem para chat Coletor - " + msg);
-            json.put("mensagem", "COLETORES - " + json.getString("mensagem"));
-        }else{
-            serverLog("Enviando mensagem para chat Doador - " + msg);
-            json.put("mensagem", "DOADORES - " + json.getString("mensagem"));
+        if (tipo.equals("C")) {
+            json.put("mensagem", "COLETOR/" + material.toUpperCase() + " - " + msg);
+        } else {
+            json.put("mensagem", "DOADOR/" + material.toUpperCase() + " - " + msg);
         }
-        PrintStream ps;
-        if (!tipo.equals("")) {
+        serverLog("Enviando mensagem chat material " + material.toUpperCase()+ "/" + tipo + " - " + json.getString("mensagem"));
+        if (!material.equals("")) {
             try {
                 for (int i = 0; i < clientes.size(); i++) {
                     Usuario usuario = clientes.get(i);
-                    System.out.println(usuario.getTipo());
-                    if(usuario.getTipo().equals(tipo)){
+                    if (usuario.getMaterial().equals(material)) {
+                        PrintStream ps;
                         ps = new PrintStream(usuario.getSocket().getOutputStream());
                         ps.println(json.toString());
                     }
@@ -438,15 +435,12 @@ public class Servidor extends javax.swing.JFrame {
             }
         }
     }
-
+    
     private String tipoSocket(Socket socket) {
-        System.out.println("Procurando tipo..");
         try {
             for (int i = 0; i < clientes.size(); i++) {
                 Usuario usuario = clientes.get(i);
-                System.out.println(usuario.getTipo());
                 if (Integer.parseInt(usuario.getPorta()) == socket.getPort()) {
-                    System.out.println("Achou o tipo " + usuario.getTipo());
                     return usuario.getTipo();
                 }
             }
@@ -455,15 +449,26 @@ public class Servidor extends javax.swing.JFrame {
         }
         return "";
     }
-
-    private String nomeSocket(Socket socket) {
-        System.out.println("Procurando nome..");
+    
+    private String materialSocket(Socket socket) {
         try {
             for (int i = 0; i < clientes.size(); i++) {
                 Usuario usuario = clientes.get(i);
-                System.out.println(usuario.getNome());
                 if (Integer.parseInt(usuario.getPorta()) == socket.getPort()) {
-                    System.out.println("Achou o nome " + usuario.getNome());
+                    return usuario.getMaterial();
+                }
+            }
+        } catch (Exception e) {
+            Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, e);
+        }
+        return "";
+    }
+    
+    private String nomeSocket(Socket socket) {
+        try {
+            for (int i = 0; i < clientes.size(); i++) {
+                Usuario usuario = clientes.get(i);
+                if (Integer.parseInt(usuario.getPorta()) == socket.getPort()) {
                     return usuario.getNome();
                 }
             }
@@ -472,7 +477,7 @@ public class Servidor extends javax.swing.JFrame {
         }
         return "";
     }
-
+    
     private void iniciaConexao(JSONObject json, Socket socket) {
         Usuario usuario = validaUsuario(json, socket);
         userLog(socket.getPort(), "", "Entrou com o nome " + usuario.getNome());
@@ -480,7 +485,7 @@ public class Servidor extends javax.swing.JFrame {
         atualizalista(usuario, "add");
         listaUsuarios();
     }
-
+    
     private void atualizalista(Usuario usuario, String acao) {
         if (acao.equals("add")) {
             clientes.add(usuario);
@@ -491,7 +496,7 @@ public class Servidor extends javax.swing.JFrame {
         broadcast(json);
         System.out.println("Conectou " + usuario.getPorta());
     }
-
+    
     private void listaUsuarios() {
         serverLog("Arrumando lista de usuários...");
         JSONArray arr = new JSONArray();
@@ -517,13 +522,13 @@ public class Servidor extends javax.swing.JFrame {
         } catch (Exception e) {
             Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, e);
         }
-
+        
         JSONObject lista = new JSONObject();
         lista.put("action", "client_list");
         lista.put("lista", arr);
         broadcast(lista);
     }
-
+    
     public void broadcast(JSONObject json) {
         for (int i = 0; i < clientes.size(); i++) {
             Usuario usuario = clientes.get(i);
@@ -532,12 +537,12 @@ public class Servidor extends javax.swing.JFrame {
                 ps = new PrintStream(usuario.getSocket().getOutputStream());
                 ps.println(json.toString());
             } catch (IOException ex) {
-
+                
                 System.err.println("Erro de broadcast: " + ex.getMessage());
             }
         }
     }
-
+    
     private Usuario validaUsuario(JSONObject json, Socket socket) {
         Usuario usuario = new Usuario();
         usuario.setSocket(socket);
