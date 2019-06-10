@@ -449,24 +449,45 @@ public class Servidor extends javax.swing.JFrame {
     }
 
     private void chat_request_server(JSONObject json, Socket socket) {
-        JSONObject response = new JSONObject();
-        PrintStream ps;
         String porta = Integer.toString(socket.getPort());
         System.out.println(porta);
         userLog(socket.getPort(), nomeSocket(socket), "Requisitou a ação 'chat_request_server'.");
         if (json.getString("destinatario").equals(porta)) {
-            errorLog("Remetente é igual ao usuário que requisitou.", socket.getPort(), "");
+                JSONObject response = new JSONObject();
             response.put("action", "request_error");
+            errorLog("Remetente é igual ao usuário que requisitou.", socket.getPort(), "");
             try {
+                System.out.println(response);
+                PrintStream ps;
                 ps = new PrintStream(socket.getOutputStream());
                 ps.println(response.toString());
             } catch (Exception e) {
                 errorLog("Erro ao enviar resposta.", socket.getPort(), e.getMessage());
             }
         } else {
-
+            JSONObject response = new JSONObject();
+            response.put("action", "chat_request_client");
+            response.put("remetente", porta);
+            Socket socketdest = getSocketWithPorta(json.getInt("destinatario"));
+            try {
+                System.out.println(response);
+                PrintStream ps = new PrintStream(socketdest.getOutputStream());
+                ps.println(response.toString());
+            } catch (Exception e) {
+                errorLog("Erro ao enviar resposta.", socket.getPort(), e.getMessage());
+            }
         }
 
+    }
+
+    private Socket getSocketWithPorta(int porta) {
+        for (int i = 0; i < clientes.size(); i++) {
+            Usuario user = clientes.get(i);
+            if (Integer.toString(porta) == user.getPorta()) {
+                return user.getSocket();
+            }
+        }
+        return null;
     }
 
     private void mensagemMaterial(JSONObject json, Socket socket, String msg) {
