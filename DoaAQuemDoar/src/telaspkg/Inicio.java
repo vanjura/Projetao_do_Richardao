@@ -5,6 +5,7 @@
  */
 package telaspkg;
 
+import java.awt.Color;
 import org.json.*;
 import java.io.*;
 import java.net.*;
@@ -14,7 +15,11 @@ import java.util.logging.Logger;
 import javax.swing.ButtonGroup;
 import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
+import javax.swing.JTextPane;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 import server.Usuario;
 
 public class Inicio extends javax.swing.JFrame {
@@ -67,8 +72,8 @@ public class Inicio extends javax.swing.JFrame {
         jScrollPane3 = new javax.swing.JScrollPane();
         jTable2 = new javax.swing.JTable();
         jPanel6 = new javax.swing.JPanel();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        ChatTextArea = new javax.swing.JTextArea();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        ChatTextPane = new javax.swing.JTextPane();
         ChatSendBtn = new javax.swing.JButton();
         ChatTextField = new javax.swing.JTextField();
 
@@ -227,12 +232,9 @@ public class Inicio extends javax.swing.JFrame {
         jPanel6.setBorder(javax.swing.BorderFactory.createTitledBorder("Chat"));
         jPanel6.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        ChatTextArea.setEditable(false);
-        ChatTextArea.setColumns(20);
-        ChatTextArea.setRows(5);
-        jScrollPane2.setViewportView(ChatTextArea);
+        jScrollPane1.setViewportView(ChatTextPane);
 
-        jPanel6.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 470, 230));
+        jPanel6.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 470, 230));
 
         ChatSendBtn.setText("Enviar");
         ChatSendBtn.setEnabled(false);
@@ -244,6 +246,11 @@ public class Inicio extends javax.swing.JFrame {
         jPanel6.add(ChatSendBtn, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 260, -1, 20));
 
         ChatTextField.setEnabled(false);
+        ChatTextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ChatTextFieldActionPerformed(evt);
+            }
+        });
         jPanel6.add(ChatTextField, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 260, 410, 20));
 
         jPanel4.add(jPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 210, 490, 290));
@@ -308,13 +315,30 @@ public class Inicio extends javax.swing.JFrame {
             model.setRowCount(0);
             ConectarButton.setEnabled(true);
             jButtonDesconectar.setEnabled(false);
-            ChatTextArea.setText("");
+            try {
+                out.close();
+                in.close();
+                socket.close();
+            } catch (Exception e) {
+            }
         }
     }//GEN-LAST:event_jButtonDesconectarActionPerformed
 
     private void ChatSendBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ChatSendBtnActionPerformed
-        detectaTipo();
+        if(!ChatTextField.getText().trim().equals("")){
+            detectaTipo();
+        }else{
+            ChatTextField.setText("");
+        }
     }//GEN-LAST:event_ChatSendBtnActionPerformed
+
+    private void ChatTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ChatTextFieldActionPerformed
+        if(!ChatTextField.getText().trim().equals("")){
+            detectaTipo();
+        }else{
+            ChatTextField.setText("");
+        }
+    }//GEN-LAST:event_ChatTextFieldActionPerformed
 
     /**
      * @param args the command line arguments
@@ -373,10 +397,8 @@ public class Inicio extends javax.swing.JFrame {
     private void iniciaConexão(String req) {
         String ip = IpTextField.getText();
         Integer porta = new Integer(PortaTextField.getText());
-
         try {
             socket = new Socket(ip, porta);
-            System.out.println("Conectou");
             out = new PrintStream(socket.getOutputStream());
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
@@ -393,18 +415,20 @@ public class Inicio extends javax.swing.JFrame {
             new Thread() {
                 @Override
                 public void run() {
+                    mensagemLog("Contectou a " + IpTextField.getText() + ":" + PortaTextField.getText());
                     try {
                         String userInput;
                         while (((userInput = in.readLine()) != null) || socketCliente != null) {
-                            System.out.println("Entrou no while");
                             try {
                                 JSONObject json = new JSONObject(userInput);
                                 iniciaAcao(json);
                             } catch (JSONException ex) {
-                                System.out.println("Erro no json" + ex);
+                                System.err.println("Erro no json" + ex);
+                                desconectaCliente(socket);
+                                out.close();
+                                in.close();
+                                socket.close();
                             }
-
-                            System.out.println("Saiu do while");
                         }
                         desconectaCliente(socket);
                         out.close();
@@ -413,25 +437,57 @@ public class Inicio extends javax.swing.JFrame {
                         //stdIn.close();
 
                     } catch (IOException ex) {
-                        JOptionPane.showMessageDialog(null, "Servidou desconectou! " + ip);
+                        JOptionPane.showMessageDialog(null, "Você foi desconectado");
                         jButtonDesconectar.setEnabled(false);
                         ConectarButton.setEnabled(true);
                         DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
                         model.setRowCount(0);
 
                     }
+                    System.out.println("Terminou a thread");
                 }
             }.start();
 
         } catch (UnknownHostException e) {
             System.err.println();
             JOptionPane.showMessageDialog(null, "Não é possível encontrar o servidor " + ip + e);
+            mensagemErro("Não é possível encontrar o servidor " + ip + "\n" + e);
+            //System.exit(1);
+        } catch (ConnectException e) {
+            System.err.println();
+            mensagemErro("Não é possível conectar a " + ip +":" + porta);
             //System.exit(1);
         } catch (IOException e) {
-            System.err.println("Não é possível conectar a " + ip + e);
+            System.err.println("Erro com o IP " + ip + e);
+            mensagemErro("Erro com o IP " + ip + "\n" + e);
             System.out.println(e.getMessage());
             //System.exit(1);
         }
+    }
+
+    public void addTexto(JTextPane textPane, String frase, Color cor) {
+        StyledDocument doc = textPane.getStyledDocument();
+        Style style = textPane.addStyle("I'm a Style", null);
+
+        try {
+            StyleConstants.setForeground(style, cor);
+            doc.insertString(doc.getLength(), frase + "\n", style);
+            textPane.setCaretPosition(textPane.getDocument().getLength());
+        } catch (Exception e) {
+            textPane.setText(textPane.getText() + frase);
+        }
+    }
+
+    private void mensagemLog(String mensagem) {
+        addTexto(ChatTextPane, mensagem, Color.DARK_GRAY);
+    }
+
+    private void mensagemGeral(String mensagem) {
+        addTexto(ChatTextPane, "GERAL - " + mensagem, Color.BLUE);
+    }
+    
+    private void mensagemErro(String mensagem) {
+        addTexto(ChatTextPane, "ERRO - " + mensagem, Color.RED);
     }
 
     private JSONObject criaUser(String action) {
@@ -490,7 +546,6 @@ public class Inicio extends javax.swing.JFrame {
     }
 
     private void iniciaAcao(JSONObject json) {
-        System.out.println("Verificando ação...");
         if (json.has("action")) {
             if (json.get("action").equals("client_list")) {
                 listaClientes(json);
@@ -503,9 +558,9 @@ public class Inicio extends javax.swing.JFrame {
             System.out.println("Action não encontrada.");
         }
     }
-    
-    private void chat_general_server(JSONObject json){
-        ChatTextArea.append(""+json.getString("mensagem")+"\n");
+
+    private void chat_general_server(JSONObject json) {
+        mensagemGeral(json.getString("mensagem"));
     }
 
     private void listaClientes(JSONObject json) {
@@ -516,14 +571,23 @@ public class Inicio extends javax.swing.JFrame {
         for (int i = 0; i < lista.length(); i++) {
             JSONObject usuarioJson = (JSONObject) lista.get(i);
             System.out.println(usuarioJson);
-            if(!usuarioJson.has("descricao")){
-                usuarioJson.put("descricao", "Sem descricao..");
+            if (!usuarioJson.has("descricao")) {
+                usuarioJson.put("descricao", "");
             }
-            model.addRow(new Object[]{usuarioJson.get("porta"), usuarioJson.get("nome"), usuarioJson.get("tipo"), usuarioJson.get("material"), usuarioJson.get("descricao")});
+            String tipo;
+            if(usuarioJson.get("tipo").equals("D")){
+                tipo = "Doador";
+            }else{
+                tipo = "Coletor";
+            }
+            model.addRow(new Object[]{usuarioJson.get("porta"), usuarioJson.get("nome"), tipo, usuarioJson.get("material"), usuarioJson.get("descricao")});
         }
     }
 
     private void desconectaCliente(Socket socket) {
+        ChatTextField.setEnabled(false);
+        ChatSendBtn.setEnabled(false);
+        ChatTextPane.setText("");
         JSONObject cliente = new JSONObject();
         //Preenche o objeto JSON com a action para desconectar
         cliente.put("action", "disconnect");
@@ -544,8 +608,8 @@ public class Inicio extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton ChatSendBtn;
-    private javax.swing.JTextArea ChatTextArea;
     private javax.swing.JTextField ChatTextField;
+    private javax.swing.JTextPane ChatTextPane;
     private javax.swing.JRadioButton ColetorRadioButton;
     private javax.swing.JButton ConectarButton;
     private javax.swing.JLabel DescricaoLabel;
@@ -569,7 +633,7 @@ public class Inicio extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
-    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTable jTable2;
     // End of variables declaration//GEN-END:variables
