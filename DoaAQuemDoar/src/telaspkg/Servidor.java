@@ -43,16 +43,16 @@ import javax.swing.JTextPane;
  * @author Jhonatan
  */
 public class Servidor extends javax.swing.JFrame {
-    
+
     Thread mainThread;
     boolean conectado = false;
     private Socket clientSocket;
     private ServerSocket serverSocket = null;
     public ArrayList<Usuario> clientes = new ArrayList<Usuario>();
-    
+
     private Servidor(Socket clientSoc) {
         clientSocket = clientSoc;
-        
+
         run();
     }
 
@@ -63,11 +63,11 @@ public class Servidor extends javax.swing.JFrame {
         initComponents();
         addTexto(jTextPane1, "Log - DoaAQuemDoar", Color.MAGENTA);
     }
-    
+
     public void addTexto(JTextPane textPane, String frase, Color cor) {
         StyledDocument doc = textPane.getStyledDocument();
         Style style = textPane.addStyle("I'm a Style", null);
-        
+
         try {
             StyleConstants.setForeground(style, cor);
             doc.insertString(doc.getLength(), frase + "\n", style);
@@ -76,9 +76,9 @@ public class Servidor extends javax.swing.JFrame {
             textPane.setText(textPane.getText() + frase);
         }
     }
-    
+
     public void run() {
-        
+
     }
 
     /**
@@ -100,6 +100,7 @@ public class Servidor extends javax.swing.JFrame {
         jTextFieldPorta = new javax.swing.JTextField();
         jButtonConectar = new javax.swing.JButton();
         jButtonDesconectar = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -112,11 +113,11 @@ public class Servidor extends javax.swing.JFrame {
 
             },
             new String [] {
-                "IP", "Porta", "Nome", "Tipo", "Material"
+                "IP", "Porta", "Nome", "Tipo", "Material", "Ocupado", "Falando Com"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false
+                false, false, false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -171,6 +172,15 @@ public class Servidor extends javax.swing.JFrame {
         });
         getContentPane().add(jButtonDesconectar, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 20, -1, 20));
 
+        jButton2.setText("Desconectar Client");
+        jButton2.setEnabled(false);
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+        getContentPane().add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 20, -1, 20));
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
@@ -193,6 +203,7 @@ public class Servidor extends javax.swing.JFrame {
         };
         this.mainThread.start();
         jButtonDesconectar.setEnabled(true);
+        jButton2.setEnabled(true);
     }//GEN-LAST:event_jButtonConectarActionPerformed
 
     private void jButtonDesconectarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDesconectarActionPerformed
@@ -200,11 +211,34 @@ public class Servidor extends javax.swing.JFrame {
         JOptionPane.showConfirmDialog(null, "Servidor desconectado!", "Desconectado", JOptionPane.DEFAULT_OPTION);
         jButtonConectar.setEnabled(true);
         jButtonDesconectar.setEnabled(false);
+        jButton2.setEnabled(false);
         jTextFieldPorta.setEnabled(true);
         DefaultTableModel model = (DefaultTableModel) UserTable.getModel();
         model.setRowCount(0);
         //System.exit(0);
     }//GEN-LAST:event_jButtonDesconectarActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        try {
+            int column = 1;
+            int row = UserTable.getSelectedRow();
+            String porta = UserTable.getModel().getValueAt(row, column).toString();
+
+            Object[] options = {"Sim", "Não"};
+            int opcao = JOptionPane.showOptionDialog(null, "Deseja realmente desconecta este usuário?", "Confirmação", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+            if (opcao == JOptionPane.YES_OPTION) {
+                System.out.println(porta);
+                for (int i = 0; i < clientes.size(); i++) {
+                    Usuario user = clientes.get(i);
+                    if (porta.equals(user.getPorta())) {
+                        desconecta(user.getSocket());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Selecione um usuário na tabela primeiro.");
+        }
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -243,6 +277,7 @@ public class Servidor extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTable UserTable;
+    private javax.swing.JButton jButton2;
     private javax.swing.JButton jButtonConectar;
     private javax.swing.JButton jButtonDesconectar;
     private javax.swing.JLabel jLabel1;
@@ -301,16 +336,16 @@ public class Servidor extends javax.swing.JFrame {
                 System.out.println("Socket error");
                 break;
             }
-            
+
         }
         System.out.println("Cabou");
     }
-    
+
     private void serverLog(String frase) {
         String mensagem = "Server: " + frase;
         addTexto(jTextPane1, mensagem, Color.BLUE);
     }
-    
+
     private void userLog(int porta, String nome, String frase) {
         String mensagem = "";
         if (nome != "") {
@@ -320,17 +355,17 @@ public class Servidor extends javax.swing.JFrame {
         }
         addTexto(jTextPane1, mensagem, Color.GREEN.darker().darker());
     }
-    
+
     private void errorLog(String frase, int porta, String erro) {
         addTexto(jTextPane1, porta + " ERRO: " + frase + "\n" + erro, Color.red);
     }
-    
+
     private void log(String pre, String frase, String cor) {
         System.out.println("LOG");
     }
-    
+
     private void desconecta(Socket socket) {
-        
+
         int porta = socket.getPort();
         try {
             for (int i = 0; i < clientes.size(); i++) {
@@ -350,7 +385,7 @@ public class Servidor extends javax.swing.JFrame {
             System.out.println("Erro" + e);
         }
     }
-    
+
     private void desconectaServidor() {
         try {
             DefaultTableModel model = (DefaultTableModel) UserTable.getModel();
@@ -366,7 +401,7 @@ public class Servidor extends javax.swing.JFrame {
             System.out.println("Erro" + e);
         }
     }
-    
+
     private void enviaMensagemParaCliente(Socket socket, String mensagem) {
         PrintStream ps;
         try {
@@ -381,7 +416,7 @@ public class Servidor extends javax.swing.JFrame {
                     + " por segurança.", socket.getPort(), ex.getMessage());
         }
     }
-    
+
     private void iniciaAcao(JSONObject json, Socket socket) {
         if (json.has("action")) {
             if (json.get("action").equals("connect")) {
@@ -404,13 +439,36 @@ public class Servidor extends javax.swing.JFrame {
                 json.put("action", "chat_room_client");
                 String msg = nome + ": " + json.getString("mensagem");
                 mensagemMaterial(json, socket, msg);
+            } else if (json.get("action").equals("chat_request_server")) {
+                chat_request_server(json, socket);
             } else {
                 System.out.println("A ação " + json.get("action") + " não existe.");
             }
         } else {
         }
     }
-    
+
+    private void chat_request_server(JSONObject json, Socket socket) {
+        JSONObject response = new JSONObject();
+        PrintStream ps;
+        String porta = Integer.toString(socket.getPort());
+        System.out.println(porta);
+        userLog(socket.getPort(), nomeSocket(socket), "Requisitou a ação 'chat_request_server'.");
+        if (json.getString("destinatario").equals(porta)) {
+            errorLog("Remetente é igual ao usuário que requisitou.", socket.getPort(), "");
+            response.put("action", "request_error");
+            try {
+                ps = new PrintStream(socket.getOutputStream());
+                ps.println(response.toString());
+            } catch (Exception e) {
+                errorLog("Erro ao enviar resposta.", socket.getPort(), e.getMessage());
+            }
+        } else {
+
+        }
+
+    }
+
     private void mensagemMaterial(JSONObject json, Socket socket, String msg) {
         String material = materialSocket(socket);
         String tipo = tipoSocket(socket);
@@ -419,7 +477,7 @@ public class Servidor extends javax.swing.JFrame {
         } else {
             json.put("mensagem", "DOADOR/" + material.toUpperCase() + " - " + msg);
         }
-        serverLog("Enviando mensagem chat material " + material.toUpperCase()+ "/" + tipo + " - " + json.getString("mensagem"));
+        serverLog("Enviando mensagem chat material " + material.toUpperCase() + "/" + tipo + " - " + json.getString("mensagem"));
         if (!material.equals("")) {
             try {
                 for (int i = 0; i < clientes.size(); i++) {
@@ -435,7 +493,7 @@ public class Servidor extends javax.swing.JFrame {
             }
         }
     }
-    
+
     private String tipoSocket(Socket socket) {
         try {
             for (int i = 0; i < clientes.size(); i++) {
@@ -449,7 +507,7 @@ public class Servidor extends javax.swing.JFrame {
         }
         return "";
     }
-    
+
     private String materialSocket(Socket socket) {
         try {
             for (int i = 0; i < clientes.size(); i++) {
@@ -463,7 +521,7 @@ public class Servidor extends javax.swing.JFrame {
         }
         return "";
     }
-    
+
     private String nomeSocket(Socket socket) {
         try {
             for (int i = 0; i < clientes.size(); i++) {
@@ -477,7 +535,7 @@ public class Servidor extends javax.swing.JFrame {
         }
         return "";
     }
-    
+
     private void iniciaConexao(JSONObject json, Socket socket) {
         Usuario usuario = validaUsuario(json, socket);
         userLog(socket.getPort(), "", "Entrou com o nome " + usuario.getNome());
@@ -485,7 +543,7 @@ public class Servidor extends javax.swing.JFrame {
         atualizalista(usuario, "add");
         listaUsuarios();
     }
-    
+
     private void atualizalista(Usuario usuario, String acao) {
         if (acao.equals("add")) {
             clientes.add(usuario);
@@ -496,7 +554,7 @@ public class Servidor extends javax.swing.JFrame {
         broadcast(json);
         System.out.println("Conectou " + usuario.getPorta());
     }
-    
+
     private void listaUsuarios() {
         serverLog("Arrumando lista de usuários...");
         JSONArray arr = new JSONArray();
@@ -512,7 +570,7 @@ public class Servidor extends javax.swing.JFrame {
                 } else {
                     tipo = "Coletor";
                 }
-                model.addRow(new Object[]{usuario.getIp(), usuario.getPorta(), usuario.getNome(), tipo, usuario.getMaterial()});
+                model.addRow(new Object[]{usuario.getIp(), usuario.getPorta(), usuario.getNome(), tipo, usuario.getMaterial(), usuario.getOcupado(), usuario.getFalando()});
                 JSONObject newJson = usuario.getJson();
                 newJson.put("porta", usuario.getPorta());
                 newJson.remove("action");
@@ -522,13 +580,13 @@ public class Servidor extends javax.swing.JFrame {
         } catch (Exception e) {
             Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, e);
         }
-        
+
         JSONObject lista = new JSONObject();
         lista.put("action", "client_list");
         lista.put("lista", arr);
         broadcast(lista);
     }
-    
+
     public void broadcast(JSONObject json) {
         for (int i = 0; i < clientes.size(); i++) {
             Usuario usuario = clientes.get(i);
@@ -537,15 +595,17 @@ public class Servidor extends javax.swing.JFrame {
                 ps = new PrintStream(usuario.getSocket().getOutputStream());
                 ps.println(json.toString());
             } catch (IOException ex) {
-                
+
                 System.err.println("Erro de broadcast: " + ex.getMessage());
             }
         }
     }
-    
+
     private Usuario validaUsuario(JSONObject json, Socket socket) {
         Usuario usuario = new Usuario();
         usuario.setSocket(socket);
+        usuario.setOcupado(false);
+        usuario.setFalando(0);
         usuario.setJson(json);
         if (json.has("nome") || json.has("tipo") || json.has("material")) {
             usuario.setNome(json.getString("nome"));
