@@ -207,6 +207,8 @@ public class Inicio extends javax.swing.JFrame {
 
         ChatGeralBtn.setText("Chat Geral");
         ChatGeralBtn.setEnabled(false);
+        ChatGeralBtn.setFocusPainted(false);
+        ChatGeralBtn.setFocusable(false);
         ChatGeralBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 ChatGeralBtnActionPerformed(evt);
@@ -236,6 +238,8 @@ public class Inicio extends javax.swing.JFrame {
 
         ChatPrivadoBtn.setText("Conversa Privada");
         ChatPrivadoBtn.setEnabled(false);
+        ChatPrivadoBtn.setFocusPainted(false);
+        ChatPrivadoBtn.setFocusable(false);
         ChatPrivadoBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 ChatPrivadoBtnActionPerformed(evt);
@@ -245,6 +249,8 @@ public class Inicio extends javax.swing.JFrame {
 
         ChatTipoBtn.setText("Chat Tipo");
         ChatTipoBtn.setEnabled(false);
+        ChatTipoBtn.setFocusPainted(false);
+        ChatTipoBtn.setFocusable(false);
         ChatTipoBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 ChatTipoBtnActionPerformed(evt);
@@ -369,14 +375,23 @@ public class Inicio extends javax.swing.JFrame {
 
     private void ChatTipoBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ChatTipoBtnActionPerformed
         chat = "T";
+        ChatTipoBtn.setEnabled(false);
+        ChatGeralBtn.setEnabled(true);
+        ChatPrivadoBtn.setEnabled(true);
     }//GEN-LAST:event_ChatTipoBtnActionPerformed
 
     private void ChatGeralBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ChatGeralBtnActionPerformed
         chat = "G";
+        ChatGeralBtn.setEnabled(false);
+        ChatTipoBtn.setEnabled(true);
+        ChatPrivadoBtn.setEnabled(true);
     }//GEN-LAST:event_ChatGeralBtnActionPerformed
 
     private void ChatPrivadoBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ChatPrivadoBtnActionPerformed
         chat = "P";
+        ChatPrivadoBtn.setEnabled(false);
+        ChatTipoBtn.setEnabled(true);
+        ChatGeralBtn.setEnabled(true);
     }//GEN-LAST:event_ChatPrivadoBtnActionPerformed
 
     /**
@@ -470,19 +485,7 @@ public class Inicio extends javax.swing.JFrame {
 
             out.println(req);
 
-            ConectarButton.setEnabled(false);
-            jButtonDesconectar.setEnabled(true);
-            ChatTextField.setEnabled(true);
-            ChatSendBtn.setEnabled(true);
-            ChatGeralBtn.setEnabled(true);
-            ChatPrivadoBtn.setEnabled(true);
-            ChatTipoBtn.setEnabled(true);
-            IpTextField.setEnabled(false);
-            PortaTextField.setEnabled(false);
-            NomeTextField.setEnabled(false);
-            MaterialComboBox.setEnabled(false);
-            ColetorRadioButton.setEnabled(false);
-            DoadorRadioButton.setEnabled(false);
+            ativaConexao();
             if (DoadorRadioButton.isEnabled()) {
                 DescricaoTextPane.setEnabled(false);
             }
@@ -499,25 +502,24 @@ public class Inicio extends javax.swing.JFrame {
                                 iniciaAcao(json);
                             } catch (JSONException ex) {
                                 System.err.println("Erro no json" + ex);
+                                desativaConexao();
                                 desconectaCliente(socket);
                                 out.close();
                                 in.close();
                                 socket.close();
                             }
                         }
+                        desativaConexao();
                         desconectaCliente(socket);
                         out.close();
                         in.close();
                         socket.close();
                         //stdIn.close();
-
                     } catch (IOException ex) {
                         JOptionPane.showMessageDialog(null, "Você foi desconectado");
-                        jButtonDesconectar.setEnabled(false);
-                        ConectarButton.setEnabled(true);
+                        desativaConexao();
                         DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
                         model.setRowCount(0);
-
                     }
                     System.out.println("Terminou a thread");
                 }
@@ -538,6 +540,41 @@ public class Inicio extends javax.swing.JFrame {
             System.out.println(e.getMessage());
             //System.exit(1);
         }
+    }
+
+    public void ativaConexao() {
+        chat = "G";
+        jButtonDesconectar.setEnabled(true);
+        ChatTextField.setEnabled(true);
+        ChatSendBtn.setEnabled(true);
+        ChatPrivadoBtn.setEnabled(true);
+        ChatTipoBtn.setEnabled(true);
+        ChatTextPane.setText("");
+        ConectarButton.setEnabled(false);
+        IpTextField.setEnabled(false);
+        PortaTextField.setEnabled(false);
+        NomeTextField.setEnabled(false);
+        MaterialComboBox.setEnabled(false);
+        ColetorRadioButton.setEnabled(false);
+        DoadorRadioButton.setEnabled(false);
+    }
+
+    public void desativaConexao() {
+        chat = "G";
+        jButtonDesconectar.setEnabled(false);
+        ConectarButton.setEnabled(true);
+        ChatTextPane.setText("");
+        ChatTextField.setEnabled(false);
+        ChatSendBtn.setEnabled(false);
+        ChatGeralBtn.setEnabled(false);
+        ChatPrivadoBtn.setEnabled(false);
+        ChatTipoBtn.setEnabled(false);
+        IpTextField.setEnabled(true);
+        PortaTextField.setEnabled(true);
+        NomeTextField.setEnabled(true);
+        MaterialComboBox.setEnabled(true);
+        ColetorRadioButton.setEnabled(true);
+        DoadorRadioButton.setEnabled(true);
     }
 
     public void addTexto(JTextPane textPane, String frase, Color cor) {
@@ -561,7 +598,7 @@ public class Inicio extends javax.swing.JFrame {
         addTexto(ChatTextPane, "GERAL - " + mensagem, Color.BLUE);
     }
 
-    private void mensagemTipo(String mensagem) {
+    private void mensagemMaterial(String mensagem) {
         addTexto(ChatTextPane, mensagem, Color.GREEN.darker().darker());
     }
 
@@ -641,7 +678,7 @@ public class Inicio extends javax.swing.JFrame {
     }
 
     private void chat_room_client(JSONObject json) {
-        mensagemTipo(json.getString("mensagem"));
+        mensagemMaterial(json.getString("mensagem"));
     }
 
     private void chat_general_server(JSONObject json) {
