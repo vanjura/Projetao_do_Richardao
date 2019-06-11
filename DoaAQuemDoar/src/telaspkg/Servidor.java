@@ -430,15 +430,15 @@ public class Servidor extends javax.swing.JFrame {
                 String nome = nomeSocket(socket);
                 json.put("action", "chat_general_client");
                 String msg = json.getString("mensagem");
-                json.put("mensagem", nome + ": " + msg);
+                json.put("mensagem", nome + " (geral): " + msg);
                 serverLog("Enviando mensagem para chat geral - " + msg);
                 broadcast(json);
             } else if (json.get("action").equals("chat_room_server")) {
                 userLog(socket.getPort(), nomeSocket(socket), "Requisitou a ação 'chat_room_server'.");
                 String nome = nomeSocket(socket);
                 json.put("action", "chat_room_client");
-                String msg = nome + ": " + json.getString("mensagem");
-                mensagemMaterial(json, socket, msg);
+                String msg = json.getString("mensagem");
+                mensagemMaterial(json, socket, msg, nome);
             } else if (json.get("action").equals("chat_request_server")) {
                 chat_request_server(json, socket);
             } else {
@@ -490,13 +490,13 @@ public class Servidor extends javax.swing.JFrame {
         return null;
     }
 
-    private void mensagemMaterial(JSONObject json, Socket socket, String msg) {
+    private void mensagemMaterial(JSONObject json, Socket socket, String msg, String nome) {
         String material = materialSocket(socket);
         String tipo = tipoSocket(socket);
         if (tipo.equals("C")) {
-            json.put("mensagem", "COLETOR/" + material.toUpperCase() + " - " + msg);
+            json.put("mensagem", nome + " (coletor de " + material + "):" + msg);
         } else {
-            json.put("mensagem", "DOADOR/" + material.toUpperCase() + " - " + msg);
+            json.put("mensagem", nome + " (doador de " + material + "):" + msg);
         }
         serverLog("Enviando mensagem chat material " + material.toUpperCase() + "/" + tipo + " - " + json.getString("mensagem"));
         if (!material.equals("")) {
