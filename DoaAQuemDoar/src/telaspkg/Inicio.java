@@ -685,10 +685,12 @@ public class Inicio extends javax.swing.JFrame {
 
     private void chat_room_client(JSONObject json) {
         mensagemMaterial(json.getString("mensagem"));
+        System.out.println(json);
     }
 
     private void chat_general_server(JSONObject json) {
         mensagemGeral(json.getString("mensagem"));
+        System.out.println(json);
     }
 
     private void listaClientes(JSONObject json) {
