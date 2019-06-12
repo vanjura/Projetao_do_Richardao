@@ -356,18 +356,18 @@ public class Inicio extends javax.swing.JFrame {
     }//GEN-LAST:event_jButtonDesconectarActionPerformed
 
     private void ChatPrivadoBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ChatPrivadoBtnActionPerformed
-        chat = "P";
-        try {
-            int column = 0;
-            int row = TabelaClients.getSelectedRow();
-            String porta = TabelaClients.getModel().getValueAt(row, column).toString();
-            JSONObject jsonPrivado = new JSONObject();
-            jsonPrivado.put("action", "chat_request_server");
-            jsonPrivado.put("destinatario", porta.toString());
-            out.println(jsonPrivado.toString());
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Selecione um usuário na tabela primeiro.");
-        }
+//        chat = "P";
+//        try {
+//            int column = 0;
+//            int row = TabelaClients.getSelectedRow();
+//            String porta = TabelaClients.getModel().getValueAt(row, column).toString();
+//            JSONObject jsonPrivado = new JSONObject();
+//            jsonPrivado.put("action", "chat_request_server");
+//            jsonPrivado.put("destinatario", porta.toString());
+//            out.println(jsonPrivado.toString());
+//        } catch (Exception e) {
+//            JOptionPane.showMessageDialog(null, "Selecione um usuário na tabela primeiro.");
+//        }
     }//GEN-LAST:event_ChatPrivadoBtnActionPerformed
 
     private void ChatSendBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ChatSendBtnActionPerformed
@@ -597,7 +597,7 @@ public class Inicio extends javax.swing.JFrame {
     }
 
     private void mensagemGeral(String mensagem) {
-        addTexto(ChatTextPaneGeral, "GERAL - " + mensagem, Color.BLUE);
+        addTexto(ChatTextPaneGeral, mensagem, Color.BLUE);
     }
 
     private void mensagemMaterial(String mensagem) {

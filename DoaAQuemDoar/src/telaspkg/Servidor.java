@@ -430,15 +430,15 @@ public class Servidor extends javax.swing.JFrame {
                 String nome = nomeSocket(socket);
                 json.put("action", "chat_general_client");
                 String msg = json.getString("mensagem");
-                json.put("mensagem", nome + ": " + msg);
+                json.put("mensagem", nome + " (geral): " + msg);
                 serverLog("Enviando mensagem para chat geral - " + msg);
                 broadcast(json);
             } else if (json.get("action").equals("chat_room_server")) {
                 userLog(socket.getPort(), nomeSocket(socket), "Requisitou a ação 'chat_room_server'.");
                 String nome = nomeSocket(socket);
                 json.put("action", "chat_room_client");
-                String msg = nome + ": " + json.getString("mensagem");
-                mensagemMaterial(json, socket, msg);
+                String msg = json.getString("mensagem");
+                mensagemMaterial(json, socket, msg, nome);
             } else if (json.get("action").equals("chat_request_server")) {
                 chat_request_server(json, socket);
             } else {
@@ -449,33 +449,54 @@ public class Servidor extends javax.swing.JFrame {
     }
 
     private void chat_request_server(JSONObject json, Socket socket) {
-        JSONObject response = new JSONObject();
-        PrintStream ps;
         String porta = Integer.toString(socket.getPort());
         System.out.println(porta);
         userLog(socket.getPort(), nomeSocket(socket), "Requisitou a ação 'chat_request_server'.");
         if (json.getString("destinatario").equals(porta)) {
-            errorLog("Remetente é igual ao usuário que requisitou.", socket.getPort(), "");
+                JSONObject response = new JSONObject();
             response.put("action", "request_error");
+            errorLog("Remetente é igual ao usuário que requisitou.", socket.getPort(), "");
             try {
+                System.out.println(response);
+                PrintStream ps;
                 ps = new PrintStream(socket.getOutputStream());
                 ps.println(response.toString());
             } catch (Exception e) {
                 errorLog("Erro ao enviar resposta.", socket.getPort(), e.getMessage());
             }
         } else {
-
+            JSONObject response = new JSONObject();
+            response.put("action", "chat_request_client");
+            response.put("remetente", porta);
+            Socket socketdest = getSocketWithPorta(json.getInt("destinatario"));
+            try {
+                System.out.println(response);
+                PrintStream ps = new PrintStream(socketdest.getOutputStream());
+                ps.println(response.toString());
+            } catch (Exception e) {
+                errorLog("Erro ao enviar resposta.", socket.getPort(), e.getMessage());
+            }
         }
 
     }
 
-    private void mensagemMaterial(JSONObject json, Socket socket, String msg) {
+    private Socket getSocketWithPorta(int porta) {
+        for (int i = 0; i < clientes.size(); i++) {
+            Usuario user = clientes.get(i);
+            if (Integer.toString(porta) == user.getPorta()) {
+                return user.getSocket();
+            }
+        }
+        return null;
+    }
+
+    private void mensagemMaterial(JSONObject json, Socket socket, String msg, String nome) {
         String material = materialSocket(socket);
         String tipo = tipoSocket(socket);
         if (tipo.equals("C")) {
-            json.put("mensagem", "COLETOR/" + material.toUpperCase() + " - " + msg);
+            json.put("mensagem", nome + " (coletor de " + material + "):" + msg);
         } else {
-            json.put("mensagem", "DOADOR/" + material.toUpperCase() + " - " + msg);
+            json.put("mensagem", nome + " (doador de " + material + "):" + msg);
         }
         serverLog("Enviando mensagem chat material " + material.toUpperCase() + "/" + tipo + " - " + json.getString("mensagem"));
         if (!material.equals("")) {
