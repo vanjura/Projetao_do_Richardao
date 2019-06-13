@@ -23,7 +23,7 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 import server.Usuario;
 
-public class Inicio extends javax.swing.JFrame {
+public class Cliente extends javax.swing.JFrame {
 
     public Usuario cliente = new Usuario();
     public Socket socketCliente;
@@ -36,7 +36,7 @@ public class Inicio extends javax.swing.JFrame {
     /**
      * Creates new form Inicio
      */
-    public Inicio() {
+    public Cliente() {
         initComponents();
         pane = TabbedPane;
         pane.setEnabledAt(2, false);
@@ -60,7 +60,7 @@ public class Inicio extends javax.swing.JFrame {
         NomeLabel = new javax.swing.JLabel();
         NomeTextField = new javax.swing.JTextField();
         MaterialLabel = new javax.swing.JLabel();
-        MaterialComboBox = new javax.swing.JComboBox<String>();
+        MaterialComboBox = new javax.swing.JComboBox<>();
         DescricaoLabel = new javax.swing.JLabel();
         DescricaoScrollPane = new javax.swing.JScrollPane();
         DescricaoTextPane = new javax.swing.JTextPane();
@@ -131,7 +131,7 @@ public class Inicio extends javax.swing.JFrame {
         MaterialLabel.setText("Material:");
         jPanel3.add(MaterialLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 60, 60, 20));
 
-        MaterialComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "oleo", "metal", "roupa", "papel", "plastico", "eletronico" }));
+        MaterialComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "oleo", "metal", "roupa", "papel", "plastico", "eletronico" }));
         MaterialComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 MaterialComboBoxActionPerformed(evt);
@@ -405,14 +405,18 @@ public class Inicio extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Inicio.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Cliente.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Inicio.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Cliente.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Inicio.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Cliente.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Inicio.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Cliente.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
         //</editor-fold>
         //</editor-fold>
         //</editor-fold>
@@ -421,7 +425,7 @@ public class Inicio extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Inicio().setVisible(true);
+                new Cliente().setVisible(true);
             }
         });
 
@@ -684,10 +688,12 @@ public class Inicio extends javax.swing.JFrame {
     }
 
     private void chat_room_client(JSONObject json) {
+        System.out.println(json);
         mensagemMaterial(json.getString("mensagem"));
     }
 
     private void chat_general_server(JSONObject json) {
+        System.out.println(json);
         mensagemGeral(json.getString("mensagem"));
     }
 
@@ -739,7 +745,7 @@ public class Inicio extends javax.swing.JFrame {
             System.out.println("DESCONECTADO DO SERVIDOR: " + clienteDesconectandoJsonString);
             saida.println(clienteDesconectandoJsonString);//Envia uma String JSON
         } catch (IOException ex) {
-            Logger.getLogger(Inicio.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }
