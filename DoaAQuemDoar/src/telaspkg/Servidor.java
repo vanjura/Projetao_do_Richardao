@@ -393,8 +393,8 @@ public class Servidor extends javax.swing.JFrame {
     }
 
     private void errorLog(String frase, int porta, String erro) {
-        Color cor;
-        String str;
+        Color cor = null;
+        String str = null;
         if (frase.equals("") && porta == 0 && erro.equals("")) {
             str = "AVISO: Instabilidade detectada e corrigida.";
             cor = Color.YELLOW.darker();
@@ -416,6 +416,8 @@ public class Servidor extends javax.swing.JFrame {
         } else if(erro.equals("")){
             str = "AVISO na porta " + porta + ": " + frase;
             cor = Color.YELLOW.darker();
+        } else{
+            
         }
         addTexto(jTextPane1, str, cor);
     }
