@@ -504,6 +504,7 @@ public class Cliente extends javax.swing.JFrame {
                     try {
                         String userInput;
                         while (((userInput = in.readLine()) != null) || socketCliente != null) {
+                            System.out.println("RECEBIDO: " + userInput);
                             try {
                                 JSONObject json = new JSONObject(userInput);
                                 iniciaAcao(json);
