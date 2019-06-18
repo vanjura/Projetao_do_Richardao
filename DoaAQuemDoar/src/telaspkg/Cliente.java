@@ -528,7 +528,7 @@ public class Cliente extends javax.swing.JFrame {
                         DefaultTableModel model = (DefaultTableModel) TabelaClients.getModel();
                         model.setRowCount(0);
                     }
-                    System.out.println("Terminou a thread");
+                    //System.out.println("Terminou a thread");
                 }
             }.start();
 

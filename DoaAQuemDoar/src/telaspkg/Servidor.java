@@ -272,7 +272,7 @@ public class Servidor extends javax.swing.JFrame {
             Object[] options = {"Sim", "Não"};
             int opcao = JOptionPane.showOptionDialog(null, "Deseja realmente desconecta este usuário?", "Confirmação", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
             if (opcao == JOptionPane.YES_OPTION) {
-                System.out.println(porta);
+                //System.out.println(porta);
                 for (int i = 0; i < clientes.size(); i++) {
                     Usuario user = clientes.get(i);
                     if (porta.equals(user.getPorta())) {
@@ -432,13 +432,13 @@ public class Servidor extends javax.swing.JFrame {
         try {
             for (int i = 0; i < clientes.size(); i++) {
                 if (Integer.parseInt(clientes.get(i).getPorta()) == porta) {
-                    System.out.println(clientes.get(i));
+                    //System.out.println(clientes.get(i));
                     JSONObject json = new JSONObject();
                     json.put("action", "chat_general_client");
                     json.put("mensagem", clientes.get(i).getNome() + " desconectou-se.");
                     clientes.remove(i);
                     broadcast(json);
-                    System.out.println("Desconectou " + socket.getPort());
+                    //System.out.println("Desconectou " + socket.getPort());
                 }
             }
             listaUsuarios();
