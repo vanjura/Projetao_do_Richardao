@@ -509,6 +509,7 @@ public class Cliente extends javax.swing.JFrame {
                                 JSONObject json = new JSONObject(userInput);
                                 iniciaAcao(json);
                             } catch (JSONException ex) {
+                                errorLog("", 0, ex.getMessage());
                                 desativaConexao();
                                 desconectaCliente(socket);
                                 out.close();
@@ -683,6 +684,37 @@ public class Cliente extends javax.swing.JFrame {
     private void chat_general_server(JSONObject json) {
         System.out.println("ENVIANDO: " + json);
         mensagemGeral(json.getString("mensagem"));
+    }
+    
+    private void errorLog(String frase, int porta, String erro) {
+        Color cor = null;
+        String str = null;
+        if (frase.equals("") && porta == 0 && erro.equals("")) {
+            str = "AVISO: Instabilidade detectada e corrigida.";
+            cor = Color.YELLOW.darker();
+        } else if(frase.equals("") && porta == 0){
+            str = "ERRO: " + erro;
+            cor = Color.red;
+        } else if(porta == 0 && erro.equals("")){
+            str = "AVISO: " + frase;
+            cor = Color.YELLOW.darker();
+        } else if(frase.equals("") && erro.equals("")){
+            str = "AVISO: problema detectado na porta " + porta;
+            cor = Color.YELLOW.darker();
+        } else if(frase.equals("")){
+            str = "ERRO na porta " + porta + ": " + erro;
+            cor = Color.red;
+        } else if(porta == 0){
+            str = frase + ": " + erro;
+            cor = Color.YELLOW.darker();
+        } else if(erro.equals("")){
+            str = "AVISO na porta " + porta + ": " + frase;
+            cor = Color.YELLOW.darker();
+        } else{
+            
+        }
+        addTexto(ChatTextPaneGeral, str, cor);
+        addTexto(ChatTextPaneMaterial, str, cor);
     }
 
     private void listaClientes(JSONObject json) {
