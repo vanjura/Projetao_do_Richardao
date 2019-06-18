@@ -649,6 +649,7 @@ public class Servidor extends javax.swing.JFrame {
     }
 
     public void broadcast(JSONObject json) {
+        System.out.println("ENVIANDO: " + json);
         for (int i = 0; i < clientes.size(); i++) {
             Usuario usuario = clientes.get(i);
             PrintStream ps;
@@ -656,8 +657,7 @@ public class Servidor extends javax.swing.JFrame {
                 ps = new PrintStream(usuario.getSocket().getOutputStream());
                 ps.println(json.toString());
             } catch (IOException ex) {
-
-                System.err.println("Erro de broadcast: " + ex.getMessage());
+                errorLog("Falha no broadcast.", 0, ex.getMessage());
             }
         }
     }
