@@ -509,9 +509,9 @@ public class Cliente extends javax.swing.JFrame {
                                 JSONObject json = new JSONObject(userInput);
                                 iniciaAcao(json);
                             } catch (JSONException ex) {
-                                errorLog("", 0, ex.getMessage());
                                 desativaConexao();
                                 desconectaCliente(socket);
+                                errorLog("", 0, ex.getMessage());
                                 out.close();
                                 in.close();
                                 socket.close();
@@ -519,6 +519,7 @@ public class Cliente extends javax.swing.JFrame {
                         }
                         desativaConexao();
                         desconectaCliente(socket);
+                        errorLog("Falha na conexão com o servidor.", 0, "");
                         out.close();
                         in.close();
                         socket.close();
@@ -526,6 +527,7 @@ public class Cliente extends javax.swing.JFrame {
                     } catch (IOException ex) {
                         JOptionPane.showMessageDialog(null, "Você foi desconectado");
                         desativaConexao();
+                        errorLog("Falha na conexão com o servidor.", 0, ex.getMessage());
                         DefaultTableModel model = (DefaultTableModel) TabelaClients.getModel();
                         model.setRowCount(0);
                     }
