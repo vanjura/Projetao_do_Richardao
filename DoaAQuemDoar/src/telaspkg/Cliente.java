@@ -297,7 +297,7 @@ public class Cliente extends javax.swing.JFrame {
         JSONObject validacao = validaInsercao();
         if (validacao.getBoolean("success")) {
             JSONObject user = criaUser("connect");
-            //System.out.println(user);
+            System.out.println("ENVIANDO: " + user);
             String req = user.toString();
             iniciaConexão(req);
         } else {
@@ -455,14 +455,17 @@ public class Cliente extends javax.swing.JFrame {
         switch (chat) {
             case "G":
                 jsonMensagem.put("action", "chat_general_server");
+                System.out.println("ENVIANDO: " + jsonMensagem);
                 out.println(jsonMensagem.toString());
                 break;
             case "M":
                 jsonMensagem.put("action", "chat_room_server");
+                System.out.println("ENVIANDO: " + jsonMensagem);
                 out.println(jsonMensagem.toString());
                 break;
             case "P":
                 jsonMensagem.put("action", "chat_request_server");
+                System.out.println("ENVIANDO: " + jsonMensagem);
                 System.out.println("Chat Privado - ainda não implementado");
                 break;
             default:
@@ -679,12 +682,10 @@ public class Cliente extends javax.swing.JFrame {
     }
 
     private void chat_room_client(JSONObject json) {
-        System.out.println("ENVIANDO: " + json);
         mensagemMaterial(json.getString("mensagem"));
     }
 
     private void chat_general_server(JSONObject json) {
-        System.out.println("ENVIANDO: " + json);
         mensagemGeral(json.getString("mensagem"));
     }
     
@@ -724,6 +725,7 @@ public class Cliente extends javax.swing.JFrame {
         model.setRowCount(0);
         ButtonGroup group = new ButtonGroup();
         JSONArray lista = json.getJSONArray("lista");
+        try{
         for (int i = 0; i < lista.length(); i++) {
             JSONObject usuarioJson = (JSONObject) lista.get(i);
             if (!usuarioJson.has("descricao")) {
@@ -736,6 +738,8 @@ public class Cliente extends javax.swing.JFrame {
                 tipo = "Coletor";
             }
             model.addRow(new Object[]{usuarioJson.get("porta"), usuarioJson.get("nome"), tipo, usuarioJson.get("material"), usuarioJson.get("descricao")});
+        }
+        }catch (Exception e){
         }
     }
 
