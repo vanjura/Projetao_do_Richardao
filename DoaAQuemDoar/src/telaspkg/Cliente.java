@@ -509,7 +509,6 @@ public class Cliente extends javax.swing.JFrame {
                                 JSONObject json = new JSONObject(userInput);
                                 iniciaAcao(json);
                             } catch (JSONException ex) {
-                                System.err.println("Erro no json" + ex);
                                 desativaConexao();
                                 desconectaCliente(socket);
                                 out.close();
@@ -529,24 +528,16 @@ public class Cliente extends javax.swing.JFrame {
                         DefaultTableModel model = (DefaultTableModel) TabelaClients.getModel();
                         model.setRowCount(0);
                     }
-                    //System.out.println("Terminou a thread");
                 }
             }.start();
 
         } catch (UnknownHostException e) {
-            System.err.println();
             JOptionPane.showMessageDialog(null, "Não é possível encontrar o servidor " + ip + e);
             mensagemErro("Não é possível encontrar o servidor " + ip + "\n" + e);
-            //System.exit(1);
         } catch (ConnectException e) {
-            System.err.println();
             mensagemErro("Não é possível conectar a " + ip + ":" + porta);
-            //System.exit(1);
         } catch (IOException e) {
-            System.err.println("Erro com o IP " + ip + e);
             mensagemErro("Erro com o IP " + ip + "\n" + e);
-            System.out.println(e.getMessage());
-            //System.exit(1);
         }
     }
 
@@ -680,21 +671,17 @@ public class Cliente extends javax.swing.JFrame {
                 chat_room_client(json);
             } else if (json.get("action").equals("request_error")) {
                 JOptionPane.showMessageDialog(null, "Erro na requisição.");
-            } else{
-                System.out.println("A ação " + json.get("action") + " não existe.");
             }
-        } else {
-            System.out.println("Action não encontrada.");
         }
     }
 
     private void chat_room_client(JSONObject json) {
-        System.out.println(json);
+        System.out.println("ENVIANDO: " + json);
         mensagemMaterial(json.getString("mensagem"));
     }
 
     private void chat_general_server(JSONObject json) {
-        System.out.println(json);
+        System.out.println("ENVIANDO: " + json);
         mensagemGeral(json.getString("mensagem"));
     }
 
@@ -705,7 +692,6 @@ public class Cliente extends javax.swing.JFrame {
         JSONArray lista = json.getJSONArray("lista");
         for (int i = 0; i < lista.length(); i++) {
             JSONObject usuarioJson = (JSONObject) lista.get(i);
-            System.out.println(usuarioJson);
             if (!usuarioJson.has("descricao")) {
                 usuarioJson.put("descricao", "");
             }
