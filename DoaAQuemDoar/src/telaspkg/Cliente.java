@@ -297,7 +297,7 @@ public class Cliente extends javax.swing.JFrame {
         JSONObject validacao = validaInsercao();
         if (validacao.getBoolean("success")) {
             JSONObject user = criaUser("connect");
-            System.out.println(user);
+            //System.out.println(user);
             String req = user.toString();
             iniciaConexão(req);
         } else {
