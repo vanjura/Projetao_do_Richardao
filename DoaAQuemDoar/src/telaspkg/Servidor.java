@@ -345,6 +345,7 @@ public class Servidor extends javax.swing.JFrame {
         conectado = true;
         while (conectado == true) {
             try {
+                Thread.sleep(1000);
                 clientSocket = serverSocket.accept();
                 userLog(clientSocket.getPort(), nomeSocket(clientSocket), "Iniciou conexão.");
                 BufferedReader read = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
@@ -371,6 +372,8 @@ public class Servidor extends javax.swing.JFrame {
                     }
                 }.start();
             } catch (SocketException e) {
+                break;
+            } catch (InterruptedException ex) {
                 break;
             }
             
@@ -621,7 +624,6 @@ public class Servidor extends javax.swing.JFrame {
         if (!existe_IP(socket)) {
             atualizalista(usuario, "add");
             listaUsuarios();
-            
         } else {
             desconecta(socket);
         }
