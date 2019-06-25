@@ -180,7 +180,7 @@ public class TestadorTop extends javax.swing.JFrame {
             saida = new PrintStream(socket.getOutputStream());
             saida.println(clienteDesconectandoJsonString);
         } catch (IOException ex) {
-            Logger.getLogger(Inicio.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
