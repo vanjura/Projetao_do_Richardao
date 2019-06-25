@@ -476,9 +476,9 @@ public class Servidor extends javax.swing.JFrame {
         String material = materialSocket(socket);
         String tipo = tipoSocket(socket);
         if (tipo.equals("C")) {
-            json.put("mensagem", nome + " (coletor de " + material + "):" + msg);
+            json.put("mensagem", nome + " (coletor de " + material + "): " + msg);
         } else {
-            json.put("mensagem", nome + " (doador de " + material + "):" + msg);
+            json.put("mensagem", nome + " (doador de " + material + "): " + msg);
         }
         System.out.println("Multicast: " + json);
         serverLog("Enviando mensagem chat material " + material.toUpperCase() + "/" + tipo + " - " + json.getString("mensagem"));
