@@ -17,6 +17,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextPane;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
@@ -64,11 +65,11 @@ public class Cliente extends javax.swing.JFrame {
         DescricaoLabel = new javax.swing.JLabel();
         DescricaoScrollPane = new javax.swing.JScrollPane();
         DescricaoTextPane = new javax.swing.JTextPane();
-        ConectarButton = new javax.swing.JButton();
         PortaLabel = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
         ColetorRadioButton = new javax.swing.JRadioButton();
         DoadorRadioButton = new javax.swing.JRadioButton();
+        ConectarButton = new javax.swing.JButton();
         jButtonDesconectar = new javax.swing.JButton();
         jPanel4 = new javax.swing.JPanel();
         jPanel5 = new javax.swing.JPanel();
@@ -87,12 +88,8 @@ public class Cliente extends javax.swing.JFrame {
         ChatTextPanePrivado = new javax.swing.JTextPane();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel3.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         IpLabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         IpLabel.setText("IP:");
@@ -100,7 +97,6 @@ public class Cliente extends javax.swing.JFrame {
         IpLabel.setMaximumSize(new java.awt.Dimension(50, 15));
         IpLabel.setMinimumSize(new java.awt.Dimension(50, 15));
         IpLabel.setPreferredSize(new java.awt.Dimension(15, 15));
-        jPanel3.add(IpLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 20, 20));
 
         IpTextField.setText("127.0.0.1");
         IpTextField.setMaximumSize(new java.awt.Dimension(150, 20));
@@ -111,25 +107,20 @@ public class Cliente extends javax.swing.JFrame {
                 IpTextFieldActionPerformed(evt);
             }
         });
-        jPanel3.add(IpTextField, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, 140, -1));
 
         PortaTextField.setText("1234");
         PortaTextField.setMaximumSize(new java.awt.Dimension(50, 20));
         PortaTextField.setMinimumSize(new java.awt.Dimension(20, 20));
         PortaTextField.setPreferredSize(new java.awt.Dimension(50, 20));
-        jPanel3.add(PortaTextField, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 30, 150, -1));
 
         NomeLabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         NomeLabel.setText("Nome:");
         NomeLabel.setPreferredSize(new java.awt.Dimension(46, 15));
-        jPanel3.add(NomeLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 60, 40, 20));
 
         NomeTextField.setText("Teste");
-        jPanel3.add(NomeTextField, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 80, 140, -1));
 
         MaterialLabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         MaterialLabel.setText("Material:");
-        jPanel3.add(MaterialLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 60, 60, 20));
 
         MaterialComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "oleo", "metal", "roupa", "papel", "plastico", "eletronico" }));
         MaterialComboBox.addActionListener(new java.awt.event.ActionListener() {
@@ -137,26 +128,14 @@ public class Cliente extends javax.swing.JFrame {
                 MaterialComboBoxActionPerformed(evt);
             }
         });
-        jPanel3.add(MaterialComboBox, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 80, 150, -1));
 
         DescricaoLabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         DescricaoLabel.setText("Descrição:");
-        jPanel3.add(DescricaoLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 190, -1, -1));
 
         DescricaoTextPane.setEnabled(false);
         DescricaoTextPane.setMinimumSize(new java.awt.Dimension(300, 200));
         DescricaoTextPane.setPreferredSize(new java.awt.Dimension(300, 200));
         DescricaoScrollPane.setViewportView(DescricaoTextPane);
-
-        jPanel3.add(DescricaoScrollPane, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 210, 310, 260));
-
-        ConectarButton.setText("Conectar");
-        ConectarButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                ConectarButtonActionPerformed(evt);
-            }
-        });
-        jPanel3.add(ConectarButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 480, -1, 20));
 
         PortaLabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         PortaLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -164,7 +143,6 @@ public class Cliente extends javax.swing.JFrame {
         PortaLabel.setMaximumSize(new java.awt.Dimension(50, 15));
         PortaLabel.setMinimumSize(new java.awt.Dimension(50, 15));
         PortaLabel.setPreferredSize(new java.awt.Dimension(46, 15));
-        jPanel3.add(PortaLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 10, 40, 20));
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Tipo"));
 
@@ -192,7 +170,12 @@ public class Cliente extends javax.swing.JFrame {
         });
         jPanel1.add(DoadorRadioButton);
 
-        jPanel3.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 110, 310, 60));
+        ConectarButton.setText("Conectar");
+        ConectarButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ConectarButtonActionPerformed(evt);
+            }
+        });
 
         jButtonDesconectar.setText("Desconectar");
         jButtonDesconectar.setEnabled(false);
@@ -201,16 +184,74 @@ public class Cliente extends javax.swing.JFrame {
                 jButtonDesconectarActionPerformed(evt);
             }
         });
-        jPanel3.add(jButtonDesconectar, new org.netbeans.lib.awtextra.AbsoluteConstraints(237, 480, -1, 20));
 
-        jPanel2.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 340, 510));
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(DescricaoScrollPane)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addComponent(IpLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(IpTextField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(PortaLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(PortaTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addComponent(NomeLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(NomeTextField)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(MaterialLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(MaterialComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addComponent(DescricaoLabel)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(ConectarButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonDesconectar)))
+                .addContainerGap())
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(IpLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(IpTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(PortaTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(PortaLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(NomeLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(NomeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(MaterialLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(MaterialComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(DescricaoLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(DescricaoScrollPane)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButtonDesconectar, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(ConectarButton, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
+        );
 
         jPanel4.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel5.setBorder(javax.swing.BorderFactory.createTitledBorder("Usuários Conectados"));
         jPanel5.setAutoscrolls(true);
-        jPanel5.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         TabelaClients.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -230,8 +271,6 @@ public class Cliente extends javax.swing.JFrame {
         });
         jScrollPane3.setViewportView(TabelaClients);
 
-        jPanel5.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 470, 140));
-
         ChatPrivadoBtn.setText("Conversa Privada");
         ChatPrivadoBtn.setEnabled(false);
         ChatPrivadoBtn.setFocusPainted(false);
@@ -241,12 +280,31 @@ public class Cliente extends javax.swing.JFrame {
                 ChatPrivadoBtnActionPerformed(evt);
             }
         });
-        jPanel5.add(ChatPrivadoBtn, new org.netbeans.lib.awtextra.AbsoluteConstraints(356, 170, 120, 20));
 
-        jPanel4.add(jPanel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 490, 200));
+        javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
+        jPanel5.setLayout(jPanel5Layout);
+        jPanel5Layout.setHorizontalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addGap(4, 4, 4)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 479, Short.MAX_VALUE)
+                .addGap(11, 11, 11))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(ChatPrivadoBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+        jPanel5Layout.setVerticalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addGap(4, 4, 4)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(ChatPrivadoBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
 
         jPanel6.setBorder(javax.swing.BorderFactory.createTitledBorder("Chat"));
-        jPanel6.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         ChatTextField.setEnabled(false);
         ChatTextField.addActionListener(new java.awt.event.ActionListener() {
@@ -254,7 +312,6 @@ public class Cliente extends javax.swing.JFrame {
                 ChatTextFieldActionPerformed(evt);
             }
         });
-        jPanel6.add(ChatTextField, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 260, 410, 20));
 
         ChatSendBtn.setText("Enviar");
         ChatSendBtn.setEnabled(false);
@@ -263,7 +320,6 @@ public class Cliente extends javax.swing.JFrame {
                 ChatSendBtnActionPerformed(evt);
             }
         });
-        jPanel6.add(ChatSendBtn, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 260, -1, 20));
 
         ChatTextPaneGeral.setEditable(false);
         jScrollPane2.setViewportView(ChatTextPaneGeral);
@@ -282,13 +338,89 @@ public class Cliente extends javax.swing.JFrame {
 
         TabbedPane.addTab("Chat Privado", jScrollPane4);
 
-        jPanel6.add(TabbedPane, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 470, 230));
+        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
+        jPanel6.setLayout(jPanel6Layout);
+        jPanel6Layout.setHorizontalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addGap(4, 4, 4)
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel6Layout.createSequentialGroup()
+                        .addComponent(TabbedPane)
+                        .addGap(9, 9, 9))
+                    .addGroup(jPanel6Layout.createSequentialGroup()
+                        .addComponent(ChatTextField)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(ChatSendBtn)))
+                .addGap(3, 3, 3))
+        );
+        jPanel6Layout.setVerticalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addGap(4, 4, 4)
+                .addComponent(TabbedPane, javax.swing.GroupLayout.DEFAULT_SIZE, 230, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(ChatSendBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(ChatTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
+        );
 
-        jPanel4.add(jPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 210, 490, 290));
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addGap(8, 8, 8)
+                .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(4, 4, 4))
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addGap(8, 8, 8)
+                .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+        );
 
-        jPanel2.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 10, 510, 510));
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(10, 10, 10)
+                .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
+        );
 
-        getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 880, 530));
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -297,9 +429,8 @@ public class Cliente extends javax.swing.JFrame {
         JSONObject validacao = validaInsercao();
         if (validacao.getBoolean("success")) {
             JSONObject user = criaUser("connect");
-            System.out.println("ENVIANDO: " + user);
             String req = user.toString();
-            iniciaConexão(req);
+            iniciaConexao(req);
         } else {
             JOptionPane.showMessageDialog(null, validacao.getString("message"), "ERRO", JOptionPane.WARNING_MESSAGE);
         }
@@ -356,18 +487,18 @@ public class Cliente extends javax.swing.JFrame {
     }//GEN-LAST:event_jButtonDesconectarActionPerformed
 
     private void ChatPrivadoBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ChatPrivadoBtnActionPerformed
-        chat = "P";
-        try {
-            int column = 0;
-            int row = TabelaClients.getSelectedRow();
-            String porta = TabelaClients.getModel().getValueAt(row, column).toString();
-            JSONObject jsonPrivado = new JSONObject();
-            jsonPrivado.put("action", "chat_request_server");
-            jsonPrivado.put("destinatario", porta.toString());
-            out.println(jsonPrivado.toString());
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Selecione um usuário na tabela primeiro.");
-        }
+//        chat = "P";
+//        try {
+//            int column = 0;
+//            int row = TabelaClients.getSelectedRow();
+//            String porta = TabelaClients.getModel().getValueAt(row, column).toString();
+//            JSONObject jsonPrivado = new JSONObject();
+//            jsonPrivado.put("action", "chat_request_server");
+//            jsonPrivado.put("destinatario", porta.toString());
+//            out.println(jsonPrivado.toString());
+//        } catch (Exception e) {
+//            JOptionPane.showMessageDialog(null, "Selecione um usuário na tabela primeiro.");
+//        }
     }//GEN-LAST:event_ChatPrivadoBtnActionPerformed
 
     private void ChatSendBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ChatSendBtnActionPerformed
@@ -471,6 +602,7 @@ public class Cliente extends javax.swing.JFrame {
             default:
                 System.out.println("Nenhum");
         }
+        System.out.println("Enviado:" + jsonMensagem);
     }
 
     private void broadcast() {
@@ -482,7 +614,8 @@ public class Cliente extends javax.swing.JFrame {
         out.println(jsonBroad.toString());
     }
 
-    private void iniciaConexão(String req) {
+    private void iniciaConexao(String req) {
+        System.out.println("Enviado: " + req );
         String ip = IpTextField.getText();
         Integer porta = new Integer(PortaTextField.getText());
         try {
@@ -599,7 +732,7 @@ public class Cliente extends javax.swing.JFrame {
     }
 
     private void mensagemGeral(String mensagem) {
-        addTexto(ChatTextPaneGeral, "GERAL - " + mensagem, Color.BLUE);
+        addTexto(ChatTextPaneGeral, mensagem, Color.BLUE);
     }
 
     private void mensagemMaterial(String mensagem) {
@@ -668,6 +801,7 @@ public class Cliente extends javax.swing.JFrame {
     }
 
     private void iniciaAcao(JSONObject json) {
+        System.out.println("Recebido: " + json);
         if (json.has("action")) {
             if (json.get("action").equals("client_list")) {
                 listaClientes(json);
@@ -677,7 +811,11 @@ public class Cliente extends javax.swing.JFrame {
                 chat_room_client(json);
             } else if (json.get("action").equals("request_error")) {
                 JOptionPane.showMessageDialog(null, "Erro na requisição.");
+            } else {
+                System.out.println("A ação " + json.get("action") + " não existe.");
             }
+        } else {
+            System.out.println("A chave action não existe.");
         }
     }
 
@@ -720,27 +858,30 @@ public class Cliente extends javax.swing.JFrame {
         addTexto(ChatTextPaneMaterial, str, cor);
     }
 
-    private void listaClientes(JSONObject json) {
-        DefaultTableModel model = (DefaultTableModel) TabelaClients.getModel();
-        model.setRowCount(0);
-        ButtonGroup group = new ButtonGroup();
-        JSONArray lista = json.getJSONArray("lista");
-        try{
-        for (int i = 0; i < lista.length(); i++) {
-            JSONObject usuarioJson = (JSONObject) lista.get(i);
-            if (!usuarioJson.has("descricao")) {
-                usuarioJson.put("descricao", "");
+    synchronized private void listaClientes(JSONObject json) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                DefaultTableModel model = (DefaultTableModel) TabelaClients.getModel();
+                model.setRowCount(0);
+                ButtonGroup group = new ButtonGroup();
+                JSONArray lista = json.getJSONArray("lista");
+                for (int i = 0; i < lista.length(); i++) {
+                    JSONObject usuarioJson = (JSONObject) lista.get(i);
+                    if (!usuarioJson.has("descricao")) {
+                        usuarioJson.put("descricao", "");
+                    }
+                    String tipo;
+                    if (usuarioJson.get("tipo").equals("D")) {
+                        tipo = "Doador";
+                    } else {
+                        tipo = "Coletor";
+                    }
+                    model.addRow(new Object[]{usuarioJson.get("porta"), usuarioJson.get("nome"), tipo, usuarioJson.get("material"), usuarioJson.get("descricao")});
+                }
             }
-            String tipo;
-            if (usuarioJson.get("tipo").equals("D")) {
-                tipo = "Doador";
-            } else {
-                tipo = "Coletor";
-            }
-            model.addRow(new Object[]{usuarioJson.get("porta"), usuarioJson.get("nome"), tipo, usuarioJson.get("material"), usuarioJson.get("descricao")});
-        }
-        }catch (Exception e){
-        }
+        });
+
     }
 
     private void desconectaCliente(Socket socket) {
@@ -767,7 +908,6 @@ public class Cliente extends javax.swing.JFrame {
         PrintStream saida;
         try {
             saida = new PrintStream(socket.getOutputStream());
-            System.out.println("DESCONECTADO DO SERVIDOR: " + clienteDesconectandoJsonString);
             saida.println(clienteDesconectandoJsonString);//Envia uma String JSON
         } catch (IOException ex) {
             Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);

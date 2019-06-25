@@ -5,11 +5,31 @@
  */
 package telaspkg;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
+import java.net.ConnectException;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  *
  * @author LucasVanjura
  */
 public class TestadorTop extends javax.swing.JFrame {
+
+    public Socket socket;
+    public PrintStream out;
+    public BufferedReader in;
+    public Socket socketCliente;
 
     /**
      * Creates new form TestadorTop
@@ -30,9 +50,13 @@ public class TestadorTop extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         Adeus = new javax.swing.JToggleButton();
-        jTextField1 = new javax.swing.JTextField();
+        IPTXT = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
-        jTextField2 = new javax.swing.JTextField();
+        PortaTXT = new javax.swing.JTextField();
+        jLabel3 = new javax.swing.JLabel();
+        QuantidadeTXT = new javax.swing.JTextField();
+        jLabel4 = new javax.swing.JLabel();
+        DelayTXT = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -48,21 +72,69 @@ public class TestadorTop extends javax.swing.JFrame {
                 AdeusActionPerformed(evt);
             }
         });
-        jPanel1.add(Adeus, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 70, 100, 20));
-        jPanel1.add(jTextField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 10, 220, -1));
+        jPanel1.add(Adeus, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 100, 100, 20));
+
+        IPTXT.setText("127.0.0.1");
+        jPanel1.add(IPTXT, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 10, 220, -1));
 
         jLabel2.setText("Porta:");
         jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 40, -1, 20));
-        jPanel1.add(jTextField2, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 40, 200, -1));
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(4, 4, 260, 100));
+        PortaTXT.setText("1234");
+        jPanel1.add(PortaTXT, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 40, 200, -1));
+
+        jLabel3.setText("Quantidade");
+        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 70, -1, 20));
+
+        QuantidadeTXT.setText("10");
+        QuantidadeTXT.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                QuantidadeTXTActionPerformed(evt);
+            }
+        });
+        jPanel1.add(QuantidadeTXT, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 70, 60, -1));
+
+        jLabel4.setText("Delay");
+        jPanel1.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 70, -1, 20));
+
+        DelayTXT.setText("10");
+        DelayTXT.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                DelayTXTActionPerformed(evt);
+            }
+        });
+        jPanel1.add(DelayTXT, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 70, 80, 20));
+
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(4, 4, 260, 130));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void AdeusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AdeusActionPerformed
-        // TODO add your handling code here:
+        int quantidade = Integer.parseInt(QuantidadeTXT.getText());
+        try {
+            for (int i = 0; i < quantidade; i++) {
+                iniciaConexao(loga(i));
+                try {
+                    Thread.sleep(Integer.parseInt(DelayTXT.getText()));
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(TestadorTop.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+            System.exit(0);
+        }
+
     }//GEN-LAST:event_AdeusActionPerformed
+
+    private void QuantidadeTXTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_QuantidadeTXTActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_QuantidadeTXTActionPerformed
+
+    private void DelayTXTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DelayTXTActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_DelayTXTActionPerformed
 
     /**
      * @param args the command line arguments
@@ -99,12 +171,169 @@ public class TestadorTop extends javax.swing.JFrame {
         });
     }
 
+    private void desconecta() {
+        JSONObject cliente = new JSONObject();
+        cliente.put("action", "disconnect");
+        String clienteDesconectandoJsonString = cliente.toString();
+        PrintStream saida;
+        try {
+            saida = new PrintStream(socket.getOutputStream());
+            saida.println(clienteDesconectandoJsonString);
+        } catch (IOException ex) {
+            Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public static String loga(int num) {
+        JSONObject user = new JSONObject();
+        user.put("action", "connect");
+        String nome = "Teste" + Integer.toString(num);
+        user.put("nome", nome);
+        Random r = new Random();
+        int aleatTipo = r.nextInt(2);
+        int aleatMaterial = r.nextInt(6);
+        String materiais[] = {"oleo", "metal", "roupa", "papel", "plastico", "eletronico"};
+        user.put("material", materiais[aleatMaterial]);
+        switch (aleatTipo) {
+            case 0:
+                user.put("tipo", "D");
+                user.put("descricao", "Estou doando " + materiais[aleatMaterial]);
+                break;
+            case 1:
+                user.put("tipo", "C");
+                break;
+        }
+        return user.toString();
+    }
+
+    synchronized private void iniciaAcao(JSONObject json) {
+        if (json.has("action")) {
+            if (json.get("action").equals("client_list")) {
+                System.out.println("Listando: " + json);
+            } else if (json.get("action").equals("chat_general_client")) {
+                System.out.println("Broadcast: " + json);
+            } else if (json.get("action").equals("chat_room_client")) {
+                System.out.println("Multicast: " + json);
+            } else if (json.get("action").equals("request_error")) {
+                JOptionPane.showMessageDialog(null, "Erro na requisição.");
+            } else {
+                System.out.println("A ação " + json.get("action") + " não existe.");
+            }
+        } else {
+            System.out.println("Action não encontrada.");
+        }
+    }
+
+    private void broadcast() {
+        String msg = "BroadCast";
+        JSONObject jsonBroad = new JSONObject();
+        jsonBroad.put("action", "chat_general_server");
+        jsonBroad.put("mensagem", msg);
+        out.println(jsonBroad.toString());
+    }
+
+    private void iniciaConexao(String req) {
+        System.out.println("Iniciando conexão..");
+        String ip = IPTXT.getText();
+        Integer porta = new Integer(PortaTXT.getText());
+        try {
+            socket = new Socket(ip, porta);
+            out = new PrintStream(socket.getOutputStream());
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+            this.socketCliente = socket;
+            BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
+
+            out.println(req);
+
+            new Thread() {
+                @Override
+                synchronized public void run() {
+                    try {
+                        String userInput;
+                        boolean conectado = true;
+                        String acao[] = {"disconnect", "chat_general_server", "chat_room_server"};
+                        while (((userInput = in.readLine()) != null) || socketCliente != null) {
+                            try {
+                                JSONObject json = new JSONObject(userInput);
+                                iniciaAcao(json);
+                                while (conectado) {
+                                    try {
+                                        Thread.sleep(Integer.parseInt(DelayTXT.getText()));
+                                    } catch (InterruptedException ex) {
+                                        Logger.getLogger(TestadorTop.class.getName()).log(Level.SEVERE, null, ex);
+                                    }
+                                    Random r = new Random();
+                                    int aleatAcao = r.nextInt(3);
+                                    String acaoSelec = acao[aleatAcao];
+                                    switch (acaoSelec) {
+                                        case "disconnect":
+                                            desconecta();
+                                            conectado = false;
+                                            break;
+                                        case "chat_general_server":
+                                            broadcast();
+                                            break;
+                                        case "chat_room_server":
+                                            JSONObject jsonMensagem = new JSONObject();
+                                            String msg = "Multicast";
+                                            jsonMensagem.put("mensagem", msg);
+                                            jsonMensagem.put("action", "chat_room_server");
+                                            out.println(jsonMensagem.toString());
+                                            break;
+                                    }
+                                }
+                            } catch (JSONException ex) {
+                                System.err.println("Erro no json" + ex);
+//                                desativaConexao();
+//                                desconectaCliente(socket);
+                                out.close();
+                                in.close();
+                                socket.close();
+                            }
+                        }
+//                        desativaConexao();
+//                        desconectaCliente(socket);
+                        out.close();
+                        in.close();
+                        socket.close();
+                        //stdIn.close();
+                    } catch (IOException ex) {
+//                        JOptionPane.showMessageDialog(null, "Você foi desconectado");
+//                        desativaConexao();
+//                        DefaultTableModel model = (DefaultTableModel) TabelaClients.getModel();
+//                        model.setRowCount(0);
+                    }
+                    System.out.println("Terminou a thread");
+                }
+            }.start();
+
+        } catch (UnknownHostException e) {
+            System.err.println();
+//            JOptionPane.showMessageDialog(null, "Não é possível encontrar o servidor " + ip + e);;
+            System.out.println(e);
+            //System.exit(1);
+        } catch (ConnectException e) {
+            System.err.println();
+            System.out.println(e);
+            //System.exit(1);
+        } catch (IOException e) {
+            System.err.println("Erro com o IP " + ip + e);
+            System.out.println(e.getMessage());
+            //System.exit(1);
+        }
+    }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JToggleButton Adeus;
+    private javax.swing.JTextField DelayTXT;
+    private javax.swing.JTextField IPTXT;
+    private javax.swing.JTextField PortaTXT;
+    private javax.swing.JTextField QuantidadeTXT;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
     // End of variables declaration//GEN-END:variables
 }

@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package telaspkg;
 
 import java.awt.Color;
@@ -15,6 +10,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -27,6 +23,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import server.Usuario;
 import javax.swing.JTextPane;
+import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
 
 /**
@@ -272,11 +269,10 @@ public class Servidor extends javax.swing.JFrame {
             Object[] options = {"Sim", "Não"};
             int opcao = JOptionPane.showOptionDialog(null, "Deseja realmente desconecta este usuário?", "Confirmação", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
             if (opcao == JOptionPane.YES_OPTION) {
-                //System.out.println(porta);
-                for (int i = 0; i < clientes.size(); i++) {
-                    Usuario user = clientes.get(i);
-                    if (porta.equals(user.getPorta())) {
-                        desconecta(user.getSocket());
+                for (Iterator<Usuario> i = clientes.iterator(); i.hasNext();) {
+                    Usuario usuario = i.next();
+                    if (porta.equals(usuario.getPorta())) {
+                        desconecta(usuario.getSocket());
                     }
                 }
             }
@@ -345,23 +341,21 @@ public class Servidor extends javax.swing.JFrame {
         conectado = true;
         while (conectado == true) {
             try {
-                Thread.sleep(1000);
                 clientSocket = serverSocket.accept();
                 userLog(clientSocket.getPort(), nomeSocket(clientSocket), "Iniciou conexão.");
                 BufferedReader read = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                 new Thread() {
                     @Override
-                    public void run() {
+                    synchronized public void run() {
                         Socket socket = clientSocket;
                         try {
                             String linha;
                             while ((linha = read.readLine()) != null) {
-                                System.out.println("RECEBIDO: " + linha);
                                 try {
                                     JSONObject json = new JSONObject(linha);
                                     iniciaAcao(json, socket);
                                 } catch (JSONException ex) {
-                                    errorLog("JSON INVÀLIDO.", socket.getPort(), ex.getMessage());
+                                    errorLog("Usuário Desconectado.", socket.getPort(), "Desconectado com sucesso.");
                                     desconecta(socket);
                                 }
                             }
@@ -372,8 +366,6 @@ public class Servidor extends javax.swing.JFrame {
                     }
                 }.start();
             } catch (SocketException e) {
-                break;
-            } catch (InterruptedException ex) {
                 break;
             }
             
@@ -428,43 +420,41 @@ public class Servidor extends javax.swing.JFrame {
     private void log(String pre, String frase, String cor) {
         System.out.println("LOG");
     }
-    
-    private void desconecta(Socket socket) {
-        
+
+    synchronized private void desconecta(Socket socket) {
         int porta = socket.getPort();
         try {
-            for (int i = 0; i < clientes.size(); i++) {
-                if (Integer.parseInt(clientes.get(i).getPorta()) == porta) {
-                    //System.out.println(clientes.get(i));
+            for (Iterator<Usuario> i = clientes.iterator(); i.hasNext();) {
+                Usuario usuario = i.next();
+                if (Integer.parseInt(usuario.getPorta()) == porta) {
                     JSONObject json = new JSONObject();
                     json.put("action", "chat_general_client");
-                    json.put("mensagem", clientes.get(i).getNome() + " desconectou-se.");
-                    clientes.remove(i);
+                    json.put("mensagem", usuario.getNome() + " desconectou-se.");
+                    i.remove();
                     broadcast(json);
                     //System.out.println("Desconectou " + socket.getPort());
                 }
             }
-            listaUsuarios();
-            enviaMensagemParaCliente(socket, "desconecta");
         } catch (Exception e) {
-            System.out.println("Erro" + e);
+            errorLog("Problema na desconexão.", porta, e.getMessage());
         }
+        listaUsuarios();
     }
-    
-    private void desconectaServidor() {
+
+    synchronized private void desconectaServidor() {
+        DefaultTableModel model = (DefaultTableModel) UserTable.getModel();
+        model.setRowCount(0);
         try {
-            DefaultTableModel model = (DefaultTableModel) UserTable.getModel();
-            model.setRowCount(0);
-            for (int i = 0; i < clientes.size(); i++) {
-                Usuario cliente = clientes.get(i);
-                Socket socket = cliente.getSocket();
+            for (Iterator<Usuario> i = clientes.iterator(); i.hasNext();) {
+                Usuario usuario = i.next();
+                Socket socket = usuario.getSocket();
                 desconecta(socket);
+                serverSocket.close();
             }
-            serverSocket.close();
-            conectado = false;
         } catch (Exception e) {
-            System.out.println("Erro" + e);
+            errorLog("Desconexão falhou.", 0, e.getMessage());
         }
+        conectado = false;
     }
     
     private void enviaMensagemParaCliente(Socket socket, String mensagem) {
@@ -481,8 +471,9 @@ public class Servidor extends javax.swing.JFrame {
                     + " por segurança.", socket.getPort(), ex.getMessage());
         }
     }
-    
-    private void iniciaAcao(JSONObject json, Socket socket) {
+
+    synchronized private void iniciaAcao(JSONObject json, Socket socket) {
+        System.out.println("Recebido: " + json);
         if (json.has("action")) {
             if (json.get("action").equals("connect")) {
                 userLog(socket.getPort(), nomeSocket(socket), "Requisitou a ação 'connect'.");
@@ -495,7 +486,7 @@ public class Servidor extends javax.swing.JFrame {
                 String nome = nomeSocket(socket);
                 json.put("action", "chat_general_client");
                 String msg = json.getString("mensagem");
-                json.put("mensagem", nome + " (GERAL): " + msg);
+                json.put("mensagem", nome + " (geral): " + msg);
                 serverLog("Enviando mensagem para chat geral - " + msg);
                 broadcast(json);
             } else if (json.get("action").equals("chat_room_server")) {
@@ -528,27 +519,46 @@ public class Servidor extends javax.swing.JFrame {
     }
     
     private void chat_request_server(JSONObject json, Socket socket) {
-        JSONObject response = new JSONObject();
-        PrintStream ps;
         String porta = Integer.toString(socket.getPort());
-        System.out.println(porta);
         userLog(socket.getPort(), nomeSocket(socket), "Requisitou a ação 'chat_request_server'.");
         if (json.getString("destinatario").equals(porta)) {
-            errorLog("Remetente é igual ao usuário que requisitou.", socket.getPort(), "");
+            JSONObject response = new JSONObject();
             response.put("action", "request_error");
+            errorLog("Remetente é igual ao usuário que requisitou.", socket.getPort(), "");
             try {
+                PrintStream ps;
                 ps = new PrintStream(socket.getOutputStream());
                 ps.println(response.toString());
             } catch (Exception e) {
                 errorLog("Erro ao enviar resposta.", socket.getPort(), e.getMessage());
             }
         } else {
-            
+            JSONObject response = new JSONObject();
+            response.put("action", "chat_request_client");
+            response.put("remetente", porta);
+            Socket socketdest = getSocketWithPorta(json.getInt("destinatario"));
+            try {
+                PrintStream ps = new PrintStream(socketdest.getOutputStream());
+                ps.println(response.toString());
+            } catch (Exception e) {
+                errorLog("Erro ao enviar resposta.", socket.getPort(), e.getMessage());
+            }
         }
         
     }
-    
-    private void mensagemMaterial(JSONObject json, Socket socket, String msg) {
+
+    synchronized private Socket getSocketWithPorta(int porta) {
+        for (Iterator<Usuario> i = clientes.iterator(); i.hasNext();) {
+            Usuario usuario = i.next();
+            if (Integer.toString(porta) == usuario.getPorta()) {
+                return usuario.getSocket();
+            }
+        }
+        return null;
+    }
+
+    synchronized private void mensagemMaterial(JSONObject json, Socket socket, String msg) {
+        System.out.println("Multicast: " + json);
         String material = materialSocket(socket);
         String tipo = tipoSocket(socket);
         String nome = nomeSocket(socket);
@@ -561,8 +571,8 @@ public class Servidor extends javax.swing.JFrame {
         serverLog("Enviando mensagem chat material " + material.toUpperCase() + "/" + tipo + " - " + json.getString("mensagem"));
         if (!material.equals("")) {
             try {
-                for (int i = 0; i < clientes.size(); i++) {
-                    Usuario usuario = clientes.get(i);
+                for (Iterator<Usuario> i = clientes.iterator(); i.hasNext();) {
+                    Usuario usuario = i.next();
                     if (usuario.getMaterial().equals(material)) {
                         PrintStream ps;
                         ps = new PrintStream(usuario.getSocket().getOutputStream());
@@ -574,11 +584,11 @@ public class Servidor extends javax.swing.JFrame {
             }
         }
     }
-    
-    private String tipoSocket(Socket socket) {
+
+    synchronized private String tipoSocket(Socket socket) {
         try {
-            for (int i = 0; i < clientes.size(); i++) {
-                Usuario usuario = clientes.get(i);
+            for (Iterator<Usuario> i = clientes.iterator(); i.hasNext();) {
+                Usuario usuario = i.next();
                 if (Integer.parseInt(usuario.getPorta()) == socket.getPort()) {
                     return usuario.getTipo();
                 }
@@ -588,11 +598,11 @@ public class Servidor extends javax.swing.JFrame {
         }
         return "";
     }
-    
-    private String materialSocket(Socket socket) {
+
+    synchronized private String materialSocket(Socket socket) {
         try {
-            for (int i = 0; i < clientes.size(); i++) {
-                Usuario usuario = clientes.get(i);
+            for (Iterator<Usuario> i = clientes.iterator(); i.hasNext();) {
+                Usuario usuario = i.next();
                 if (Integer.parseInt(usuario.getPorta()) == socket.getPort()) {
                     return usuario.getMaterial();
                 }
@@ -602,22 +612,22 @@ public class Servidor extends javax.swing.JFrame {
         }
         return "";
     }
-    
-    private String nomeSocket(Socket socket) {
+
+    synchronized private String nomeSocket(Socket socket) {
         try {
-            for (int i = 0; i < clientes.size(); i++) {
-                Usuario usuario = clientes.get(i);
+            for (Iterator<Usuario> i = clientes.iterator(); i.hasNext();) {
+                Usuario usuario = i.next();
                 if (Integer.parseInt(usuario.getPorta()) == socket.getPort()) {
                     return usuario.getNome();
                 }
             }
         } catch (Exception e) {
-            Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, e);
+            errorLog("Erro ao conseguir nome.", socket.getPort(), e.getMessage());
         }
         return "";
     }
-    
-    private void iniciaConexao(JSONObject json, Socket socket) {
+
+    synchronized private void iniciaConexao(JSONObject json, Socket socket) {
         Usuario usuario = validaUsuario(json, socket);
         userLog(socket.getPort(), "", "Entrou com o nome " + usuario.getNome());
         userLog(socket.getPort(), "", "endereço - " + usuario.getIp() + ":" + usuario.getPorta());
@@ -628,8 +638,8 @@ public class Servidor extends javax.swing.JFrame {
             desconecta(socket);
         }
     }
-    
-    private void atualizalista(Usuario usuario, String acao) {
+
+    synchronized private void atualizalista(Usuario usuario, String acao) {
         if (acao.equals("add")) {
             clientes.add(usuario);
         }
@@ -638,49 +648,54 @@ public class Servidor extends javax.swing.JFrame {
         json.put("mensagem", usuario.getNome() + " conectou-se.");
         broadcast(json);
     }
-    
-    private void listaUsuarios() {
-        serverLog("Arrumando lista de usuários...");
-        JSONArray arr = new JSONArray();
-        DefaultTableModel model = (DefaultTableModel) UserTable.getModel();
-        model.setRowCount(0);
-        try {
-            for (int i = 0; i < clientes.size(); i++) {
-                Usuario usuario = clientes.get(i);
-                serverLog("Listando " + usuario.getNome() + " porta " + usuario.getPorta());
-                String tipo;
-                if (usuario.getTipo().equals("D")) {
-                    tipo = "Doador";
-                } else {
-                    tipo = "Coletor";
+
+    synchronized private void listaUsuarios() {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                serverLog("Arrumando lista de usuários...");
+                JSONArray arr = new JSONArray();
+                DefaultTableModel model = (DefaultTableModel) UserTable.getModel();
+                model.setRowCount(0);
+                try {
+                    for (Iterator<Usuario> i = clientes.iterator(); i.hasNext();) {
+                        Usuario usuario = i.next();
+                        String tipo;
+                        if (usuario.getTipo().equals("D")) {
+                            tipo = "Doador";
+                        } else {
+                            tipo = "Coletor";
+                        }
+                        model.addRow(new Object[]{usuario.getIp(), usuario.getPorta(), usuario.getNome(), tipo, usuario.getMaterial(), usuario.getOcupado(), usuario.getFalando()});
+                        JSONObject newJson = usuario.getJson();
+                        newJson.put("porta", usuario.getPorta());
+                        newJson.remove("action");
+                        usuario.setJson(newJson);
+                        arr.put(usuario.getJson());
+                    }
+                } catch (Exception e) {
+                    errorLog("Erro ao listar usuários.", 0, e.getMessage());
                 }
-                model.addRow(new Object[]{usuario.getIp(), usuario.getPorta(), usuario.getNome(), tipo, usuario.getMaterial(), usuario.getOcupado(), usuario.getFalando()});
-                JSONObject newJson = usuario.getJson();
-                newJson.put("porta", usuario.getPorta());
-                newJson.remove("action");
-                usuario.setJson(newJson);
-                arr.put(usuario.getJson());
+
+                JSONObject lista = new JSONObject();
+                lista.put("action", "client_list");
+                lista.put("lista", arr);
+                broadcast(lista);
             }
-        } catch (Exception e) {
-            
-        }
-        
-        JSONObject lista = new JSONObject();
-        lista.put("action", "client_list");
-        lista.put("lista", arr);
-        broadcast(lista);
+        });
+
     }
-    
-    public void broadcast(JSONObject json) {
-        System.out.println("ENVIANDO: " + json);
-        for (int i = 0; i < clientes.size(); i++) {
-            Usuario usuario = clientes.get(i);
+
+    synchronized public void broadcast(JSONObject json) {
+        System.out.println("Broadcast: " + json);
+        for (Iterator<Usuario> i = clientes.iterator(); i.hasNext();) {
+            Usuario usuario = i.next();
             PrintStream ps;
             try {
                 ps = new PrintStream(usuario.getSocket().getOutputStream());
                 ps.println(json.toString());
             } catch (IOException ex) {
-                errorLog("Falha no broadcast.", 0, ex.getMessage());
+                errorLog("Erro ao mandar Broadcast.", Integer.parseInt(usuario.getPorta()), ex.getMessage());
             }
         }
     }
@@ -705,47 +720,4 @@ public class Servidor extends javax.swing.JFrame {
         }
         return usuario;
     }
-
-//    private Runnable secondThread() {
-//        Runnable second;
-//        second = new Runnable() {
-//            public void run() {
-//                try {
-//                    Usuario user = new Usuario();
-//                    user.setSocket(clientSocket);
-//                    user.setIn(new BufferedReader(new InputStreamReader(clientSocket.getInputStream())));
-//                    user.setOut(new PrintStream(clientSocket.getOutputStream()));
-//                    String line;
-//                    while ((line = user.getIn().readLine()) != null) {
-//                        JSONObject json = new JSONObject(line);
-//                        if (json.has("action")) {
-//                            System.out.println(json.get("action"));
-//                            if (json.get("action").equals("connect")) {
-//                                TextLog.append(
-//                                        "Nova conexão iniciada: "
-//                                        + user.getSocket().getInetAddress().getHostAddress()
-//                                        + ":"
-//                                        + user.getSocket().getPort()
-//                                );
-//                            } else {
-//                                TextLog.append("A ação " + json.get("action") + " não está configurada.");
-//                            }
-//                        } else {
-//                            TextLog.append("Tentativa incorreta de conexão. Action não foi detectada.");
-//                        }
-//                    }
-//                } catch (IOException ex) {
-//                    Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
-//                }
-//
-//                try {
-//                    serverSocket.close();
-//                } catch (IOException e) {
-//                    System.err.println("Não é possível fechar a porta.");
-//                    System.exit(1);
-//                }
-//            }
-//        };
-//        return second;
-//    }
 }
