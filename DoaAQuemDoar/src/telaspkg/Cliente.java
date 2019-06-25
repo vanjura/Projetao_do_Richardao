@@ -586,17 +586,14 @@ public class Cliente extends javax.swing.JFrame {
         switch (chat) {
             case "G":
                 jsonMensagem.put("action", "chat_general_server");
-                System.out.println("ENVIANDO: " + jsonMensagem);
                 out.println(jsonMensagem.toString());
                 break;
             case "M":
                 jsonMensagem.put("action", "chat_room_server");
-                System.out.println("ENVIANDO: " + jsonMensagem);
                 out.println(jsonMensagem.toString());
                 break;
             case "P":
                 jsonMensagem.put("action", "chat_request_server");
-                System.out.println("ENVIANDO: " + jsonMensagem);
                 System.out.println("Chat Privado - ainda não implementado");
                 break;
             default:
@@ -640,7 +637,6 @@ public class Cliente extends javax.swing.JFrame {
                     try {
                         String userInput;
                         while (((userInput = in.readLine()) != null) || socketCliente != null) {
-                            System.out.println("RECEBIDO: " + userInput);
                             try {
                                 JSONObject json = new JSONObject(userInput);
                                 iniciaAcao(json);
