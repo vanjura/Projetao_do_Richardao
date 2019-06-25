@@ -17,6 +17,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextPane;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
@@ -428,9 +429,8 @@ public class Inicio extends javax.swing.JFrame {
         JSONObject validacao = validaInsercao();
         if (validacao.getBoolean("success")) {
             JSONObject user = criaUser("connect");
-            System.out.println(user);
             String req = user.toString();
-            iniciaConexão(req);
+            iniciaConexao(req);
         } else {
             JOptionPane.showMessageDialog(null, validacao.getString("message"), "ERRO", JOptionPane.WARNING_MESSAGE);
         }
@@ -595,6 +595,7 @@ public class Inicio extends javax.swing.JFrame {
             default:
                 System.out.println("Nenhum");
         }
+        System.out.println("Enviado:" + jsonMensagem);
     }
 
     private void broadcast() {
@@ -606,7 +607,8 @@ public class Inicio extends javax.swing.JFrame {
         out.println(jsonBroad.toString());
     }
 
-    private void iniciaConexão(String req) {
+    private void iniciaConexao(String req) {
+        System.out.println("Enviado: " + req );
         String ip = IpTextField.getText();
         Integer porta = new Integer(PortaTextField.getText());
         try {
@@ -655,7 +657,6 @@ public class Inicio extends javax.swing.JFrame {
                         DefaultTableModel model = (DefaultTableModel) TabelaClients.getModel();
                         model.setRowCount(0);
                     }
-                    System.out.println("Terminou a thread");
                 }
             }.start();
 
@@ -667,12 +668,8 @@ public class Inicio extends javax.swing.JFrame {
         } catch (ConnectException e) {
             System.err.println();
             mensagemErro("Não é possível conectar a " + ip + ":" + porta);
-            //System.exit(1);
         } catch (IOException e) {
-            System.err.println("Erro com o IP " + ip + e);
             mensagemErro("Erro com o IP " + ip + "\n" + e);
-            System.out.println(e.getMessage());
-            //System.exit(1);
         }
     }
 
@@ -797,6 +794,7 @@ public class Inicio extends javax.swing.JFrame {
     }
 
     private void iniciaAcao(JSONObject json) {
+        System.out.println("Recebido: " + json);
         if (json.has("action")) {
             if (json.get("action").equals("client_list")) {
                 listaClientes(json);
@@ -806,11 +804,11 @@ public class Inicio extends javax.swing.JFrame {
                 chat_room_client(json);
             } else if (json.get("action").equals("request_error")) {
                 JOptionPane.showMessageDialog(null, "Erro na requisição.");
-            } else{
+            } else {
                 System.out.println("A ação " + json.get("action") + " não existe.");
             }
         } else {
-            System.out.println("Action não encontrada.");
+            System.out.println("A chave action não existe.");
         }
     }
 
@@ -822,25 +820,30 @@ public class Inicio extends javax.swing.JFrame {
         mensagemGeral(json.getString("mensagem"));
     }
 
-    private void listaClientes(JSONObject json) {
-        DefaultTableModel model = (DefaultTableModel) TabelaClients.getModel();
-        model.setRowCount(0);
-        ButtonGroup group = new ButtonGroup();
-        JSONArray lista = json.getJSONArray("lista");
-        for (int i = 0; i < lista.length(); i++) {
-            JSONObject usuarioJson = (JSONObject) lista.get(i);
-            System.out.println(usuarioJson);
-            if (!usuarioJson.has("descricao")) {
-                usuarioJson.put("descricao", "");
+    synchronized private void listaClientes(JSONObject json) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                DefaultTableModel model = (DefaultTableModel) TabelaClients.getModel();
+                model.setRowCount(0);
+                ButtonGroup group = new ButtonGroup();
+                JSONArray lista = json.getJSONArray("lista");
+                for (int i = 0; i < lista.length(); i++) {
+                    JSONObject usuarioJson = (JSONObject) lista.get(i);
+                    if (!usuarioJson.has("descricao")) {
+                        usuarioJson.put("descricao", "");
+                    }
+                    String tipo;
+                    if (usuarioJson.get("tipo").equals("D")) {
+                        tipo = "Doador";
+                    } else {
+                        tipo = "Coletor";
+                    }
+                    model.addRow(new Object[]{usuarioJson.get("porta"), usuarioJson.get("nome"), tipo, usuarioJson.get("material"), usuarioJson.get("descricao")});
+                }
             }
-            String tipo;
-            if (usuarioJson.get("tipo").equals("D")) {
-                tipo = "Doador";
-            } else {
-                tipo = "Coletor";
-            }
-            model.addRow(new Object[]{usuarioJson.get("porta"), usuarioJson.get("nome"), tipo, usuarioJson.get("material"), usuarioJson.get("descricao")});
-        }
+        });
+
     }
 
     private void desconectaCliente(Socket socket) {
@@ -867,7 +870,6 @@ public class Inicio extends javax.swing.JFrame {
         PrintStream saida;
         try {
             saida = new PrintStream(socket.getOutputStream());
-            System.out.println("DESCONECTADO DO SERVIDOR: " + clienteDesconectandoJsonString);
             saida.println(clienteDesconectandoJsonString);//Envia uma String JSON
         } catch (IOException ex) {
             Logger.getLogger(Inicio.class.getName()).log(Level.SEVERE, null, ex);
