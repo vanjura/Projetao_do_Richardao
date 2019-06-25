@@ -24,7 +24,7 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 import server.Usuario;
 
-public class Inicio extends javax.swing.JFrame {
+public class Cliente extends javax.swing.JFrame {
 
     public Usuario cliente = new Usuario();
     public Socket socketCliente;
@@ -37,7 +37,7 @@ public class Inicio extends javax.swing.JFrame {
     /**
      * Creates new form Inicio
      */
-    public Inicio() {
+    public Cliente() {
         initComponents();
         pane = TabbedPane;
         pane.setEnabledAt(2, false);
@@ -536,14 +536,18 @@ public class Inicio extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Inicio.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Cliente.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Inicio.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Cliente.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Inicio.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Cliente.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Inicio.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Cliente.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
         //</editor-fold>
         //</editor-fold>
         //</editor-fold>
@@ -552,7 +556,7 @@ public class Inicio extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Inicio().setVisible(true);
+                new Cliente().setVisible(true);
             }
         });
 
@@ -582,14 +586,17 @@ public class Inicio extends javax.swing.JFrame {
         switch (chat) {
             case "G":
                 jsonMensagem.put("action", "chat_general_server");
+                System.out.println("ENVIANDO: " + jsonMensagem);
                 out.println(jsonMensagem.toString());
                 break;
             case "M":
                 jsonMensagem.put("action", "chat_room_server");
+                System.out.println("ENVIANDO: " + jsonMensagem);
                 out.println(jsonMensagem.toString());
                 break;
             case "P":
                 jsonMensagem.put("action", "chat_request_server");
+                System.out.println("ENVIANDO: " + jsonMensagem);
                 System.out.println("Chat Privado - ainda não implementado");
                 break;
             default:
@@ -633,13 +640,14 @@ public class Inicio extends javax.swing.JFrame {
                     try {
                         String userInput;
                         while (((userInput = in.readLine()) != null) || socketCliente != null) {
+                            System.out.println("RECEBIDO: " + userInput);
                             try {
                                 JSONObject json = new JSONObject(userInput);
                                 iniciaAcao(json);
                             } catch (JSONException ex) {
-                                System.err.println("Erro no json" + ex);
                                 desativaConexao();
                                 desconectaCliente(socket);
+                                errorLog("", 0, ex.getMessage());
                                 out.close();
                                 in.close();
                                 socket.close();
@@ -647,6 +655,7 @@ public class Inicio extends javax.swing.JFrame {
                         }
                         desativaConexao();
                         desconectaCliente(socket);
+                        errorLog("Falha na conexão com o servidor.", 0, "");
                         out.close();
                         in.close();
                         socket.close();
@@ -654,6 +663,7 @@ public class Inicio extends javax.swing.JFrame {
                     } catch (IOException ex) {
                         JOptionPane.showMessageDialog(null, "Você foi desconectado");
                         desativaConexao();
+                        errorLog("Falha na conexão com o servidor.", 0, ex.getMessage());
                         DefaultTableModel model = (DefaultTableModel) TabelaClients.getModel();
                         model.setRowCount(0);
                     }
@@ -661,12 +671,9 @@ public class Inicio extends javax.swing.JFrame {
             }.start();
 
         } catch (UnknownHostException e) {
-            System.err.println();
             JOptionPane.showMessageDialog(null, "Não é possível encontrar o servidor " + ip + e);
             mensagemErro("Não é possível encontrar o servidor " + ip + "\n" + e);
-            //System.exit(1);
         } catch (ConnectException e) {
-            System.err.println();
             mensagemErro("Não é possível conectar a " + ip + ":" + porta);
         } catch (IOException e) {
             mensagemErro("Erro com o IP " + ip + "\n" + e);
@@ -819,6 +826,37 @@ public class Inicio extends javax.swing.JFrame {
     private void chat_general_server(JSONObject json) {
         mensagemGeral(json.getString("mensagem"));
     }
+    
+    private void errorLog(String frase, int porta, String erro) {
+        Color cor = null;
+        String str = null;
+        if (frase.equals("") && porta == 0 && erro.equals("")) {
+            str = "AVISO: Instabilidade detectada e corrigida.";
+            cor = Color.YELLOW.darker();
+        } else if(frase.equals("") && porta == 0){
+            str = "ERRO: " + erro;
+            cor = Color.red;
+        } else if(porta == 0 && erro.equals("")){
+            str = "AVISO: " + frase;
+            cor = Color.YELLOW.darker();
+        } else if(frase.equals("") && erro.equals("")){
+            str = "AVISO: problema detectado na porta " + porta;
+            cor = Color.YELLOW.darker();
+        } else if(frase.equals("")){
+            str = "ERRO na porta " + porta + ": " + erro;
+            cor = Color.red;
+        } else if(porta == 0){
+            str = frase + ": " + erro;
+            cor = Color.YELLOW.darker();
+        } else if(erro.equals("")){
+            str = "AVISO na porta " + porta + ": " + frase;
+            cor = Color.YELLOW.darker();
+        } else{
+            
+        }
+        addTexto(ChatTextPaneGeral, str, cor);
+        addTexto(ChatTextPaneMaterial, str, cor);
+    }
 
     synchronized private void listaClientes(JSONObject json) {
         SwingUtilities.invokeLater(new Runnable() {
@@ -872,7 +910,7 @@ public class Inicio extends javax.swing.JFrame {
             saida = new PrintStream(socket.getOutputStream());
             saida.println(clienteDesconectandoJsonString);//Envia uma String JSON
         } catch (IOException ex) {
-            Logger.getLogger(Inicio.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }
