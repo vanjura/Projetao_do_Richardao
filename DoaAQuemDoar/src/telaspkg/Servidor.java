@@ -472,7 +472,7 @@ public class Servidor extends javax.swing.JFrame {
     }
 
     synchronized private void mensagemMaterial(JSONObject json, Socket socket, String msg, String nome) {
-        
+
         String material = materialSocket(socket);
         String tipo = tipoSocket(socket);
         if (tipo.equals("C")) {
@@ -585,11 +585,11 @@ public class Servidor extends javax.swing.JFrame {
                 } catch (Exception e) {
                     errorLog("Erro ao listar usuários.", 0, e.getMessage());
                 }
-
                 JSONObject lista = new JSONObject();
                 lista.put("action", "client_list");
                 lista.put("lista", arr);
                 broadcast(lista);
+
             }
         });
 

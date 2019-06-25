@@ -867,6 +867,7 @@ public class Inicio extends javax.swing.JFrame {
 
         //IPAddress = InetAddress.getLocalHost().getHostAddress(); //Pega o endereço
         //Manda mensagem ao servidor
+        System.out.println("Enviado: " + cliente);
         PrintStream saida;
         try {
             saida = new PrintStream(socket.getOutputStream());
