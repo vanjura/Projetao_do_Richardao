@@ -5,6 +5,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.io.PrintWriter;
+import static java.lang.System.in;
+import static java.lang.System.out;
 import java.net.Inet4Address;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -14,33 +17,39 @@ import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import static org.json.JSONObject.NULL;
+import server.Server;
 import server.Usuario;
 import javax.swing.JTextPane;
 import javax.swing.SwingUtilities;
-import javax.swing.text.BadLocationException;
 
 /**
  *
  * @author Jhonatan
  */
 public class Servidor extends javax.swing.JFrame {
-    
+
     Thread mainThread;
     boolean conectado = false;
     private Socket clientSocket;
     private ServerSocket serverSocket = null;
     public ArrayList<Usuario> clientes = new ArrayList<Usuario>();
-    
+
     private Servidor(Socket clientSoc) {
         clientSocket = clientSoc;
-        
+
         run();
     }
 
@@ -51,22 +60,22 @@ public class Servidor extends javax.swing.JFrame {
         initComponents();
         addTexto(jTextPane1, "Log - DoaAQuemDoar", Color.MAGENTA);
     }
-    
-    public static void addTexto(JTextPane textPane, String frase, Color cor) {
+
+    public void addTexto(JTextPane textPane, String frase, Color cor) {
         StyledDocument doc = textPane.getStyledDocument();
-        Style style = textPane.addStyle("stilera", null);
-        
+        Style style = textPane.addStyle("I'm a Style", null);
+
         try {
             StyleConstants.setForeground(style, cor);
             doc.insertString(doc.getLength(), frase + "\n", style);
             textPane.setCaretPosition(textPane.getDocument().getLength());
-        } catch (BadLocationException e) {
+        } catch (Exception e) {
             textPane.setText(textPane.getText() + frase);
         }
     }
-    
+
     public void run() {
-        
+
     }
 
     /**
@@ -88,11 +97,13 @@ public class Servidor extends javax.swing.JFrame {
         jTextFieldPorta = new javax.swing.JTextField();
         jButtonConectar = new javax.swing.JButton();
         jButtonDesconectar = new javax.swing.JButton();
-        jButtonDesconectaCliente = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder("Usuários"));
+        jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         UserTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -112,44 +123,24 @@ public class Servidor extends javax.swing.JFrame {
         });
         jScrollPane3.setViewportView(UserTable);
 
-        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
-        jPanel4.setLayout(jPanel4Layout);
-        jPanel4Layout.setHorizontalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel4Layout.createSequentialGroup()
-                .addGap(4, 4, 4)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 870, Short.MAX_VALUE))
-        );
-        jPanel4Layout.setVerticalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel4Layout.createSequentialGroup()
-                .addGap(4, 4, 4)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 280, Short.MAX_VALUE))
-        );
+        jPanel4.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 870, 280));
+
+        getContentPane().add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 50, 890, 310));
 
         jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Log do Sistema"));
+        jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jScrollPane2.setAutoscrolls(true);
 
         jTextPane1.setEditable(false);
         jScrollPane2.setViewportView(jTextPane1);
 
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGap(4, 4, 4)
-                .addComponent(jScrollPane2))
-        );
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGap(4, 4, 4)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 140, Short.MAX_VALUE))
-        );
+        jPanel3.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 870, 140));
+
+        getContentPane().add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 360, 890, 170));
 
         jLabel1.setText("Porta:");
+        getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, -1, 20));
 
         jTextFieldPorta.setText("1234");
         jTextFieldPorta.setMinimumSize(new java.awt.Dimension(100, 20));
@@ -159,6 +150,7 @@ public class Servidor extends javax.swing.JFrame {
                 jTextFieldPortaActionPerformed(evt);
             }
         });
+        getContentPane().add(jTextFieldPorta, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 20, -1, 20));
 
         jButtonConectar.setText("Conectar");
         jButtonConectar.addActionListener(new java.awt.event.ActionListener() {
@@ -166,6 +158,7 @@ public class Servidor extends javax.swing.JFrame {
                 jButtonConectarActionPerformed(evt);
             }
         });
+        getContentPane().add(jButtonConectar, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 20, -1, 20));
 
         jButtonDesconectar.setText("Desconectar");
         jButtonDesconectar.setEnabled(false);
@@ -174,54 +167,16 @@ public class Servidor extends javax.swing.JFrame {
                 jButtonDesconectarActionPerformed(evt);
             }
         });
+        getContentPane().add(jButtonDesconectar, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 20, -1, 20));
 
-        jButtonDesconectaCliente.setText("Desconectar Client");
-        jButtonDesconectaCliente.setEnabled(false);
-        jButtonDesconectaCliente.addActionListener(new java.awt.event.ActionListener() {
+        jButton2.setText("Desconectar Client");
+        jButton2.setEnabled(false);
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonDesconectaClienteActionPerformed(evt);
+                jButton2ActionPerformed(evt);
             }
         });
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(10, 10, 10)
-                .addComponent(jLabel1)
-                .addGap(0, 0, 0)
-                .addComponent(jTextFieldPorta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(10, 10, 10)
-                .addComponent(jButtonConectar)
-                .addGap(3, 3, 3)
-                .addComponent(jButtonDesconectar)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButtonDesconectaCliente)
-                .addContainerGap())
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(9, 9, 9))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(20, 20, 20)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextFieldPorta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButtonConectar, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jButtonDesconectar, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jButtonDesconectaCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(10, 10, 10)
-                .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGap(0, 0, 0)
-                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGap(6, 6, 6))
-        );
+        getContentPane().add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 20, -1, 20));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -245,7 +200,7 @@ public class Servidor extends javax.swing.JFrame {
         };
         this.mainThread.start();
         jButtonDesconectar.setEnabled(true);
-        jButtonDesconectaCliente.setEnabled(true);
+        jButton2.setEnabled(true);
     }//GEN-LAST:event_jButtonConectarActionPerformed
 
     private void jButtonDesconectarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDesconectarActionPerformed
@@ -253,19 +208,19 @@ public class Servidor extends javax.swing.JFrame {
         JOptionPane.showConfirmDialog(null, "Servidor desconectado!", "Desconectado", JOptionPane.DEFAULT_OPTION);
         jButtonConectar.setEnabled(true);
         jButtonDesconectar.setEnabled(false);
-        jButtonDesconectaCliente.setEnabled(false);
+        jButton2.setEnabled(false);
         jTextFieldPorta.setEnabled(true);
         DefaultTableModel model = (DefaultTableModel) UserTable.getModel();
         model.setRowCount(0);
         //System.exit(0);
     }//GEN-LAST:event_jButtonDesconectarActionPerformed
 
-    private void jButtonDesconectaClienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDesconectaClienteActionPerformed
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         try {
             int column = 1;
             int row = UserTable.getSelectedRow();
             String porta = UserTable.getModel().getValueAt(row, column).toString();
-            
+
             Object[] options = {"Sim", "Não"};
             int opcao = JOptionPane.showOptionDialog(null, "Deseja realmente desconecta este usuário?", "Confirmação", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
             if (opcao == JOptionPane.YES_OPTION) {
@@ -279,7 +234,7 @@ public class Servidor extends javax.swing.JFrame {
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Selecione um usuário na tabela primeiro.");
         }
-    }//GEN-LAST:event_jButtonDesconectaClienteActionPerformed
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -318,8 +273,8 @@ public class Servidor extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTable UserTable;
+    private javax.swing.JButton jButton2;
     private javax.swing.JButton jButtonConectar;
-    private javax.swing.JButton jButtonDesconectaCliente;
     private javax.swing.JButton jButtonDesconectar;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel3;
@@ -368,15 +323,15 @@ public class Servidor extends javax.swing.JFrame {
             } catch (SocketException e) {
                 break;
             }
-            
+
         }
     }
-    
+
     private void serverLog(String frase) {
         String mensagem = "Server: " + frase;
         addTexto(jTextPane1, mensagem, Color.BLUE);
     }
-    
+
     private void userLog(int porta, String nome, String frase) {
         String mensagem = "";
         if (nome != "") {
@@ -386,37 +341,11 @@ public class Servidor extends javax.swing.JFrame {
         }
         addTexto(jTextPane1, mensagem, Color.GREEN.darker().darker());
     }
-    
+
     private void errorLog(String frase, int porta, String erro) {
-        Color cor = null;
-        String str = null;
-        if (frase.equals("") && porta == 0 && erro.equals("")) {
-            str = "AVISO: Instabilidade detectada e corrigida.";
-            cor = Color.YELLOW.darker();
-        } else if (frase.equals("") && porta == 0) {
-            str = "ERRO: " + erro;
-            cor = Color.red;
-        } else if (porta == 0 && erro.equals("")) {
-            str = "AVISO: " + frase;
-            cor = Color.YELLOW.darker();
-        } else if (frase.equals("") && erro.equals("")) {
-            str = "AVISO: problema detectado na porta " + porta;
-            cor = Color.YELLOW.darker();
-        } else if (frase.equals("")) {
-            str = "ERRO na porta " + porta + ": " + erro;
-            cor = Color.red;
-        } else if (porta == 0) {
-            str = frase + ": " + erro;
-            cor = Color.YELLOW.darker();
-        } else if (erro.equals("")) {
-            str = "AVISO na porta " + porta + ": " + frase;
-            cor = Color.YELLOW.darker();
-        } else {
-            
-        }
-        addTexto(jTextPane1, str, cor);
+        addTexto(jTextPane1, porta + " AVISO: " + frase + "\n" + erro, Color.YELLOW.darker().darker());
     }
-    
+
     private void log(String pre, String frase, String cor) {
         System.out.println("LOG");
     }
@@ -432,7 +361,6 @@ public class Servidor extends javax.swing.JFrame {
                     json.put("mensagem", usuario.getNome() + " desconectou-se.");
                     i.remove();
                     broadcast(json);
-                    //System.out.println("Desconectou " + socket.getPort());
                 }
             }
         } catch (Exception e) {
@@ -456,7 +384,7 @@ public class Servidor extends javax.swing.JFrame {
         }
         conectado = false;
     }
-    
+
     private void enviaMensagemParaCliente(Socket socket, String mensagem) {
         PrintStream ps;
         try {
@@ -494,7 +422,7 @@ public class Servidor extends javax.swing.JFrame {
                 String nome = nomeSocket(socket);
                 json.put("action", "chat_room_client");
                 String msg = json.getString("mensagem");
-                mensagemMaterial(json, socket, msg);
+                mensagemMaterial(json, socket, msg, nome);
             } else if (json.get("action").equals("chat_request_server")) {
                 chat_request_server(json, socket);
             } else {
@@ -503,21 +431,7 @@ public class Servidor extends javax.swing.JFrame {
         } else {
         }
     }
-    
-    private boolean existe_IP(Socket socket) {
-        String ip = socket.getInetAddress().getHostAddress();
-        try {
-            for (int i = 0; i < clientes.size(); i++) {
-                Usuario usuario = clientes.get(i);
-                if (usuario.getIp().equals(ip)) {
-                    return true;
-                }
-            }
-        } catch (Exception e) {
-        }
-        return false;
-    }
-    
+
     private void chat_request_server(JSONObject json, Socket socket) {
         String porta = Integer.toString(socket.getPort());
         userLog(socket.getPort(), nomeSocket(socket), "Requisitou a ação 'chat_request_server'.");
@@ -544,7 +458,7 @@ public class Servidor extends javax.swing.JFrame {
                 errorLog("Erro ao enviar resposta.", socket.getPort(), e.getMessage());
             }
         }
-        
+
     }
 
     synchronized private Socket getSocketWithPorta(int porta) {
@@ -557,17 +471,16 @@ public class Servidor extends javax.swing.JFrame {
         return null;
     }
 
-    synchronized private void mensagemMaterial(JSONObject json, Socket socket, String msg) {
-        System.out.println("Multicast: " + json);
+    synchronized private void mensagemMaterial(JSONObject json, Socket socket, String msg, String nome) {
+        
         String material = materialSocket(socket);
         String tipo = tipoSocket(socket);
-        String nome = nomeSocket(socket);
         if (tipo.equals("C")) {
-            json.put("mensagem", "Coletor " + nome + " (" + material.toUpperCase() + "): " + msg);
+            json.put("mensagem", nome + " (coletor de " + material + "):" + msg);
         } else {
-            json.put("mensagem", "Doador " + nome + " (" + material.toUpperCase() + "): " + msg);
+            json.put("mensagem", nome + " (doador de " + material + "):" + msg);
         }
-        System.out.println("ENVIANDO: " + json);
+        System.out.println("Multicast: " + json);
         serverLog("Enviando mensagem chat material " + material.toUpperCase() + "/" + tipo + " - " + json.getString("mensagem"));
         if (!material.equals("")) {
             try {
@@ -607,7 +520,7 @@ public class Servidor extends javax.swing.JFrame {
                     return usuario.getMaterial();
                 }
             }
-        } catch (NumberFormatException e) {
+        } catch (Exception e) {
             Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, e);
         }
         return "";
@@ -631,12 +544,8 @@ public class Servidor extends javax.swing.JFrame {
         Usuario usuario = validaUsuario(json, socket);
         userLog(socket.getPort(), "", "Entrou com o nome " + usuario.getNome());
         userLog(socket.getPort(), "", "endereço - " + usuario.getIp() + ":" + usuario.getPorta());
-        if (!existe_IP(socket)) {
-            atualizalista(usuario, "add");
-            listaUsuarios();
-        } else {
-            desconecta(socket);
-        }
+        atualizalista(usuario, "add");
+        listaUsuarios();
     }
 
     synchronized private void atualizalista(Usuario usuario, String acao) {
@@ -699,7 +608,7 @@ public class Servidor extends javax.swing.JFrame {
             }
         }
     }
-    
+
     private Usuario validaUsuario(JSONObject json, Socket socket) {
         Usuario usuario = new Usuario();
         usuario.setSocket(socket);
