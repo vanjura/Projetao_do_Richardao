@@ -33,6 +33,7 @@ public class Inicio extends javax.swing.JFrame {
     public PrintStream out;
     public BufferedReader in;
     public JTabbedPane pane;
+    public JSONArray lista;
 
     /**
      * Creates new form Inicio
@@ -80,11 +81,11 @@ public class Inicio extends javax.swing.JFrame {
         ChatTextField = new javax.swing.JTextField();
         ChatSendBtn = new javax.swing.JButton();
         TabbedPane = new javax.swing.JTabbedPane();
-        jScrollPane2 = new javax.swing.JScrollPane();
+        jScrollPaneGeral = new javax.swing.JScrollPane();
         ChatTextPaneGeral = new javax.swing.JTextPane();
-        jScrollPane1 = new javax.swing.JScrollPane();
+        jScrollPaneMaterial = new javax.swing.JScrollPane();
         ChatTextPaneMaterial = new javax.swing.JTextPane();
-        jScrollPane4 = new javax.swing.JScrollPane();
+        jScrollPanePrivado = new javax.swing.JScrollPane();
         ChatTextPanePrivado = new javax.swing.JTextPane();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -322,21 +323,21 @@ public class Inicio extends javax.swing.JFrame {
         });
 
         ChatTextPaneGeral.setEditable(false);
-        jScrollPane2.setViewportView(ChatTextPaneGeral);
+        jScrollPaneGeral.setViewportView(ChatTextPaneGeral);
 
-        TabbedPane.addTab("Chat Geral", jScrollPane2);
+        TabbedPane.addTab("Chat Geral", jScrollPaneGeral);
 
         ChatTextPaneMaterial.setEditable(false);
-        jScrollPane1.setViewportView(ChatTextPaneMaterial);
+        jScrollPaneMaterial.setViewportView(ChatTextPaneMaterial);
 
-        TabbedPane.addTab("Chat Material", jScrollPane1);
+        TabbedPane.addTab("Chat Material", jScrollPaneMaterial);
 
-        jScrollPane4.setEnabled(false);
+        jScrollPanePrivado.setEnabled(false);
 
         ChatTextPanePrivado.setEditable(false);
-        jScrollPane4.setViewportView(ChatTextPanePrivado);
+        jScrollPanePrivado.setViewportView(ChatTextPanePrivado);
 
-        TabbedPane.addTab("Chat Privado", jScrollPane4);
+        TabbedPane.addTab("Chat Privado", jScrollPanePrivado);
 
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
@@ -487,18 +488,19 @@ public class Inicio extends javax.swing.JFrame {
     }//GEN-LAST:event_jButtonDesconectarActionPerformed
 
     private void ChatPrivadoBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ChatPrivadoBtnActionPerformed
-//        chat = "P";
-//        try {
-//            int column = 0;
-//            int row = TabelaClients.getSelectedRow();
-//            String porta = TabelaClients.getModel().getValueAt(row, column).toString();
-//            JSONObject jsonPrivado = new JSONObject();
-//            jsonPrivado.put("action", "chat_request_server");
-//            jsonPrivado.put("destinatario", porta.toString());
-//            out.println(jsonPrivado.toString());
-//        } catch (Exception e) {
-//            JOptionPane.showMessageDialog(null, "Selecione um usuário na tabela primeiro.");
-//        }
+        chat = "P";
+        try {
+           int column = 0;
+            int row = TabelaClients.getSelectedRow();
+            String porta = TabelaClients.getModel().getValueAt(row, column).toString();
+            JSONObject jsonPrivado = new JSONObject();
+            jsonPrivado.put("action", "chat_request_server");
+           jsonPrivado.put("destinatario", porta.toString());
+            out.println(jsonPrivado.toString());
+            mensagemLog("Requisitando Unicast...");
+        } catch (Exception e) {
+           JOptionPane.showMessageDialog(null, "Selecione um usuário na tabela primeiro.");
+        }
     }//GEN-LAST:event_ChatPrivadoBtnActionPerformed
 
     private void ChatSendBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ChatSendBtnActionPerformed
@@ -575,6 +577,9 @@ public class Inicio extends javax.swing.JFrame {
             case 1:
                 chat = "M";
                 break;
+            case 2:
+                chat = "P";
+                break;
         }
         JSONObject jsonMensagem = new JSONObject();
         String msg = ChatTextField.getText();
@@ -589,8 +594,10 @@ public class Inicio extends javax.swing.JFrame {
                 out.println(jsonMensagem.toString());
                 break;
             case "P":
-                jsonMensagem.put("action", "chat_request_server");
-                System.out.println("Chat Privado - ainda não implementado");
+                String porta = (String) TabelaClients.getValueAt(TabelaClients.getSelectedRow(), 0);
+                jsonMensagem.put("action", "chat_unicast_message_server");
+                jsonMensagem.put("porta", porta);
+                out.println(jsonMensagem.toString());
                 break;
             default:
                 System.out.println("Nenhum");
@@ -732,6 +739,12 @@ public class Inicio extends javax.swing.JFrame {
         addTexto(ChatTextPaneMaterial, mensagem, Color.GREEN.darker().darker());
         addTexto(ChatTextPaneGeral, mensagem, Color.GREEN.darker().darker());
     }
+    
+    private void mensagemPrivada(String mensagem ) {
+        addTexto(ChatTextPaneMaterial, mensagem, Color.PINK.darker().darker());
+        addTexto(ChatTextPaneGeral, mensagem, Color.PINK.darker().darker());
+        addTexto(ChatTextPanePrivado, mensagem, Color.PINK.darker().darker());
+    }
 
     private void mensagemErro(String mensagem) {
         addTexto(ChatTextPaneMaterial, "ERRO - " + mensagem, Color.RED);
@@ -802,9 +815,15 @@ public class Inicio extends javax.swing.JFrame {
                 chat_general_server(json);
             } else if (json.get("action").equals("chat_room_client")) {
                 chat_room_client(json);
+            }  else if (json.get("action").equals("chat_request_client")) {
+                chat_request_client(json);
+            }  else if (json.get("action").equals("chat_response_client")) {
+                chat_response_client(json);
+            } else if (json.get("action").equals("chat_unicast_message_client")) {
+                chat_unicast_message_client(json);
             } else if (json.get("action").equals("request_error")) {
                 JOptionPane.showMessageDialog(null, "Erro na requisição.");
-            } else {
+            }  else {
                 System.out.println("A ação " + json.get("action") + " não existe.");
             }
         } else {
@@ -819,7 +838,41 @@ public class Inicio extends javax.swing.JFrame {
     private void chat_general_server(JSONObject json) {
         mensagemGeral(json.getString("mensagem"));
     }
-
+    
+    private void chat_request_client(JSONObject json) {
+       String porta = (String) json.get("rementente");
+       String tipo = null;
+       String nome = null;
+       for (int i = 0; i < lista.length(); i++) {
+                    JSONObject usuarioJson = (JSONObject) lista.get(i);
+                    if (usuarioJson.get("porta").equals(porta)) {
+                        if (usuarioJson.get("tipo").equals("D")) {
+                            tipo = "Doador";
+                        } else {
+                            tipo = "Coletor";
+                        }
+                        nome = (String) usuarioJson.get("nome");
+                    }
+        }
+       int opt = JOptionPane.OK_OPTION;
+       Object[] options = {"Sim", "Não"};
+        int opcao = JOptionPane.showOptionDialog(null, "Você deseja se conectar ao " + tipo + " " + nome + "ID:" + porta + "?", "Confirmação", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+        if (opcao == JOptionPane.NO_OPTION) {
+            opt = JOptionPane.NO_OPTION;
+        }
+       // mensagemPrivada(json.getString("mensagem"));
+    }
+    
+    private void chat_response_client(JSONObject json) {
+        
+        JOptionPane.showMessageDialog(null, "");
+       // mensagemPrivada(json.getString("mensagem"));
+    }
+    
+    private void chat_unicast_message_client(JSONObject json) {  
+        mensagemPrivada(json.getString("mensagem"));
+    }
+    
     synchronized private void listaClientes(JSONObject json) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
@@ -827,7 +880,7 @@ public class Inicio extends javax.swing.JFrame {
                 DefaultTableModel model = (DefaultTableModel) TabelaClients.getModel();
                 model.setRowCount(0);
                 ButtonGroup group = new ButtonGroup();
-                JSONArray lista = json.getJSONArray("lista");
+                lista = json.getJSONArray("lista");
                 for (int i = 0; i < lista.length(); i++) {
                     JSONObject usuarioJson = (JSONObject) lista.get(i);
                     if (!usuarioJson.has("descricao")) {
@@ -909,9 +962,9 @@ public class Inicio extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
-    private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JScrollPane jScrollPaneGeral;
+    private javax.swing.JScrollPane jScrollPaneMaterial;
+    private javax.swing.JScrollPane jScrollPanePrivado;
     // End of variables declaration//GEN-END:variables
 }

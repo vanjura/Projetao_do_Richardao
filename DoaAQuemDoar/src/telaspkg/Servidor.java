@@ -425,6 +425,13 @@ public class Servidor extends javax.swing.JFrame {
                 mensagemMaterial(json, socket, msg, nome);
             } else if (json.get("action").equals("chat_request_server")) {
                 chat_request_server(json, socket);
+                userLog(socket.getPort(), nomeSocket(socket), "Requisitou a ação 'chat_request_server'.");
+                String porta = portaSocket(socket);
+                String nome = nomeSocket(socket);
+                json.put("action", "chat_request_client");
+                String msg = json.getString("mensagem");
+                
+                mensagemMaterial(json, socket, msg, nome);
             } else {
                 System.out.println("A ação " + json.get("action") + " não existe.");
             }
@@ -497,6 +504,33 @@ public class Servidor extends javax.swing.JFrame {
             }
         }
     }
+    
+    synchronized private void mensagemUnicast(JSONObject json, Socket socket, String msg, String nome) {
+
+        String material = materialSocket(socket);
+        String tipo = tipoSocket(socket);
+        if (tipo.equals("C")) {
+            json.put("mensagem", nome + " (coletor de " + material + "): " + msg);
+        } else {
+            json.put("mensagem", nome + " (doador de " + material + "): " + msg);
+        }
+        System.out.println("Unicast: " + json);
+        serverLog("Enviando mensagem chat privado " + material.toUpperCase() + "/" + tipo + " - " + json.getString("mensagem"));
+        if (!material.equals("")) {
+            try {
+                for (Iterator<Usuario> i = clientes.iterator(); i.hasNext();) {
+                    Usuario usuario = i.next();
+                    if (usuario.getMaterial().equals(material)) {
+                        PrintStream ps;
+                        ps = new PrintStream(usuario.getSocket().getOutputStream());
+                        ps.println(json.toString());
+                    }
+                }
+            } catch (Exception e) {
+                Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, e);
+            }
+        }
+    }
 
     synchronized private String tipoSocket(Socket socket) {
         try {
@@ -532,6 +566,20 @@ public class Servidor extends javax.swing.JFrame {
                 Usuario usuario = i.next();
                 if (Integer.parseInt(usuario.getPorta()) == socket.getPort()) {
                     return usuario.getNome();
+                }
+            }
+        } catch (Exception e) {
+            errorLog("Erro ao conseguir nome.", socket.getPort(), e.getMessage());
+        }
+        return "";
+    }
+    
+    synchronized private String portaSocket(Socket socket) {
+        try {
+            for (Iterator<Usuario> i = clientes.iterator(); i.hasNext();) {
+                Usuario usuario = i.next();
+                if (Integer.parseInt(usuario.getPorta()) == socket.getPort()) {
+                    return usuario.getPorta();
                 }
             }
         } catch (Exception e) {
