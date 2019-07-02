@@ -22,6 +22,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
+import static org.json.JSONObject.NULL;
 import server.Usuario;
 
 public class Inicio extends javax.swing.JFrame {
@@ -34,6 +35,7 @@ public class Inicio extends javax.swing.JFrame {
     public BufferedReader in;
     public JTabbedPane pane;
     public JSONArray lista;
+    public String portaUnicast = null;
 
     /**
      * Creates new form Inicio
@@ -41,7 +43,7 @@ public class Inicio extends javax.swing.JFrame {
     public Inicio() {
         initComponents();
         pane = TabbedPane;
-        pane.setEnabledAt(2, false);
+        //pane.setEnabledAt(2, false);
     }
 
     /**
@@ -54,6 +56,8 @@ public class Inicio extends javax.swing.JFrame {
     private void initComponents() {
 
         buttonGroup1 = new javax.swing.ButtonGroup();
+        jTextField2 = new javax.swing.JTextField();
+        jButton1 = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
         IpLabel = new javax.swing.JLabel();
@@ -87,6 +91,10 @@ public class Inicio extends javax.swing.JFrame {
         ChatTextPaneMaterial = new javax.swing.JTextPane();
         jScrollPanePrivado = new javax.swing.JScrollPane();
         ChatTextPanePrivado = new javax.swing.JTextPane();
+
+        jTextField2.setText("jTextField2");
+
+        jButton1.setText("jButton1");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -213,7 +221,7 @@ public class Inicio extends javax.swing.JFrame {
                         .addComponent(MaterialComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addComponent(DescricaoLabel)
-                        .addGap(0, 0, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(ConectarButton)
@@ -241,7 +249,7 @@ public class Inicio extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(DescricaoLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(DescricaoScrollPane)
+                .addComponent(DescricaoScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 444, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButtonDesconectar, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -331,8 +339,6 @@ public class Inicio extends javax.swing.JFrame {
         jScrollPaneMaterial.setViewportView(ChatTextPaneMaterial);
 
         TabbedPane.addTab("Chat Material", jScrollPaneMaterial);
-
-        jScrollPanePrivado.setEnabled(false);
 
         ChatTextPanePrivado.setEditable(false);
         jScrollPanePrivado.setViewportView(ChatTextPanePrivado);
@@ -594,9 +600,8 @@ public class Inicio extends javax.swing.JFrame {
                 out.println(jsonMensagem.toString());
                 break;
             case "P":
-                String porta = (String) TabelaClients.getValueAt(TabelaClients.getSelectedRow(), 0);
                 jsonMensagem.put("action", "chat_unicast_message_server");
-                jsonMensagem.put("porta", porta);
+                jsonMensagem.put("destinatario", portaUnicast);
                 out.println(jsonMensagem.toString());
                 break;
             default:
@@ -741,9 +746,9 @@ public class Inicio extends javax.swing.JFrame {
     }
     
     private void mensagemPrivada(String mensagem ) {
-        addTexto(ChatTextPaneMaterial, mensagem, Color.PINK.darker().darker());
-        addTexto(ChatTextPaneGeral, mensagem, Color.PINK.darker().darker());
-        addTexto(ChatTextPanePrivado, mensagem, Color.PINK.darker().darker());
+        addTexto(ChatTextPaneMaterial, mensagem, Color.ORANGE.darker().darker());
+        addTexto(ChatTextPaneGeral, mensagem, Color.ORANGE.darker().darker());
+        addTexto(ChatTextPanePrivado, mensagem, Color.ORANGE.darker().darker());
     }
 
     private void mensagemErro(String mensagem) {
@@ -840,7 +845,7 @@ public class Inicio extends javax.swing.JFrame {
     }
     
     private void chat_request_client(JSONObject json) {
-       String porta = (String) json.get("rementente");
+       String porta = (String) json.get("remetente");
        String tipo = null;
        String nome = null;
        for (int i = 0; i < lista.length(); i++) {
@@ -854,15 +859,23 @@ public class Inicio extends javax.swing.JFrame {
                         nome = (String) usuarioJson.get("nome");
                     }
         }
+       JSONObject jsonOpt = new JSONObject();
+       jsonOpt.put("action", "chat_response_server");
+       jsonOpt.put("destinatario", porta);
        int opt = JOptionPane.OK_OPTION;
        Object[] options = {"Sim", "Não"};
-        int opcao = JOptionPane.showOptionDialog(null, "Você deseja se conectar ao " + tipo + " " + nome + "ID:" + porta + "?", "Confirmação", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+        int opcao = JOptionPane.showOptionDialog(null, "Você deseja se conectar ao " + tipo + " " + nome + "\n Porta:" + porta + " ?", "Confirmação", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
         if (opcao == JOptionPane.NO_OPTION) {
-            opt = JOptionPane.NO_OPTION;
+            jsonOpt.put("resposta","false");
         }
-       // mensagemPrivada(json.getString("mensagem"));
-    }
-    
+        else {
+            jsonOpt.put("resposta", "true");
+            portaUnicast = porta;
+            mensagemPrivada("Conectado ao " + tipo + " " + nome + ". Envie sua mensagem! ");
+        }
+        out.println(jsonOpt);
+        System.out.println("Enviado: " + jsonOpt);
+    }   
     private void chat_response_client(JSONObject json) {
         
         JOptionPane.showMessageDialog(null, "");
@@ -917,11 +930,18 @@ public class Inicio extends javax.swing.JFrame {
         //Preenche o objeto JSON com a action para desconectar
         cliente.put("action", "disconnect");
         String clienteDesconectandoJsonString = cliente.toString();
-
         //IPAddress = InetAddress.getLocalHost().getHostAddress(); //Pega o endereço
         //Manda mensagem ao servidor
         System.out.println("Enviado: " + cliente);
         PrintStream saida;
+        if (portaUnicast != null) {
+            JSONObject desconectaUnicast = new JSONObject();
+            desconectaUnicast.put("action", "chat_unicast_close_server");
+            desconectaUnicast.put("destinatario", portaUnicast);
+            mensagemPrivada("Você terminou o Chat Privado");
+            out.println(desconectaUnicast);
+            System.out.println("Enviado: " + desconectaUnicast);
+        } 
         try {
             saida = new PrintStream(socket.getOutputStream());
             saida.println(clienteDesconectandoJsonString);//Envia uma String JSON
@@ -955,6 +975,7 @@ public class Inicio extends javax.swing.JFrame {
     private javax.swing.JTabbedPane TabbedPane;
     private javax.swing.JTable TabelaClients;
     private javax.swing.ButtonGroup buttonGroup1;
+    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButtonDesconectar;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
@@ -966,5 +987,6 @@ public class Inicio extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPaneGeral;
     private javax.swing.JScrollPane jScrollPaneMaterial;
     private javax.swing.JScrollPane jScrollPanePrivado;
+    private javax.swing.JTextField jTextField2;
     // End of variables declaration//GEN-END:variables
 }
