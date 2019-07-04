@@ -424,13 +424,23 @@ public class Servidor extends javax.swing.JFrame {
                 String msg = json.getString("mensagem");
                 mensagemMaterial(json, socket, msg, nome);
             } else if (json.get("action").equals("chat_request_server")) {
-                //chat_request_server(json, socket);
-                userLog(socket.getPort(), nomeSocket(socket), "Requisitou a ação 'chat_request_server'.");
-                String porta = portaSocket(socket);
-                String nome = nomeSocket(socket);
-                json.put("action", "chat_request_client");
-                json.put("remetente", porta);
-                broadcast(json);
+                userLog(socket.getPort(), nomeSocket(socket), "Requisitou a ação 'chat_request_server' para a porta " + json.get("destinatario"));;;
+                int porta_destinatario = Integer.parseInt(json.getString("destinatario"));
+                int porta_remetente = Integer.parseInt(portaSocket(socket));
+                if (porta_destinatario == porta_remetente) {
+                    //enviar mensagem de erro de remetente igual ao destinatário.
+                    System.out.println("Remetente igual ao destinatário");
+                } else {
+                    System.out.println("Entrou no else");
+                    boolean ocupado = verificaDisponibilidade(porta_destinatario);
+                    System.out.println("Ocupado: " + ocupado);
+                    if (!ocupado) {
+                        enviaSolicitacao(porta_destinatario, porta_remetente);
+                    } else {
+                        //enviar alerta de usuário ocupado
+                        System.out.println("Usuário ocupado");
+                    }
+                }
             } else if (json.get("action").equals("chat_response_server")) {
                 userLog(socket.getPort(), nomeSocket(socket), "Requisitou a ação 'chat_response_server'.");
                 String nome = nomeSocket(socket);
@@ -438,7 +448,7 @@ public class Servidor extends javax.swing.JFrame {
                 //String destinatario = json.getString("destinatario");
                 JSONObject json1 = new JSONObject();
                 json1.put("action", "chat_response_client");
-                json1.put("remetente",socket.getPort());
+                json1.put("remetente", socket.getPort());
                 json1.put("resposta", opcao);
                 broadcast(json);
             } else if (json.get("action").equals("chat_unicast_close_server")) {
@@ -446,7 +456,7 @@ public class Servidor extends javax.swing.JFrame {
                 String nome = nomeSocket(socket);
                 String destinatario = json.getString("destinatario");
                 json.put("action", "chat_unicast_close_client");
-                json.put("remetente",destinatario);
+                json.put("remetente", destinatario);
                 broadcast(json);
             } else if (json.get("action").equals("chat_unicast_message_server")) {
                 userLog(socket.getPort(), nomeSocket(socket), "Requisitou a ação 'chat_unicast_message_server.'");
@@ -460,6 +470,43 @@ public class Servidor extends javax.swing.JFrame {
             }
         } else {
         }
+    }
+
+    private void enviaSolicitacao(int porta_destinatario, int porta_remetente) {
+        JSONObject json = new JSONObject();
+        json.put("action", "chat_request_client");
+        json.put("remetente", Integer.toString(porta_remetente));
+        System.out.println("json: " + json);
+        try {
+            for (Iterator<Usuario> i = clientes.iterator(); i.hasNext();) {
+                Usuario usuario = i.next();
+                if (Integer.toString(porta_destinatario).equals(usuario.getPorta())) {
+                    PrintStream ps;
+                    ps = new PrintStream(usuario.getSocket().getOutputStream());
+                    ps.println(json.toString());
+                }
+            }
+        } catch (Exception e) {
+            Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, e);
+        }
+    }
+
+    private boolean verificaDisponibilidade(int porta) {
+        for (Iterator<Usuario> i = clientes.iterator(); i.hasNext();) {
+            Usuario usuario = i.next();
+            System.out.println(Integer.toString(porta)+":"+usuario.getPorta());
+            if (Integer.toString(porta).equals(usuario.getPorta())) {
+                System.out.println("entrou no if");
+                if (usuario.getOcupado()) {
+                    System.out.println("usuário ocupado");
+                    return true;
+                }else{
+                    System.out.println("usuário desocupado");
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     private void chat_request_server(JSONObject json, Socket socket) {
@@ -527,7 +574,7 @@ public class Servidor extends javax.swing.JFrame {
             }
         }
     }
-    
+
     synchronized private void mensagemUnicast(JSONObject json, Socket socket, String msg, String nome) {
 
         String material = materialSocket(socket);
@@ -596,7 +643,7 @@ public class Servidor extends javax.swing.JFrame {
         }
         return "";
     }
-    
+
     synchronized private String portaSocket(Socket socket) {
         try {
             for (Iterator<Usuario> i = clientes.iterator(); i.hasNext();) {
