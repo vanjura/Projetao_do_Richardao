@@ -826,9 +826,14 @@ public class Inicio extends javax.swing.JFrame {
                 chat_response_client(json);
             } else if (json.get("action").equals("chat_unicast_message_client")) {
                 chat_unicast_message_client(json);
-            } else if (json.get("action").equals("request_error")) {
+            } else if (json.get("action").equals("chat_unicast_close_client")) {
+                String remetente = json.getString("remetente");
+                mensagemPrivada("O cliente " + remetente + " se desconectou do Unicast.");
+            }else if (json.get("action").equals("request_error")) {
                 JOptionPane.showMessageDialog(null, "Erro na requisição.");
-            }  else {
+            } else if (json.get("action").equals("client_busy")) {
+                JOptionPane.showMessageDialog(null, "O cliente selecionado esta ocupado. Tente mais tarde.");
+            } else {
                 System.out.println("A ação " + json.get("action") + " não existe.");
             }
         } else {
@@ -877,8 +882,12 @@ public class Inicio extends javax.swing.JFrame {
         System.out.println("Enviado: " + jsonOpt);
     }   
     private void chat_response_client(JSONObject json) {
-        
-        JOptionPane.showMessageDialog(null, "");
+        String resposta = (String) json.get("resposta");
+        if (resposta == "true") {
+            mensagemPrivada("Requisição de Unicast Aceita! Comece sua conversa!");
+        }
+        else
+            mensagemPrivada("Requisição de Unicast Negada !");
        // mensagemPrivada(json.getString("mensagem"));
     }
     

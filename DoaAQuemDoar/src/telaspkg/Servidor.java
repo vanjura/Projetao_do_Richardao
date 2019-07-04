@@ -424,14 +424,37 @@ public class Servidor extends javax.swing.JFrame {
                 String msg = json.getString("mensagem");
                 mensagemMaterial(json, socket, msg, nome);
             } else if (json.get("action").equals("chat_request_server")) {
-                chat_request_server(json, socket);
+                //chat_request_server(json, socket);
                 userLog(socket.getPort(), nomeSocket(socket), "Requisitou a ação 'chat_request_server'.");
                 String porta = portaSocket(socket);
                 String nome = nomeSocket(socket);
                 json.put("action", "chat_request_client");
+                json.put("remetente", porta);
+                broadcast(json);
+            } else if (json.get("action").equals("chat_response_server")) {
+                userLog(socket.getPort(), nomeSocket(socket), "Requisitou a ação 'chat_response_server'.");
+                String nome = nomeSocket(socket);
+                String opcao = (String) json.get("resposta");
+                //String destinatario = json.getString("destinatario");
+                JSONObject json1 = new JSONObject();
+                json1.put("action", "chat_response_client");
+                json1.put("remetente",socket.getPort());
+                json1.put("resposta", opcao);
+                broadcast(json);
+            } else if (json.get("action").equals("chat_unicast_close_server")) {
+                userLog(socket.getPort(), nomeSocket(socket), "Requisitou a ação 'chat_unicast_close_server'.");
+                String nome = nomeSocket(socket);
+                String destinatario = json.getString("destinatario");
+                json.put("action", "chat_unicast_close_client");
+                json.put("remetente",destinatario);
+                broadcast(json);
+            } else if (json.get("action").equals("chat_unicast_message_server")) {
+                userLog(socket.getPort(), nomeSocket(socket), "Requisitou a ação 'chat_unicast_message_server.'");
+                String nome = nomeSocket(socket);
+                json.put("action", "chat_unicast_message_client");
                 String msg = json.getString("mensagem");
-                
-                mensagemMaterial(json, socket, msg, nome);
+                String destinatario = json.getString("destinatario");
+                mensagemUnicast(json, socket, msg, nome);
             } else {
                 System.out.println("A ação " + json.get("action") + " não existe.");
             }
