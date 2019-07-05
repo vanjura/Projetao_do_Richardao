@@ -496,16 +496,16 @@ public class Inicio extends javax.swing.JFrame {
     private void ChatPrivadoBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ChatPrivadoBtnActionPerformed
         chat = "P";
         try {
-           int column = 0;
+            int column = 0;
             int row = TabelaClients.getSelectedRow();
             String porta = TabelaClients.getModel().getValueAt(row, column).toString();
             JSONObject jsonPrivado = new JSONObject();
             jsonPrivado.put("action", "chat_request_server");
-           jsonPrivado.put("destinatario", porta.toString());
+            jsonPrivado.put("destinatario", porta);
             out.println(jsonPrivado.toString());
             mensagemLog("Requisitando Unicast...");
         } catch (Exception e) {
-           JOptionPane.showMessageDialog(null, "Selecione um usuário na tabela primeiro.");
+            JOptionPane.showMessageDialog(null, "Selecione um usuário na tabela primeiro.");
         }
     }//GEN-LAST:event_ChatPrivadoBtnActionPerformed
 
@@ -620,7 +620,7 @@ public class Inicio extends javax.swing.JFrame {
     }
 
     private void iniciaConexao(String req) {
-        System.out.println("Enviado: " + req );
+        System.out.println("Enviado: " + req);
         String ip = IpTextField.getText();
         Integer porta = new Integer(PortaTextField.getText());
         try {
@@ -744,8 +744,8 @@ public class Inicio extends javax.swing.JFrame {
         addTexto(ChatTextPaneMaterial, mensagem, Color.GREEN.darker().darker());
         addTexto(ChatTextPaneGeral, mensagem, Color.GREEN.darker().darker());
     }
-    
-    private void mensagemPrivada(String mensagem ) {
+
+    private void mensagemPrivada(String mensagem) {
         addTexto(ChatTextPaneMaterial, mensagem, Color.ORANGE.darker().darker());
         addTexto(ChatTextPaneGeral, mensagem, Color.ORANGE.darker().darker());
         addTexto(ChatTextPanePrivado, mensagem, Color.ORANGE.darker().darker());
@@ -820,16 +820,17 @@ public class Inicio extends javax.swing.JFrame {
                 chat_general_server(json);
             } else if (json.get("action").equals("chat_room_client")) {
                 chat_room_client(json);
-            }  else if (json.get("action").equals("chat_request_client")) {
+            } else if (json.get("action").equals("chat_request_client")) {
+                System.out.println("Alguém requisitou uma conexão: " + json );
                 chat_request_client(json);
-            }  else if (json.get("action").equals("chat_response_client")) {
+            } else if (json.get("action").equals("chat_response_client")) {
                 chat_response_client(json);
             } else if (json.get("action").equals("chat_unicast_message_client")) {
                 chat_unicast_message_client(json);
             } else if (json.get("action").equals("chat_unicast_close_client")) {
                 String remetente = json.getString("remetente");
                 mensagemPrivada("O cliente " + remetente + " se desconectou do Unicast.");
-            }else if (json.get("action").equals("request_error")) {
+            } else if (json.get("action").equals("request_error")) {
                 JOptionPane.showMessageDialog(null, "Erro na requisição.");
             } else if (json.get("action").equals("client_busy")) {
                 JOptionPane.showMessageDialog(null, "O cliente selecionado esta ocupado. Tente mais tarde.");
@@ -848,53 +849,57 @@ public class Inicio extends javax.swing.JFrame {
     private void chat_general_server(JSONObject json) {
         mensagemGeral(json.getString("mensagem"));
     }
-    
+
     private void chat_request_client(JSONObject json) {
-       String porta = (String) json.get("remetente");
-       String tipo = null;
-       String nome = null;
-       for (int i = 0; i < lista.length(); i++) {
-                    JSONObject usuarioJson = (JSONObject) lista.get(i);
-                    if (usuarioJson.get("porta").equals(porta)) {
-                        if (usuarioJson.get("tipo").equals("D")) {
-                            tipo = "Doador";
-                        } else {
-                            tipo = "Coletor";
-                        }
-                        nome = (String) usuarioJson.get("nome");
-                    }
+        System.out.println("Alguém requisitou uma conexão: " + json );
+        String porta = (String) json.get("remetente");
+        String tipo = null;
+        String nome = null;
+        for (int i = 0; i < lista.length(); i++) {
+            JSONObject usuarioJson = (JSONObject) lista.get(i);
+            if (usuarioJson.get("porta").equals(porta)) {
+                if (usuarioJson.get("tipo").equals("D")) {
+                    tipo = "Doador";
+                } else {
+                    tipo = "Coletor";
+                }
+                nome = (String) usuarioJson.get("nome");
+            }
         }
-       JSONObject jsonOpt = new JSONObject();
-       jsonOpt.put("action", "chat_response_server");
-       jsonOpt.put("destinatario", porta);
-       int opt = JOptionPane.OK_OPTION;
-       Object[] options = {"Sim", "Não"};
+        System.out.println(porta);
+        System.out.println(tipo);
+        System.out.println(nome);
+        JSONObject jsonOpt = new JSONObject();
+        jsonOpt.put("action", "chat_response_server");
+        jsonOpt.put("destinatario", porta);
+        int opt = JOptionPane.OK_OPTION;
+        Object[] options = {"Sim", "Não"};
         int opcao = JOptionPane.showOptionDialog(null, "Você deseja se conectar ao " + tipo + " " + nome + "\n Porta:" + porta + " ?", "Confirmação", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
         if (opcao == JOptionPane.NO_OPTION) {
-            jsonOpt.put("resposta","false");
-        }
-        else {
+            jsonOpt.put("resposta", "false");
+        } else {
             jsonOpt.put("resposta", "true");
             portaUnicast = porta;
             mensagemPrivada("Conectado ao " + tipo + " " + nome + ". Envie sua mensagem! ");
         }
         out.println(jsonOpt);
         System.out.println("Enviado: " + jsonOpt);
-    }   
+    }
+
     private void chat_response_client(JSONObject json) {
         String resposta = (String) json.get("resposta");
         if (resposta == "true") {
             mensagemPrivada("Requisição de Unicast Aceita! Comece sua conversa!");
-        }
-        else
+        } else {
             mensagemPrivada("Requisição de Unicast Negada !");
-       // mensagemPrivada(json.getString("mensagem"));
+        }
+        // mensagemPrivada(json.getString("mensagem"));
     }
-    
-    private void chat_unicast_message_client(JSONObject json) {  
+
+    private void chat_unicast_message_client(JSONObject json) {
         mensagemPrivada(json.getString("mensagem"));
     }
-    
+
     synchronized private void listaClientes(JSONObject json) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
@@ -950,7 +955,7 @@ public class Inicio extends javax.swing.JFrame {
             mensagemPrivada("Você terminou o Chat Privado");
             out.println(desconectaUnicast);
             System.out.println("Enviado: " + desconectaUnicast);
-        } 
+        }
         try {
             saida = new PrintStream(socket.getOutputStream());
             saida.println(clienteDesconectandoJsonString);//Envia uma String JSON
