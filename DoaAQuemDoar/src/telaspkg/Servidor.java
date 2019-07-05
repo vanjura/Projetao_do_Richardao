@@ -450,7 +450,7 @@ public class Servidor extends javax.swing.JFrame {
                 json1.put("action", "chat_response_client");
                 json1.put("remetente", socket.getPort());
                 json1.put("resposta", opcao);
-                broadcast(json);
+                broadcast(json1);
             } else if (json.get("action").equals("chat_unicast_close_server")) {
                 userLog(socket.getPort(), nomeSocket(socket), "Requisitou a ação 'chat_unicast_close_server'.");
                 String nome = nomeSocket(socket);
@@ -468,7 +468,6 @@ public class Servidor extends javax.swing.JFrame {
             } else {
                 System.out.println("A ação " + json.get("action") + " não existe.");
             }
-        } else {
         }
     }
 

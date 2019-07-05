@@ -43,6 +43,8 @@ public class Inicio extends javax.swing.JFrame {
     public Inicio() {
         initComponents();
         pane = TabbedPane;
+        jTextFieldUnicast.setVisible(false);
+        jLabelUnicast.setVisible(false);
         //pane.setEnabledAt(2, false);
     }
 
@@ -81,6 +83,8 @@ public class Inicio extends javax.swing.JFrame {
         jScrollPane3 = new javax.swing.JScrollPane();
         TabelaClients = new javax.swing.JTable();
         ChatPrivadoBtn = new javax.swing.JButton();
+        jLabelUnicast = new javax.swing.JLabel();
+        jTextFieldUnicast = new javax.swing.JTextField();
         jPanel6 = new javax.swing.JPanel();
         ChatTextField = new javax.swing.JTextField();
         ChatSendBtn = new javax.swing.JButton();
@@ -219,9 +223,7 @@ public class Inicio extends javax.swing.JFrame {
                         .addComponent(MaterialLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(MaterialComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(DescricaoLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(DescricaoLabel)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(ConectarButton)
@@ -290,6 +292,15 @@ public class Inicio extends javax.swing.JFrame {
             }
         });
 
+        jLabelUnicast.setText("Conversando com:");
+
+        jTextFieldUnicast.setEditable(false);
+        jTextFieldUnicast.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextFieldUnicastActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
@@ -300,6 +311,10 @@ public class Inicio extends javax.swing.JFrame {
                 .addGap(11, 11, 11))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
                 .addContainerGap()
+                .addComponent(jLabelUnicast)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jTextFieldUnicast, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(ChatPrivadoBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -309,7 +324,10 @@ public class Inicio extends javax.swing.JFrame {
                 .addGap(4, 4, 4)
                 .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(ChatPrivadoBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(ChatPrivadoBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabelUnicast)
+                    .addComponent(jTextFieldUnicast, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
@@ -527,6 +545,10 @@ public class Inicio extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_ChatTextFieldActionPerformed
 
+    private void jTextFieldUnicastActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldUnicastActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextFieldUnicastActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -587,21 +609,68 @@ public class Inicio extends javax.swing.JFrame {
                 chat = "P";
                 break;
         }
+        System.out.println(chat);
         JSONObject jsonMensagem = new JSONObject();
         String msg = ChatTextField.getText();
         jsonMensagem.put("mensagem", msg);
         switch (chat) {
             case "G":
+                System.out.println("Global");
                 jsonMensagem.put("action", "chat_general_server");
                 out.println(jsonMensagem.toString());
                 break;
             case "M":
+                System.out.println("Multi");
                 jsonMensagem.put("action", "chat_room_server");
                 out.println(jsonMensagem.toString());
                 break;
             case "P":
+                System.out.println("Privado");
                 jsonMensagem.put("action", "chat_unicast_message_server");
-                jsonMensagem.put("destinatario", portaUnicast);
+                jsonMensagem.put("destinatario", jTextFieldUnicast.getText());
+                System.out.println(portaUnicast);
+                System.out.println(jsonMensagem);
+                out.println(jsonMensagem.toString());
+                break;
+            default:
+                System.out.println("Nenhum");
+        }
+        System.out.println("Enviado:" + jsonMensagem);
+    }
+    
+    private void enviaMensagem(String porta) {
+        int selectedIndex = pane.getSelectedIndex();
+        switch (selectedIndex) {
+            case 0:
+                chat = "G";
+                break;
+            case 1:
+                chat = "M";
+                break;
+            case 2:
+                chat = "P";
+                break;
+        }
+        System.out.println(chat);
+        JSONObject jsonMensagem = new JSONObject();
+        String msg = ChatTextField.getText();
+        jsonMensagem.put("mensagem", msg);
+        switch (chat) {
+            case "G":
+                System.out.println("Global");
+                jsonMensagem.put("action", "chat_general_server");
+                out.println(jsonMensagem.toString());
+                break;
+            case "M":
+                System.out.println("Multi");
+                jsonMensagem.put("action", "chat_room_server");
+                out.println(jsonMensagem.toString());
+                break;
+            case "P":
+                System.out.println("Privado");
+                jsonMensagem.put("action", "chat_unicast_message_server");
+                jsonMensagem.put("destinatario", porta);
+                System.out.println(jsonMensagem);
                 out.println(jsonMensagem.toString());
                 break;
             default:
@@ -879,6 +948,9 @@ public class Inicio extends javax.swing.JFrame {
             jsonOpt.put("resposta", "false");
         } else {
             jsonOpt.put("resposta", "true");
+            jTextFieldUnicast.setVisible(true);
+            jTextFieldUnicast.setText(porta);
+            jLabelUnicast.setVisible(true);
             portaUnicast = porta;
             mensagemPrivada("Conectado ao " + tipo + " " + nome + ". Envie sua mensagem! ");
         }
@@ -888,7 +960,7 @@ public class Inicio extends javax.swing.JFrame {
 
     private void chat_response_client(JSONObject json) {
         String resposta = (String) json.get("resposta");
-        if (resposta == "true") {
+        if (resposta.equals("true")) {
             mensagemPrivada("Requisição de Unicast Aceita! Comece sua conversa!");
         } else {
             mensagemPrivada("Requisição de Unicast Negada !");
@@ -991,6 +1063,7 @@ public class Inicio extends javax.swing.JFrame {
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButtonDesconectar;
+    private javax.swing.JLabel jLabelUnicast;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
@@ -1002,5 +1075,6 @@ public class Inicio extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPaneMaterial;
     private javax.swing.JScrollPane jScrollPanePrivado;
     private javax.swing.JTextField jTextField2;
+    private javax.swing.JTextField jTextFieldUnicast;
     // End of variables declaration//GEN-END:variables
 }
