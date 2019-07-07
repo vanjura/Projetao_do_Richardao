@@ -414,6 +414,8 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="jTextFieldUnicast" min="-2" pref="50" max="-2" attributes="0"/>
                           <EmptySpace max="32767" attributes="0"/>
+                          <Component id="SairPrivadoBtn" min="-2" pref="120" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
                           <Component id="ChatPrivadoBtn" min="-2" pref="120" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
@@ -429,6 +431,7 @@
                               <Component id="ChatPrivadoBtn" alignment="3" min="-2" pref="20" max="-2" attributes="0"/>
                               <Component id="jLabelUnicast" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="jTextFieldUnicast" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="SairPrivadoBtn" alignment="3" min="-2" pref="20" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace min="-2" max="-2" attributes="0"/>
                       </Group>
@@ -512,6 +515,17 @@
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jTextFieldUnicastActionPerformed"/>
+                  </Events>
+                </Component>
+                <Component class="javax.swing.JButton" name="SairPrivadoBtn">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Sair do Privado"/>
+                    <Property name="enabled" type="boolean" value="false"/>
+                    <Property name="focusPainted" type="boolean" value="false"/>
+                    <Property name="focusable" type="boolean" value="false"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="SairPrivadoBtnActionPerformed"/>
                   </Events>
                 </Component>
               </SubComponents>

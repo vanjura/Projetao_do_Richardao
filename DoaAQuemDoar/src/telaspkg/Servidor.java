@@ -361,12 +361,25 @@ public class Servidor extends javax.swing.JFrame {
                     json.put("mensagem", usuario.getNome() + " desconectou-se.");
                     i.remove();
                     broadcast(json);
+                    if (usuario.getOcupado()) {
+                        avisaDesconexao(usuario.getFalando());
+                    }
                 }
             }
         } catch (Exception e) {
             errorLog("Problema na desconexão.", porta, e.getMessage());
         }
         listaUsuarios();
+    }
+
+    private void avisaDesconexao(int porta) {
+        Usuario usuario = procuraUsuario(porta);
+        if (usuario.getOcupado()) {
+            JSONObject json = new JSONObject();
+            json.put("action", "chat_request_error");
+            unicast(json, usuario.getSocket());
+            deixaDesocupado(usuario);
+        }
     }
 
     synchronized private void desconectaServidor() {
@@ -424,62 +437,189 @@ public class Servidor extends javax.swing.JFrame {
                 String msg = json.getString("mensagem");
                 mensagemMaterial(json, socket, msg, nome);
             } else if (json.get("action").equals("chat_request_server")) {
-                userLog(socket.getPort(), nomeSocket(socket), "Requisitou a ação 'chat_request_server' para a porta " + json.get("destinatario"));;;
-                int porta_destinatario = Integer.parseInt(json.getString("destinatario"));
-                int porta_remetente = Integer.parseInt(portaSocket(socket));
-                if (porta_destinatario == porta_remetente) {
-                    //enviar mensagem de erro de remetente igual ao destinatário.
-                    System.out.println("Remetente igual ao destinatário");
-                } else {
-                    System.out.println("Entrou no else");
-                    boolean ocupado = verificaDisponibilidade(porta_destinatario);
-                    System.out.println("Ocupado: " + ocupado);
-                    if (!ocupado) {
-                        enviaSolicitacao(porta_destinatario, porta_remetente);
-                    } else {
-                        //enviar alerta de usuário ocupado
-                        System.out.println("Usuário ocupado");
-                    }
-                }
+                chat_request_server(socket, json);
             } else if (json.get("action").equals("chat_response_server")) {
-                userLog(socket.getPort(), nomeSocket(socket), "Requisitou a ação 'chat_response_server'.");
-                String nome = nomeSocket(socket);
-                String opcao = (String) json.get("resposta");
-                //String destinatario = json.getString("destinatario");
-                JSONObject json1 = new JSONObject();
-                json1.put("action", "chat_response_client");
-                json1.put("remetente", socket.getPort());
-                json1.put("resposta", opcao);
-                broadcast(json1);
+                Usuario remetente = procuraUsuario(socket);
+                Usuario destinatario = procuraUsuario(Integer.parseInt(json.getString("destinatario")));
+                String resposta = json.getString("resposta");
+                chat_response_server(destinatario, resposta, remetente);
             } else if (json.get("action").equals("chat_unicast_close_server")) {
                 userLog(socket.getPort(), nomeSocket(socket), "Requisitou a ação 'chat_unicast_close_server'.");
-                String nome = nomeSocket(socket);
-                String destinatario = json.getString("destinatario");
-                json.put("action", "chat_unicast_close_client");
-                json.put("remetente", destinatario);
-                broadcast(json);
+                Usuario remetente = procuraUsuario(socket);
+                Usuario destinatario = procuraUsuario(Integer.parseInt(json.getString("destinatario")));
+                chat_unicast_close_server(remetente, destinatario);
             } else if (json.get("action").equals("chat_unicast_message_server")) {
                 userLog(socket.getPort(), nomeSocket(socket), "Requisitou a ação 'chat_unicast_message_server.'");
-                String nome = nomeSocket(socket);
-                json.put("action", "chat_unicast_message_client");
-                String msg = json.getString("mensagem");
-                String destinatario = json.getString("destinatario");
-                mensagemUnicast(json, socket, msg, nome);
+                Usuario remetente = procuraUsuario(socket);
+                Usuario destinatario = procuraUsuario(Integer.parseInt(json.getString("destinatario")));
+                String mensagem = json.getString("mensagem");
+                chat_unicast_message_server(remetente, mensagem, destinatario);
             } else {
                 System.out.println("A ação " + json.get("action") + " não existe.");
             }
         }
     }
 
+    private void chat_unicast_close_server(Usuario remetente, Usuario destinatario) {
+        JSONObject json = new JSONObject();
+        json.put("action", "chat_unicast_close_client");
+        json.put("remetente", remetente.getPorta());
+        unicast(json, destinatario.getSocket());
+        deixaDesocupado(destinatario);
+        deixaDesocupado(remetente);
+    }
+
+    private void chat_unicast_message_server(Usuario remetente, String mensagem, Usuario destinatario) {
+        chat_unicast_message_client(remetente, mensagem, remetente);
+        chat_unicast_message_client(destinatario, mensagem, remetente);
+    }
+
+    private void chat_unicast_message_client(Usuario usuario, String mensagem, Usuario remetente) {
+        JSONObject json = new JSONObject();
+        json.put("action", "chat_unicast_message_client");
+        json.put("mensagem", remetente.getNome() + " (privado): " + mensagem);
+        try {
+            PrintStream ps;
+            System.out.println("Enviando: " + json);
+            ps = new PrintStream(usuario.getSocket().getOutputStream());
+            ps.println(json.toString());
+        } catch (Exception e) {
+            errorLog("Problema ao enviar mensagem unicast.", Integer.parseInt(usuario.getPorta()), e.getMessage());
+        }
+
+    }
+
+    private void chat_response_server(Usuario destinatario, String resposta, Usuario remetente) {
+        userLog(Integer.parseInt(remetente.getPorta()), remetente.getNome(), "Requisitou a ação 'chat_response_server'.");
+        switch (resposta) {
+            case "true":
+                deixaOcupado(remetente, Integer.parseInt(destinatario.getPorta()));
+                break;
+            case "false":
+                deixaDesocupado(destinatario);
+                break;
+        }
+        JSONObject json = new JSONObject();
+        json.put("action", "chat_response_client");
+        json.put("remetente", remetente.getPorta());
+        json.put("resposta", resposta);
+        unicast(json, destinatario.getSocket());
+    }
+
+    private void chat_request_server(Socket socket, JSONObject json) {
+        Usuario usuario = procuraUsuario(socket);
+        userLog(Integer.parseInt(usuario.getPorta()), usuario.getNome(), "Requisitou a ação 'chat_request_server' para a porta " + json.get("destinatario"));;;
+        int porta_destinatario = Integer.parseInt(json.getString("destinatario"));
+        int porta_remetente = Integer.parseInt(portaSocket(socket));
+        if (porta_destinatario == porta_remetente) {
+            JSONObject jsonRequestError = new JSONObject();
+            jsonRequestError.put("action", "request_error");
+            errorLog("Remetente igual ao destinatário", socket.getPort(), "");
+            unicast(jsonRequestError, socket);
+        } else {
+            boolean ocupado = verificaDisponibilidade(porta_destinatario);
+            if (!ocupado) {
+                enviaSolicitacao(porta_destinatario, porta_remetente);
+                deixaOcupado(usuario, porta_destinatario);
+            } else {
+                JSONObject jsonRequestError = new JSONObject();
+                jsonRequestError.put("action", "client_busy");
+                errorLog("Usuário ocupado.", socket.getPort(), "");
+                unicast(jsonRequestError, socket);
+            }
+        }
+    }
+
+    //Mensagens
+    private void unicast(JSONObject json, int porta) {
+        try {
+            Socket socket = procuraUsuario(porta).getSocket();
+            PrintStream ps;
+            System.out.println("Enviando: " + json);
+            ps = new PrintStream(socket.getOutputStream());
+            ps.println(json.toString());
+        } catch (Exception e) {
+            errorLog("Problema ao enviar unicast", porta, e.getMessage());
+        }
+    }
+
+    private void unicast(JSONObject json, Socket socket) {
+        try {
+            PrintStream ps;
+            System.out.println("Enviando: " + json);
+            ps = new PrintStream(socket.getOutputStream());
+            ps.println(json.toString());
+        } catch (Exception e) {
+            errorLog("Problema ao enviar unicast", socket.getPort(), e.getMessage());
+        }
+    }
+
+    //Usuários
+    private void deixaOcupado(Usuario usuario, int porta) {
+        removeUsuario(Integer.parseInt(usuario.getPorta()));
+        usuario.setOcupado(true);
+        usuario.setFalando(porta);
+        adicionaUsuario(usuario);
+        listaUsuariosServer();
+    }
+
+    private void deixaDesocupado(Usuario usuario) {
+        removeUsuario(Integer.parseInt(usuario.getPorta()));
+        usuario.setOcupado(false);
+        usuario.setFalando(0);
+        adicionaUsuario(usuario);
+        listaUsuariosServer();
+    }
+
+    private boolean adicionaUsuario(Usuario usuario) {
+        try {
+            clientes.add(usuario);
+            return true;
+        } catch (Exception e) {
+            errorLog("Falha ao adicionar usuário a lista.", Integer.parseInt(usuario.getPorta()), e.getMessage());
+        }
+        return false;
+    }
+
+    private boolean removeUsuario(int porta) {
+        for (Iterator<Usuario> i = clientes.iterator(); i.hasNext();) {
+            Usuario usuario = i.next();
+            if (Integer.toString(porta).equals(usuario.getPorta())) {
+                i.remove();
+            }
+        }
+        return false;
+    }
+
+    private Usuario procuraUsuario(int porta) {
+        for (Iterator<Usuario> i = clientes.iterator(); i.hasNext();) {
+            Usuario usuario = i.next();
+            if (Integer.toString(porta).equals(usuario.getPorta())) {
+                return usuario;
+            }
+        }
+        return null;
+    }
+
+    private Usuario procuraUsuario(Socket socket) {
+        for (Iterator<Usuario> i = clientes.iterator(); i.hasNext();) {
+            Usuario usuario = i.next();
+            if (socket == usuario.getSocket()) {
+                return usuario;
+            }
+        }
+        return null;
+    }
+
     private void enviaSolicitacao(int porta_destinatario, int porta_remetente) {
         JSONObject json = new JSONObject();
         json.put("action", "chat_request_client");
         json.put("remetente", Integer.toString(porta_remetente));
-        System.out.println("json: " + json);
         try {
             for (Iterator<Usuario> i = clientes.iterator(); i.hasNext();) {
                 Usuario usuario = i.next();
                 if (Integer.toString(porta_destinatario).equals(usuario.getPorta())) {
+                    System.out.println("Enviando: " + json);
                     PrintStream ps;
                     ps = new PrintStream(usuario.getSocket().getOutputStream());
                     ps.println(json.toString());
@@ -493,14 +633,11 @@ public class Servidor extends javax.swing.JFrame {
     private boolean verificaDisponibilidade(int porta) {
         for (Iterator<Usuario> i = clientes.iterator(); i.hasNext();) {
             Usuario usuario = i.next();
-            System.out.println(Integer.toString(porta)+":"+usuario.getPorta());
+            System.out.println(Integer.toString(porta) + ":" + usuario.getPorta());
             if (Integer.toString(porta).equals(usuario.getPorta())) {
-                System.out.println("entrou no if");
                 if (usuario.getOcupado()) {
-                    System.out.println("usuário ocupado");
                     return true;
-                }else{
-                    System.out.println("usuário desocupado");
+                } else {
                     return false;
                 }
             }
@@ -508,35 +645,34 @@ public class Servidor extends javax.swing.JFrame {
         return true;
     }
 
-    private void chat_request_server(JSONObject json, Socket socket) {
-        String porta = Integer.toString(socket.getPort());
-        userLog(socket.getPort(), nomeSocket(socket), "Requisitou a ação 'chat_request_server'.");
-        if (json.getString("destinatario").equals(porta)) {
-            JSONObject response = new JSONObject();
-            response.put("action", "request_error");
-            errorLog("Remetente é igual ao usuário que requisitou.", socket.getPort(), "");
-            try {
-                PrintStream ps;
-                ps = new PrintStream(socket.getOutputStream());
-                ps.println(response.toString());
-            } catch (Exception e) {
-                errorLog("Erro ao enviar resposta.", socket.getPort(), e.getMessage());
-            }
-        } else {
-            JSONObject response = new JSONObject();
-            response.put("action", "chat_request_client");
-            response.put("remetente", porta);
-            Socket socketdest = getSocketWithPorta(json.getInt("destinatario"));
-            try {
-                PrintStream ps = new PrintStream(socketdest.getOutputStream());
-                ps.println(response.toString());
-            } catch (Exception e) {
-                errorLog("Erro ao enviar resposta.", socket.getPort(), e.getMessage());
-            }
-        }
-
-    }
-
+//    private void chat_request_server(JSONObject json, Socket socket) {;
+//        String porta = Integer.toString(socket.getPort());
+//        userLog(socket.getPort(), nomeSocket(socket), "Requisitou a ação 'chat_request_server'.");
+//        if (json.getString("destinatario").equals(porta)) {
+//            JSONObject response = new JSONObject();
+//            response.put("action", "request_error");
+//            errorLog("Remetente é igual ao usuário que requisitou.", socket.getPort(), "");
+//            try {
+//                PrintStream ps;
+//                ps = new PrintStream(socket.getOutputStream());
+//                ps.println(response.toString());
+//            } catch (Exception e) {
+//                errorLog("Erro ao enviar resposta.", socket.getPort(), e.getMessage());
+//            }
+//        } else {
+//            JSONObject response = new JSONObject();
+//            response.put("action", "chat_request_client");
+//            response.put("remetente", porta);
+//            Socket socketdest = getSocketWithPorta(json.getInt("destinatario"));
+//            try {
+//                PrintStream ps = new PrintStream(socketdest.getOutputStream());
+//                ps.println(response.toString());
+//            } catch (Exception e) {
+//                errorLog("Erro ao enviar resposta.", socket.getPort(), e.getMessage());
+//            }
+//        }
+//
+//    }
     synchronized private Socket getSocketWithPorta(int porta) {
         for (Iterator<Usuario> i = clientes.iterator(); i.hasNext();) {
             Usuario usuario = i.next();
@@ -673,6 +809,31 @@ public class Servidor extends javax.swing.JFrame {
         json.put("action", "chat_general_client");
         json.put("mensagem", usuario.getNome() + " conectou-se.");
         broadcast(json);
+    }
+
+    synchronized private void listaUsuariosServer() {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                JSONArray arr = new JSONArray();
+                DefaultTableModel model = (DefaultTableModel) UserTable.getModel();
+                model.setRowCount(0);
+                try {
+                    for (Iterator<Usuario> i = clientes.iterator(); i.hasNext();) {
+                        Usuario usuario = i.next();
+                        String tipo;
+                        if (usuario.getTipo().equals("D")) {
+                            tipo = "Doador";
+                        } else {
+                            tipo = "Coletor";
+                        }
+                        model.addRow(new Object[]{usuario.getIp(), usuario.getPorta(), usuario.getNome(), tipo, usuario.getMaterial(), usuario.getOcupado(), usuario.getFalando()});
+                    }
+                } catch (Exception e) {
+                    errorLog("Erro ao listar usuários.", 0, e.getMessage());
+                }
+            }
+        });
     }
 
     synchronized private void listaUsuarios() {
