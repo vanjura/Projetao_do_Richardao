@@ -647,12 +647,10 @@ public class Inicio extends javax.swing.JFrame {
         jsonMensagem.put("mensagem", msg);
         switch (chat) {
             case "G":
-                System.out.println("Global");
                 jsonMensagem.put("action", "chat_general_server");
                 out.println(jsonMensagem.toString());
                 break;
             case "M":
-                System.out.println("Multi");
                 jsonMensagem.put("action", "chat_room_server");
                 out.println(jsonMensagem.toString());
                 break;
@@ -1016,6 +1014,12 @@ public class Inicio extends javax.swing.JFrame {
         } else {
             ChatPrivadoBtn.setEnabled(true);
             mensagemPrivada("Requisição de Unicast Negada !");
+            jLabelUnicast.setVisible(false);
+            jTextFieldUnicast.setVisible(false);
+            SairPrivadoBtn.setEnabled(false);
+            ChatPrivadoBtn.setEnabled(true);
+            pane.setEnabledAt(2, false);
+            pane.setSelectedIndex(0);
         }
     }
 
