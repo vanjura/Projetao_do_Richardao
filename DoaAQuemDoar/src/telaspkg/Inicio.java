@@ -935,8 +935,20 @@ public class Inicio extends javax.swing.JFrame {
                 mensagemPrivada("O cliente " + remetente + " se desconectou do Unicast.");
             } else if (json.get("action").equals("request_error")) {
                 JOptionPane.showMessageDialog(null, "Erro na requisição. Você não pode solicitar unicast para si mesmo.");
+                jLabelUnicast.setVisible(false);
+                jTextFieldUnicast.setVisible(false);
+                SairPrivadoBtn.setEnabled(false);
+                ChatPrivadoBtn.setEnabled(true);
+                pane.setEnabledAt(2, false);
+                pane.setSelectedIndex(0);
             } else if (json.get("action").equals("chat_request_error")) {
                 JOptionPane.showMessageDialog(null, "O cliente com quem você estava negociando desconectou-se.");
+                jLabelUnicast.setVisible(false);
+                jTextFieldUnicast.setVisible(false);
+                SairPrivadoBtn.setEnabled(false);
+                ChatPrivadoBtn.setEnabled(true);
+                pane.setEnabledAt(2, false);
+                pane.setSelectedIndex(0);
             } else if (json.get("action").equals("client_busy")) {
                 JOptionPane.showMessageDialog(null, "O cliente selecionado esta ocupado. Tente mais tarde.");
             } else {
@@ -1005,7 +1017,6 @@ public class Inicio extends javax.swing.JFrame {
             ChatPrivadoBtn.setEnabled(true);
             mensagemPrivada("Requisição de Unicast Negada !");
         }
-        // mensagemPrivada(json.getString("mensagem"));
     }
 
     private void chat_unicast_message_client(JSONObject json) {

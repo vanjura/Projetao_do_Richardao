@@ -1,39 +1,29 @@
 package telaspkg;
 
 import java.awt.Color;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
-import java.io.PrintWriter;
-import static java.lang.System.in;
-import static java.lang.System.out;
-import java.net.Inet4Address;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.SocketException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.JOptionPane;
-import javax.swing.JTextField;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.Style;
-import javax.swing.text.StyleConstants;
-import javax.swing.text.StyleContext;
-import javax.swing.text.StyledDocument;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import static org.json.JSONObject.NULL;
-import server.Server;
 import server.Usuario;
+import java.net.Socket;
+import org.json.JSONArray;
+import java.util.Iterator;
+import java.util.ArrayList;
+import java.io.IOException;
+import java.io.PrintStream;
+import org.json.JSONObject;
+import java.net.Inet4Address;
 import javax.swing.JTextPane;
+import java.net.ServerSocket;
+import java.io.BufferedReader;
+import javax.swing.text.Style;
+import org.json.JSONException;
+import java.util.logging.Level;
+import javax.swing.JOptionPane;
+import java.net.SocketException;
+import java.util.logging.Logger;
+import java.io.InputStreamReader;
 import javax.swing.SwingUtilities;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -45,23 +35,35 @@ public class Servidor extends javax.swing.JFrame {
     boolean conectado = false;
     private Socket clientSocket;
     private ServerSocket serverSocket = null;
-    public ArrayList<Usuario> clientes = new ArrayList<Usuario>();
+    public ArrayList<Usuario> clientes = new ArrayList<>();
 
+    /**
+     * Contrutor passando o socket do cliente (atualmente em desuso pois criava
+     * treads demais)
+     */
     private Servidor(Socket clientSoc) {
         clientSocket = clientSoc;
-
-        run();
+        initComponents();
+        addTexto(jTextPane1, "Log - DoaAQuemDoar", Color.MAGENTA);
     }
 
     /**
-     * Creates new form Servidor
+     * Contrutor do servidor (correto)
      */
     public Servidor() {
         initComponents();
         addTexto(jTextPane1, "Log - DoaAQuemDoar", Color.MAGENTA);
     }
 
+    /**
+     * Adiciona texto colorido ao LOG.
+     *
+     * @param textPane LOG
+     * @param frase String com a frase
+     * @param cor Cor do texto em formato awt.Color
+     */
     public void addTexto(JTextPane textPane, String frase, Color cor) {
+
         StyledDocument doc = textPane.getStyledDocument();
         Style style = textPane.addStyle("I'm a Style", null);
 
@@ -72,10 +74,7 @@ public class Servidor extends javax.swing.JFrame {
         } catch (Exception e) {
             textPane.setText(textPane.getText() + frase);
         }
-    }
-
-    public void run() {
-
+        
     }
 
     /**
@@ -285,6 +284,10 @@ public class Servidor extends javax.swing.JFrame {
     private javax.swing.JTextPane jTextPane1;
     // End of variables declaration//GEN-END:variables
 
+    /**
+     * Inicia o servidor e faz as validações necessárias
+     * @throws IOException 
+     */
     private void iniciaServidor() throws IOException {
         try {
             serverSocket = new ServerSocket(Integer.parseInt(jTextFieldPorta.getText()));
@@ -327,11 +330,21 @@ public class Servidor extends javax.swing.JFrame {
         }
     }
 
+    /**
+     * Adiciona uma frase de log formatada para servidor.
+     * @param frase 
+     */
     private void serverLog(String frase) {
         String mensagem = "Server: " + frase;
         addTexto(jTextPane1, mensagem, Color.BLUE);
     }
 
+    /**
+     * Adiciona uma frase de log preparada para um usuário
+     * @param porta
+     * @param nome
+     * @param frase 
+     */
     private void userLog(int porta, String nome, String frase) {
         String mensagem = "";
         if (nome != "") {
@@ -342,14 +355,20 @@ public class Servidor extends javax.swing.JFrame {
         addTexto(jTextPane1, mensagem, Color.GREEN.darker().darker());
     }
 
+    /**
+     * Adiciona uma frase de erro ou alerta
+     * @param frase
+     * @param porta
+     * @param erro 
+     */
     private void errorLog(String frase, int porta, String erro) {
         addTexto(jTextPane1, porta + " AVISO: " + frase + "\n" + erro, Color.YELLOW.darker().darker());
     }
 
-    private void log(String pre, String frase, String cor) {
-        System.out.println("LOG");
-    }
-
+    /**
+     * Desconecta um usuário do servidor
+     * @param socket 
+     */
     synchronized private void desconecta(Socket socket) {
         int porta = socket.getPort();
         try {
@@ -372,6 +391,10 @@ public class Servidor extends javax.swing.JFrame {
         listaUsuarios();
     }
 
+    /**
+     * Manda uma mensagem de erro na tentativa de avisar a desconexão do servidor
+     * @param porta 
+     */
     private void avisaDesconexao(int porta) {
         Usuario usuario = procuraUsuario(porta);
         if (usuario.getOcupado()) {
@@ -382,6 +405,9 @@ public class Servidor extends javax.swing.JFrame {
         }
     }
 
+    /**
+     * Desliga o servidor
+     */
     synchronized private void desconectaServidor() {
         DefaultTableModel model = (DefaultTableModel) UserTable.getModel();
         model.setRowCount(0);
@@ -398,6 +424,11 @@ public class Servidor extends javax.swing.JFrame {
         conectado = false;
     }
 
+    /**
+     * Envia uma mensagem para um socket específico (atualmente em desuso)
+     * @param socket
+     * @param mensagem 
+     */
     private void enviaMensagemParaCliente(Socket socket, String mensagem) {
         PrintStream ps;
         try {
@@ -413,6 +444,11 @@ public class Servidor extends javax.swing.JFrame {
         }
     }
 
+    /**
+     * Detecta e inicia a ação que o usuário solicitar
+     * @param json
+     * @param socket 
+     */
     synchronized private void iniciaAcao(JSONObject json, Socket socket) {
         System.out.println("Recebido: " + json);
         if (json.has("action")) {
@@ -460,6 +496,11 @@ public class Servidor extends javax.swing.JFrame {
         }
     }
 
+    /**
+     * Manda um aviso de desconexão do cliente no unicast
+     * @param remetente
+     * @param destinatario 
+     */
     private void chat_unicast_close_server(Usuario remetente, Usuario destinatario) {
         JSONObject json = new JSONObject();
         json.put("action", "chat_unicast_close_client");
@@ -469,11 +510,23 @@ public class Servidor extends javax.swing.JFrame {
         deixaDesocupado(remetente);
     }
 
+    /**
+     * Recebe uma mensagem do remetente e envia a mesma para o destinatário e o remetente
+     * @param remetente
+     * @param mensagem
+     * @param destinatario 
+     */
     private void chat_unicast_message_server(Usuario remetente, String mensagem, Usuario destinatario) {
         chat_unicast_message_client(remetente, mensagem, remetente);
         chat_unicast_message_client(destinatario, mensagem, remetente);
     }
 
+    /**
+     * Envia uma mensagem do destinatário para o remetente
+     * @param usuario
+     * @param mensagem
+     * @param remetente 
+     */
     private void chat_unicast_message_client(Usuario usuario, String mensagem, Usuario remetente) {
         JSONObject json = new JSONObject();
         json.put("action", "chat_unicast_message_client");
@@ -486,9 +539,14 @@ public class Servidor extends javax.swing.JFrame {
         } catch (Exception e) {
             errorLog("Problema ao enviar mensagem unicast.", Integer.parseInt(usuario.getPorta()), e.getMessage());
         }
-
     }
 
+    /**
+     * Recebe e processa a resposta do usuário na requisição de unicast
+     * @param destinatario
+     * @param resposta
+     * @param remetente 
+     */
     private void chat_response_server(Usuario destinatario, String resposta, Usuario remetente) {
         userLog(Integer.parseInt(remetente.getPorta()), remetente.getNome(), "Requisitou a ação 'chat_response_server'.");
         switch (resposta) {
@@ -506,6 +564,11 @@ public class Servidor extends javax.swing.JFrame {
         unicast(json, destinatario.getSocket());
     }
 
+    /**
+     * Processa e envia uma requisição de unicast para um usuário.
+     * @param socket
+     * @param json 
+     */
     private void chat_request_server(Socket socket, JSONObject json) {
         Usuario usuario = procuraUsuario(socket);
         userLog(Integer.parseInt(usuario.getPorta()), usuario.getNome(), "Requisitou a ação 'chat_request_server' para a porta " + json.get("destinatario"));;;
@@ -530,7 +593,11 @@ public class Servidor extends javax.swing.JFrame {
         }
     }
 
-    //Mensagens
+    /**
+     * Envia uma mensagem para somente 1 usuário de acordo com a sua porta
+     * @param json
+     * @param porta 
+     */
     private void unicast(JSONObject json, int porta) {
         try {
             Socket socket = procuraUsuario(porta).getSocket();
@@ -543,6 +610,11 @@ public class Servidor extends javax.swing.JFrame {
         }
     }
 
+    /**
+     * Envia uma mensagem para somente 1 usuário de acordo com o seu socket
+     * @param json
+     * @param socket 
+     */
     private void unicast(JSONObject json, Socket socket) {
         try {
             PrintStream ps;
@@ -554,7 +626,11 @@ public class Servidor extends javax.swing.JFrame {
         }
     }
 
-    //Usuários
+    /**
+     * Muda o atributo ocupado para true.
+     * @param usuario
+     * @param porta 
+     */
     private void deixaOcupado(Usuario usuario, int porta) {
         removeUsuario(Integer.parseInt(usuario.getPorta()));
         usuario.setOcupado(true);
@@ -563,6 +639,10 @@ public class Servidor extends javax.swing.JFrame {
         listaUsuariosServer();
     }
 
+    /**
+     * Muda o atributo ocupado para false
+     * @param usuario 
+     */
     private void deixaDesocupado(Usuario usuario) {
         removeUsuario(Integer.parseInt(usuario.getPorta()));
         usuario.setOcupado(false);
@@ -571,6 +651,11 @@ public class Servidor extends javax.swing.JFrame {
         listaUsuariosServer();
     }
 
+    /**
+     * adiciona um usuário no array
+     * @param usuario
+     * @return 
+     */
     private boolean adicionaUsuario(Usuario usuario) {
         try {
             clientes.add(usuario);
@@ -581,6 +666,11 @@ public class Servidor extends javax.swing.JFrame {
         return false;
     }
 
+    /**
+     * Remove um usuário do array
+     * @param porta
+     * @return 
+     */
     private boolean removeUsuario(int porta) {
         for (Iterator<Usuario> i = clientes.iterator(); i.hasNext();) {
             Usuario usuario = i.next();
@@ -591,6 +681,11 @@ public class Servidor extends javax.swing.JFrame {
         return false;
     }
 
+    /**
+     * Retorna um usuário de acordo com sua porta
+     * @param porta
+     * @return 
+     */
     private Usuario procuraUsuario(int porta) {
         for (Iterator<Usuario> i = clientes.iterator(); i.hasNext();) {
             Usuario usuario = i.next();
@@ -601,6 +696,11 @@ public class Servidor extends javax.swing.JFrame {
         return null;
     }
 
+    /**
+     * Retorna um usuário de acordo com seu socket
+     * @param socket
+     * @return 
+     */
     private Usuario procuraUsuario(Socket socket) {
         for (Iterator<Usuario> i = clientes.iterator(); i.hasNext();) {
             Usuario usuario = i.next();
@@ -611,6 +711,11 @@ public class Servidor extends javax.swing.JFrame {
         return null;
     }
 
+    /**
+     * Envia uma solicitação de unicast
+     * @param porta_destinatario
+     * @param porta_remetente 
+     */
     private void enviaSolicitacao(int porta_destinatario, int porta_remetente) {
         JSONObject json = new JSONObject();
         json.put("action", "chat_request_client");
@@ -630,10 +735,14 @@ public class Servidor extends javax.swing.JFrame {
         }
     }
 
+    /**
+     * varifica se o usuário não está ocupado
+     * @param porta
+     * @return 
+     */
     private boolean verificaDisponibilidade(int porta) {
         for (Iterator<Usuario> i = clientes.iterator(); i.hasNext();) {
             Usuario usuario = i.next();
-            System.out.println(Integer.toString(porta) + ":" + usuario.getPorta());
             if (Integer.toString(porta).equals(usuario.getPorta())) {
                 if (usuario.getOcupado()) {
                     return true;
@@ -673,6 +782,12 @@ public class Servidor extends javax.swing.JFrame {
 //        }
 //
 //    }
+    
+    /**
+     * Retorna o socket de acordo com a porta enviada
+     * @param porta
+     * @return 
+     */
     synchronized private Socket getSocketWithPorta(int porta) {
         for (Iterator<Usuario> i = clientes.iterator(); i.hasNext();) {
             Usuario usuario = i.next();
@@ -683,6 +798,13 @@ public class Servidor extends javax.swing.JFrame {
         return null;
     }
 
+    /**
+     * Envia uma mensagem no chat de materiais
+     * @param json
+     * @param socket
+     * @param msg
+     * @param nome 
+     */
     synchronized private void mensagemMaterial(JSONObject json, Socket socket, String msg, String nome) {
 
         String material = materialSocket(socket);
@@ -710,6 +832,13 @@ public class Servidor extends javax.swing.JFrame {
         }
     }
 
+    /**
+     * Envia uma mensagem no chat unicast
+     * @param json
+     * @param socket
+     * @param msg
+     * @param nome 
+     */
     synchronized private void mensagemUnicast(JSONObject json, Socket socket, String msg, String nome) {
 
         String material = materialSocket(socket);
@@ -737,6 +866,11 @@ public class Servidor extends javax.swing.JFrame {
         }
     }
 
+    /**
+     * Detecta o tipo do usuário de acordo com seu socket
+     * @param socket
+     * @return 
+     */
     synchronized private String tipoSocket(Socket socket) {
         try {
             for (Iterator<Usuario> i = clientes.iterator(); i.hasNext();) {
@@ -751,6 +885,11 @@ public class Servidor extends javax.swing.JFrame {
         return "";
     }
 
+    /**
+     * retorna o material de acordo com o socket passado
+     * @param socket
+     * @return 
+     */
     synchronized private String materialSocket(Socket socket) {
         try {
             for (Iterator<Usuario> i = clientes.iterator(); i.hasNext();) {
@@ -765,6 +904,11 @@ public class Servidor extends javax.swing.JFrame {
         return "";
     }
 
+    /**
+     * Retorna o nome de acordo com o socket passado
+     * @param socket
+     * @return 
+     */
     synchronized private String nomeSocket(Socket socket) {
         try {
             for (Iterator<Usuario> i = clientes.iterator(); i.hasNext();) {
@@ -779,6 +923,11 @@ public class Servidor extends javax.swing.JFrame {
         return "";
     }
 
+    /**
+     * retorna a porta de acordo com o socket passado
+     * @param socket
+     * @return 
+     */
     synchronized private String portaSocket(Socket socket) {
         try {
             for (Iterator<Usuario> i = clientes.iterator(); i.hasNext();) {
@@ -793,6 +942,11 @@ public class Servidor extends javax.swing.JFrame {
         return "";
     }
 
+    /**
+     * inicia uma nova conexão
+     * @param json
+     * @param socket 
+     */
     synchronized private void iniciaConexao(JSONObject json, Socket socket) {
         Usuario usuario = validaUsuario(json, socket);
         userLog(socket.getPort(), "", "Entrou com o nome " + usuario.getNome());
@@ -801,6 +955,11 @@ public class Servidor extends javax.swing.JFrame {
         listaUsuarios();
     }
 
+    /**
+     * Atualiza a lista de usuários
+     * @param usuario
+     * @param acao 
+     */
     synchronized private void atualizalista(Usuario usuario, String acao) {
         if (acao.equals("add")) {
             clientes.add(usuario);
@@ -811,6 +970,9 @@ public class Servidor extends javax.swing.JFrame {
         broadcast(json);
     }
 
+    /**
+     * ajusta a lista de usuários da tela
+     */
     synchronized private void listaUsuariosServer() {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
@@ -836,6 +998,9 @@ public class Servidor extends javax.swing.JFrame {
         });
     }
 
+    /**
+     * Atiualiza a lista vizivel de usuários
+     */
     synchronized private void listaUsuarios() {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
@@ -873,6 +1038,10 @@ public class Servidor extends javax.swing.JFrame {
 
     }
 
+    /**
+     * Envia um broadcast com o json passado
+     * @param json 
+     */
     synchronized public void broadcast(JSONObject json) {
         System.out.println("Broadcast: " + json);
         for (Iterator<Usuario> i = clientes.iterator(); i.hasNext();) {
@@ -887,6 +1056,12 @@ public class Servidor extends javax.swing.JFrame {
         }
     }
 
+    /**
+     * Verifica se o usuário é válido e cria um novo com o dados do json
+     * @param json
+     * @param socket
+     * @return 
+     */
     private Usuario validaUsuario(JSONObject json, Socket socket) {
         Usuario usuario = new Usuario();
         usuario.setSocket(socket);
@@ -896,7 +1071,7 @@ public class Servidor extends javax.swing.JFrame {
         if (json.has("nome") || json.has("tipo") || json.has("material")) {
             usuario.setNome(json.getString("nome"));
             usuario.setTipo(json.getString("tipo"));
-            usuario.setMaterial(json.getString("material"));
+            usuario.setMaterial(json.getString("material").toLowerCase());
             usuario.setIp(socket.getInetAddress().getHostAddress());
             usuario.setPorta(Integer.toString(socket.getPort()));
             if (json.get("tipo").equals("D")) {
